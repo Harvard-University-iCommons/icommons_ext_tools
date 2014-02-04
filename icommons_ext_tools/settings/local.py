@@ -16,7 +16,11 @@ ICOMMONS_COMMON = {
 
 
 QUALTRICS_LINK = {
-	
+
+    'QUALTRICS_APP_KEY' : SECURE_SETTINGS['qualtrics_app_key'],
+    'QUALTRICS_API_URL' : SECURE_SETTINGS['qualtrics_api_url'], 
+    'QUALTRICS_API_USER' : SECURE_SETTINGS['qualtrics_api_user'], 
+    'QUALTRICS_API_TOKEN' : SECURE_SETTINGS['qualtrics_api_token'], 
 
 }
 

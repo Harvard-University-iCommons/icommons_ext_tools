@@ -8,7 +8,7 @@ urlpatterns = patterns('',
 
     url(r'^launch$', 'qualtrics_link.views.launch', name='launch'),
 
-    url(r'^main$', 'qualtrics_link.views.main', name='main'),
+    url(r'^org_info$', 'qualtrics_link.views.org_info', name='org_info'),
 
     
 )
