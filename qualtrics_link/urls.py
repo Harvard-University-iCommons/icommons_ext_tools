@@ -8,8 +8,11 @@ urlpatterns = patterns('',
 
     url(r'^launch$', 'qualtrics_link.views.launch', name='launch'),
 
-    url(r'^org_info$', 'qualtrics_link.views.org_info', name='org_info'),
+    url(r'^get_org_info$', 'qualtrics_link.views.get_org_info', name='get_org_info'),
 
+    url(r'^user_accept_terms$','qualtrics_link.views.user_accept_terms', name='user_accept_terms'),
+
+    url(r'^user_decline_terms$','qualtrics_link.views.user_decline_terms', name='user_decline_terms'),
     
 )
 

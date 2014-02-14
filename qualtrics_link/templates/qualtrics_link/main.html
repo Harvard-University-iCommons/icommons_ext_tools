@@ -1,20 +1,46 @@
-<html>
-<head>
-<title>Hello</title>
-</head>
-<body>
-	<h2>Hello</h2>
+{% extends "qualtrics_link/base.html" %}
 
-	 
-    {{request.user.username}}<br />
-    {{request.user.is_authenticated}}<br />
-    {{request.user.email}} <br />
+{% block title %}Qualtrics Status{% endblock %}
+{% block pagetitle %}Qualtrics Status{% endblock %}
 
-    <p>
-    	<a href="{{link}}">{{link}}</a>
-    </p>
+{% block content %}
 
+<h2>Qualtrics Status</h2>
 
+	 <table>
+	   	<tr> <th>user_id</th><td>{{huid}} </td></tr> 
+	    <tr> <th>authenticated</th><td>{{request.user.is_authenticated}}</td></tr> 
+	    {% for key,value in  keyValueDict.items %}
 
-</body>
-</html>
+	    <tr> <th>{{key}}</th><td>{{value}}</td></tr> 
+
+	    {% endfor %}
+	    <tr> <th>url</th><td><a href="{{link}}">{{link}}</a></td></tr> 
+	</table>
+
+	
+
+{% endblock %}
+
+{% block javascript %}
+{{ block.super }}
+
+<script type="text/javascript">
+
+$(document).ready(function() {
+	$.getJSON( "get_org_info", function( data ) {
+	
+		var items = [];
+		$.each( data.org_info[0].getResponseCountsByOrganization.Result, function( key, val ) {
+		    items.push( "<li id='" + key + "'>" + val + "</li>" );
+		  });
+		 
+		  $( "<ul/>", {
+		    "class": "my-new-list",
+		    html: items.join( "" )
+		  }).appendTo( "body" );
+	});
+});
+</script>
+
+{% endblock %}

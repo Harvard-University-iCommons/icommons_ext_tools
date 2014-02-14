@@ -4,21 +4,21 @@
 {% block pagetitle %}Qualtrics Terms of Service Agreement{% endblock %}
 
 {% block content %}
-	<h2>Qualtrics@Harvard</h2>
+	<h2>Qualtrics Agreement</h2>
 
-<div class="result">Data</div>
 
+{{agreement|safe}}
+
+<button type="button" class="btn btn-default">Accept</button>
+<button type="button" class="btn btn-default">Decline</button>
+ 
 {% endblock %}
 
 {% block javascript %}
 {{ block.super }}
-<script type="text/javascript">
-	$( document ).ready(function() {
-		$.get( "get_org_info", function( data ) {
-		  $( "div.result" ).html( data.org_info );
-		  console.log(data.org_info);
-		});
-	});
+
+<script>
+
 </script>
 
 {% endblock %}
