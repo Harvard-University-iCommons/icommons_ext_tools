@@ -173,9 +173,7 @@ def launch(request):
         form = SpoofForm() # An unbound form
         huid = request.user.username
 
-    #huid = request.user.username
-    #huid = '90699342' # id with mutiple schools
-    #huid = '70855038'
+    
     """
     Check to see if the user has accepted the terms of service
     """
