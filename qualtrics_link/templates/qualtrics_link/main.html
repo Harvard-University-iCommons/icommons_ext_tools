@@ -3,20 +3,41 @@
 {% block title %}Qualtrics Status{% endblock %}
 {% block pagetitle %}Qualtrics Status{% endblock %}
 
+{% block stylesheet %}
+{{ block.super }}
+
+<style>
+ .my-new-list { display: inline;}
+ #formdiv { margin: 5px 5px;}
+ #datadiv { margin: 5px 5px;}
+</style>
+
+{% endblock %}
+
 {% block content %}
 
 <h2>Qualtrics Status</h2>
 
-	 <table>
-	   	<tr> <th>user_id</th><td>{{huid}} </td></tr> 
-	    <tr> <th>authenticated</th><td>{{request.user.is_authenticated}}</td></tr> 
-	    {% for key,value in  keyValueDict.items %}
+<div id="formdiv">
+<form action="launch" method="get">{% csrf_token %}
+	{{ form.as_p }}
+	<input type="submit" value="Submit" />
+</form>
+</div>
 
-	    <tr> <th>{{key}}</th><td>{{value}}</td></tr> 
+<br />
+<div id="datadiv">Data:</div>
+<br />
+ <table>
+   	<tr> <th>user_id</th><td>{{huid}} </td></tr> 
+    <tr> <th>authenticated</th><td>{{request.user.is_authenticated}}</td></tr> 
+    {% for key,value in  keyValueDict.items %}
 
-	    {% endfor %}
-	    <tr> <th>url</th><td><a href="{{link}}">{{link}}</a></td></tr> 
-	</table>
+    <tr> <th>{{key}}</th><td>{{value}}</td></tr> 
+
+    {% endfor %}
+    <tr> <th>url</th><td><a href="{{link}}">{{link}}</a></td></tr> 
+</table>
 
 	
 
@@ -38,8 +59,14 @@ $(document).ready(function() {
 		  $( "<ul/>", {
 		    "class": "my-new-list",
 		    html: items.join( "" )
-		  }).appendTo( "body" );
+		  }).appendTo( "#datadiv" );
+		  $('#datadiv ul').css('list-style-type', 'none');
+		  $('#datadiv ul li').css('display', 'inline');
+		  $('li').css('margin-left','10px');
 	});
+
+
+
 });
 </script>
 

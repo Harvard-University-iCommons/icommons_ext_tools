@@ -13,6 +13,7 @@ from django.conf import settings
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
+from icommons_common.monitor.views import BaseMonitorResponseView
 from django.http import HttpResponse
 from django.views import generic
 from django.contrib import messages
@@ -29,22 +30,24 @@ import urllib
 from django.conf import settings
 import logging
 
+from qualtrics_link.forms import SpoofForm
+
 #from util import util
 
 logger = logging.getLogger(__name__)
 
-
-'''
-We need to subclass the HttpAdater class to allow connections
-to SSL version 1. 
-'''
 class MyAdapter(HTTPAdapter):
+# We need to subclass the HttpAdater class to allow connections
+# to SSL version 1. 
     def init_poolmanager(self, connections, maxsize, block):
         self.poolmanager = PoolManager(num_pools=connections,
                                        maxsize=maxsize,
                                        block=block,
                                        ssl_version=ssl.PROTOCOL_TLSv1)
 
+class MonitorResponseView(BaseMonitorResponseView):
+    def healthy(self):
+        return True
 
 #BLOCK_SIZE=16
 BS = 16
@@ -84,6 +87,14 @@ AREA_LOOKUP = {
     'HSDM' : 'HSDM',
     'HMS'  : 'HMS',
 }
+
+def get_client_ip(request):
+    x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+    if x_forwarded_for:
+        ip = x_forwarded_for.split(',')[0]
+    else:
+        ip = request.META.get('REMOTE_ADDR')
+    return ip
 
 def lookupunit(unit):
     if unit in AREA_LOOKUP:
@@ -151,9 +162,20 @@ def launch(request):
     Example of my huid from the qualtrics site: 3190b96f2c08b147f504034dfc051a8d#harvard
     The id matches minus the #harvard at the end.
     """
+    if 'huid' in request.GET: # If the form has been submitted...
+        # ContactForm was defined in the the previous section
+        form = SpoofForm(request.GET) # A form bound to the POST data
+        if form.is_valid(): # All validation rules pass
+            huid = request.GET['huid']
+            if huid == '':
+                huid = request.user.username
+    else:
+        form = SpoofForm() # An unbound form
+        huid = request.user.username
+
     #huid = request.user.username
     #huid = '90699342' # id with mutiple schools
-    huid = '70855038'
+    #huid = '70855038'
     """
     Check to see if the user has accepted the terms of service
     """
@@ -286,19 +308,41 @@ def launch(request):
         """
         #return redirect(link)
 
-        return render(request, 'qualtrics_link/main.html', {'request': request, 'link' : link, 'huid' : huid, 'keyValueDict' :  keyvaluedict })
+        return render(request, 'qualtrics_link/main.html', {'request': request, 'link' : link, 'huid' : huid, 'keyValueDict' :  keyvaluedict, 'form' : form})
 
 @login_required
-@require_http_methods(['POST'])
+@require_http_methods(['GET'])
 def user_accept_terms(request):
+    
+    # this is handy for debugging the post request
+    #import httplib
+    #httplib.HTTPConnection.debuglevel = 1
 
+    huid = request.user.username
+    ipaddress = get_client_ip(request)
+    params = {'agreementId' : '260', 'ipAddress' : ipaddress,}
+    data = json.dumps(params)
+    logger.info(data)
+    useracceptanceurl = settings.ICOMMONS_COMMON['ICOMMONS_API_HOST']+'policy_agreement/create_acceptance/'+huid
+    sslsession = requests.Session()
+    sslsession.mount('https://', MyAdapter())
+    headers = {'content-type': 'application/x-www-form-urlencoded'}
+    resp = sslsession.post(useracceptanceurl, verify=False, \
+        data=params, headers=headers, auth=(settings.ICOMMONS_COMMON['ICOMMONS_API_USER'], settings.ICOMMONS_COMMON['ICOMMONS_API_PASS']))
+    
+    if resp.status_code == 200:
+        logger.info(resp.text)
+        return redirect('ql:launch')
+    else:
+        return render(request, 'qualtrics_link/error.html', {'request': request, 'msg' : 'no people were found'})
+    
     return render(request, 'qualtrics_link/main.html', {'request': request})
 
 @login_required
-@require_http_methods(['POST'])
+@require_http_methods(['GET'])
 def user_decline_terms(request):
 
-    return render(request, 'qualtrics_link/main.html', {'request': request })
+    return render(request, 'qualtrics_link/main.html', {'request': request})
 
 
 @login_required
