@@ -17,7 +17,6 @@ huey==0.4.1
 # ims_lti_py==0.6
 djangorestframework==2.3.9
 django-supervisor==0.3.2
-gunicorn==18.0
 
 
 # redis cache
