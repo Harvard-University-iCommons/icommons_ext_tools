@@ -118,18 +118,24 @@ def getvalidschool(schools):
 
 def isdeptvalid(dept):
     if dept.lower() == 'not available':
-        return False
+        return True
     division = lookupunit(dept)
     if  division in blackList:
         return False
     return True
 
 def isuserinwhitelist(huid):
-    count = QualtricsAccessList.objects.all().filter(user_id=huid).count()
-    if count > 0:
-        return True
-
-    return False
+    try:
+        person = QualtricsAccessList.objects.get(user_id=huid)
+        expiration_date = person.expiration_date   
+        if expiration_date >= date.today():
+            print 'PASSED: '+str(expiration_date)  + ' is greater than '+str(date.today())
+            return True
+        else:
+            print 'FAILED: '+str(expiration_date)  + ' is less than '+str(date.today())
+    except QualtricsAccessList.DoesNotExist:
+        print 'FAILED: user not in whitelist'
+        return False
 
 
 @require_http_methods(['GET'])
@@ -137,7 +143,7 @@ def index(request):
     return render(request, 'qualtrics_link/index.html')
 
 @login_required
-@require_http_methods(['GET','POST'])
+@require_http_methods(['GET'])
 def launch(request):
 
     valid_school = False
@@ -155,7 +161,7 @@ def launch(request):
     get the current date in the correct format i.e. '2008-07-16T15:42:51'
     """
     ts = time.time()
-    date = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%dT%H:%M:%S')
+    timestamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%dT%H:%M:%S')
 
     """
     get the expiration date in the correct format i.e. '2008-07-16T15:42:51' (date format is same as above)
@@ -189,10 +195,6 @@ def launch(request):
         data = resp.json()
         if 'people' in data:
             person = data['people'][0]
-            #pp = pprint.PrettyPrinter(indent=4)
-            #pp.pprint(person)
-            
-            # We should return an error if firstname, lastname, or email is empty
             
             if 'firstName' in person:
                 firstname = person['firstName']
@@ -225,7 +227,6 @@ def launch(request):
                     valid_school = True
                     role = 'student'
                     division = valid_school_code
-                    #logger.debug('valid_school='+str(valid_school_code))
             else:
                 schoolaffiliations = None
 
@@ -234,13 +235,13 @@ def launch(request):
                 departmentaffiliation = person['departmentAffiliation']
                 valid_department = isdeptvalid(departmentaffiliation)
                 if valid_department:
-                    #valid_department = True
                     role = 'employee'
                     division = departmentaffiliation
-                    #valid_department_code = departmentaffiliation
-                    #logger.debug('valid_department='+str(departmentaffiliation))
             else:
                 departmentaffiliation = None
+
+
+
         else:
             logger.error('huid='+huid+', api call returned response code '+str(resp.status_code))
             logger.error('api call: '+peopleurl)
@@ -278,8 +279,9 @@ def launch(request):
                 groupid = '{}:{}'.format(group['idType'], group['idValue'])
                 usergroups.add(groupid)
             
+            # perfomr and intersect on the groups. Any commons groups will be placed in authgroups.
+            # If there are common groups, it means they have access. 
             authgroups = allowedgroups_set & usergroups 
-            
             if len(authgroups) > 0:
                 user_can_access = True
 
@@ -324,7 +326,7 @@ def launch(request):
 
         keyvaluedict = {
             'id' : enc_id,
-            'timestamp' : date,
+            'timestamp' : timestamp,
             'expiration' : exp_date,
             'firstname' : firstname,
             'lastname' : lastname,
@@ -332,8 +334,11 @@ def launch(request):
             'role' : role,
             'division' : division,
         }
+        
 
-        keyvaluepairs = "id="+enc_id+"&timestamp="+date+"&expiration="+exp_date+"&firstname="+firstname+"&lastname="+lastname+"&email="+email+"&UserType="+role+"&Division="+division
+        logline = "{}\t{}\t{}".format(timestamp, role, division)
+        logger.info(logline)
+        keyvaluepairs = "id="+enc_id+"&timestamp="+timestamp+"&expiration="+exp_date+"&firstname="+firstname+"&lastname="+lastname+"&email="+email+"&UserType="+role+"&Division="+division
         key = settings.QUALTRICS_LINK['QUALTRICS_APP_KEY']
         secret = bytes(key)
         data = bytes(keyvaluepairs)
@@ -345,12 +350,14 @@ def launch(request):
         link = 'https://new.qualtrics.com/ControlPanel/ssoTest.php?key='+key+'&mac=sha256&ssotoken='+encodedtoken
 
         #the redirect line below will be how the application works if everything is good for the user. 
-        #return redirect(link)
-        return render(request, 'qualtrics_link/main.html', {'request': request, 'link' : link, 'huid' : huid, 'keyValueDict' :  keyvaluedict, 'person' : person, 'form' : form})
-
+        if settings.DEBUG:
+            logger.info('IN DEBUG MODE')
+            return render(request, 'qualtrics_link/main.html', {'request': request, 'link' : link, 'huid' : huid, 'keyValueDict' :  keyvaluedict, 'person' : person, 'form' : form})
+        else:
+            return redirect(link)
     else:
-
         
+        return render(request, 'qualtrics_link/notauthorized.html', {'request': request, 'person' : person, 'division' : division})
 
 
 @login_required

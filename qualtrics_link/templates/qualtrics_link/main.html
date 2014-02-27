@@ -7,11 +7,13 @@
 {{ block.super }}
 
 <style>
- .my-new-list { display: inline;}
- .table { border: thin solid black; width: 40%; }
+ .my-new-list { display: normal;}
+ .table { width: 40%; }
+ caption { margin-bottom: 10px; font-size: large; font-weight: bold;}
  #formdiv { margin: 5px 5px;}
  #datadiv { margin: 5px 5px;}
-
+ .tdcss { padding-right: 20px;}
+ .qdata { }
 td {
    display: table-cell;
    word-break:break-word;
@@ -33,23 +35,31 @@ td {
 </div>
 
 <br />
-<div id="datadiv">Data from Qualtrics:</div>
+
 <br />
 
- <table class="table">
- 	<caption>Person Data</caption>
-    {% for key,value in  person.items %}
-    <tr> <th>{{key}}</th><td>{{value}}</td></tr> 
-    {% endfor %}
-</table>
-<br />
- <table class="table">
- 	<caption>Processed Data</caption>
-   	<tr> <th>user_id</th><td>{{huid}} </td></tr> 
-    <tr> <th>authenticated</th><td>{{request.user.is_authenticated}}</td></tr> 
-    {% for key,value in  keyValueDict.items %}
-    <tr> <th>{{key}}</th><td>{{value}}</td></tr> 
-    {% endfor %}
+<table>
+	<tr>
+		<td><div id="datadiv">Data from the Qualtrics API:</div></td>
+		<td valign="top" class="tdcss">
+			<table class="table">
+			 	<caption>Person Data from iCommons API</caption>
+			    {% for key,value in  person.items %}
+			    <tr> <th>{{key}}</th><td>{{value}}</td></tr> 
+			    {% endfor %}
+			</table>
+		</td>
+		<td valign="top">
+			 <table class="table">
+			 	<caption>Processed Data</caption>
+			   	<tr> <th>user_id</th><td>{{huid}} </td></tr> 
+			    <tr> <th>authenticated</th><td>{{request.user.is_authenticated}}</td></tr> 
+			    {% for key,value in  keyValueDict.items %}
+			    <tr> <th>{{key}}</th><td>{{value}}</td></tr> 
+			    {% endfor %}
+			</table>
+		</td>
+	</tr>
 </table>
 
 <p><a href="{{link}}">{{link}}</a></p>
@@ -66,15 +76,22 @@ $(document).ready(function() {
 	
 		var items = [];
 		$.each( data.org_info[0].getResponseCountsByOrganization.Result, function( key, val ) {
-		    items.push( "<li id='" + key + "'>" + val + "</li>" );
+		    items.push( "<li id='" + key + "'> <span class='qdata'>" + key + ": " + val + "</span></li>" );
 		  });
+		$.each( data.org_info[1].getOrgActivity.Result, function( key, val ) {
+			$.each( val, function(tkey, value) {
+		    	items.push( "<li id='" + tkey + "'> <span class='qdata'>" + tkey + ": " + value + "</span></li>" );
+		    });
+		  });
+		
+
 		 
 		  $( "<ul/>", {
 		    "class": "my-new-list",
 		    html: items.join( "" )
 		  }).appendTo( "#datadiv" );
 		  $('#datadiv ul').css('list-style-type', 'none');
-		  $('#datadiv ul li').css('display', 'inline');
+		  $('#datadiv ul li').css('display', 'normal');
 		  $('li').css('margin-left','10px');
 	});
 

@@ -1,0 +1,32 @@
+
+{% extends "qualtrics_link/base.html" %}
+
+{% block title %}Not Authorized{% endblock %}
+{% block pagetitle %}Not Authorized{% endblock %}
+
+{% block stylesheet %}
+{{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+
+<div class="noaccess">
+Due to contractual obligations, Qualtrics is not available through iCommons to Harvard affiliates, Harvard Medical School, Harvard Dental School, or Harvard Business School.
+</div>
+
+{{ division }}
+
+<table class="table">
+ 	<caption>Person Data</caption>
+    {% for key,value in  person.items %}
+    <tr> <th>{{key}}</th><td>{{value}}</td></tr> 
+    {% endfor %}
+</table>
+
+
+{% endblock %}
+
+{% block javascript %}
+{{ block.super }}
+{% endblock %}

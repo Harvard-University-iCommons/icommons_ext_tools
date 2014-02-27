@@ -7,6 +7,13 @@
 
 {{msg}}
 
+			<table class="table">
+			 	<caption>Person Data</caption>
+			    {% for key,value in  person.items %}
+			    <tr> <th>{{key}}</th><td>{{value}}</td></tr> 
+			    {% endfor %}
+			</table>
+
 {% endblock %}
 
 {% block javascript %}
