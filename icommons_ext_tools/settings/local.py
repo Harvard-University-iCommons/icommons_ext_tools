@@ -17,11 +17,23 @@ ICOMMONS_COMMON = {
 
 QUALTRICS_LINK = {
 
+    'AGREEMENT_ID' : '260',
     'QUALTRICS_APP_KEY' : SECURE_SETTINGS['qualtrics_app_key'],
     'QUALTRICS_API_URL' : SECURE_SETTINGS['qualtrics_api_url'], 
     'QUALTRICS_API_USER' : SECURE_SETTINGS['qualtrics_api_user'], 
     'QUALTRICS_API_TOKEN' : SECURE_SETTINGS['qualtrics_api_token'], 
 
+    'AUTH_GROUPS': {
+        'IcGroup:25096': 'gse',
+        'IcGroup:25095': 'colgsas',
+        'IcGroup:25097': 'hls',
+        'IcGroup:25098': 'hsph',
+        'IcGroup:25099': 'hds',
+        'IcGroup:25100': 'gsd',
+        'IcGroup:25101': 'ext',
+        'IcGroup:25102': 'hks',
+        'IcGroup:25178': 'sum'
+    },
 }
 
 DATABASES = {
@@ -38,23 +50,6 @@ DATABASES = {
         'CONN_MAX_AGE': 0,
     }
 }
-
-"""
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'isitedev',
-        'USER': SECURE_SETTINGS['DJANGO_DB_USER'],
-        'PASSWORD': SECURE_SETTINGS['DJANGO_DB_PASS'],
-        'HOST': 'icd3.isites.harvard.edu',
-        'PORT': '8103',
-        'OPTIONS': {
-            'threaded': True,
-        },
-        'CONN_MAX_AGE': 0,
-    }
-}
-"""
 
 # need to override the NLS_DATE_FORMAT that is set by oraclepool
 '''

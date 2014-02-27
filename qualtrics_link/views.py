@@ -14,6 +14,7 @@ from django.template import RequestContext
 from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from icommons_common.monitor.views import BaseMonitorResponseView
+from icommons_common.models import QualtricsAccessList
 from django.http import HttpResponse
 from django.views import generic
 from django.contrib import messages
@@ -29,6 +30,8 @@ import requests
 import urllib
 from django.conf import settings
 import logging
+
+import pprint
 
 from qualtrics_link.forms import SpoofForm
 
@@ -102,7 +105,7 @@ def lookupunit(unit):
     else:
         return 'Other'
 
-def getValidSchool(schools):
+def getvalidschool(schools):
     for schoolcode in schools:
         logger.debug('schoolcode='+schoolcode)
         school = lookupunit(schoolcode)
@@ -113,7 +116,7 @@ def getValidSchool(schools):
             logger.debug('school in blacklist: '+school)
     return None
 
-def isDeptValid(dept):
+def isdeptvalid(dept):
     if dept.lower() == 'not available':
         return False
     division = lookupunit(dept)
@@ -122,8 +125,11 @@ def isDeptValid(dept):
     return True
 
 def isuserinwhitelist(huid):
-    print huid
-    return True
+    count = QualtricsAccessList.objects.all().filter(user_id=huid).count()
+    if count > 0:
+        return True
+
+    return False
 
 
 @require_http_methods(['GET'])
@@ -131,19 +137,20 @@ def index(request):
     return render(request, 'qualtrics_link/index.html')
 
 @login_required
-@require_http_methods(['GET'])
+@require_http_methods(['GET','POST'])
 def launch(request):
 
     valid_school = False
     valid_department = False
     user_in_whitelist = False
+    user_can_access = False
     #valid_school_code = None
     firstname = None
     lastname = None
     email = None
     role = 'generic'
     division = 'Other'
-    
+
     """
     get the current date in the correct format i.e. '2008-07-16T15:42:51'
     """
@@ -173,43 +180,20 @@ def launch(request):
         form = SpoofForm() # An unbound form
         huid = request.user.username
 
-    
-    """
-    Check to see if the user has accepted the terms of service
-    """
-    agreementid = '260'
-    acceptance_url = settings.ICOMMONS_COMMON['ICOMMONS_API_HOST']+'policy_agreement/acceptance/'+agreementid+'/'+huid+'.json'
-    acceptance_session = requests.Session()
-    acceptance_session.mount('https://', MyAdapter())
-    acceptance_resp = acceptance_session.get( acceptance_url , verify=False, auth=(settings.ICOMMONS_COMMON['ICOMMONS_API_USER'], settings.ICOMMONS_COMMON['ICOMMONS_API_PASS']))
-    
-    if acceptance_resp.status_code == 200:
-        acceptance_json = acceptance_resp.json()
-        if 'agreements' in acceptance_json:
-            lenth = len(acceptance_json['agreements'])
-            if lenth > 0:
-                acceptance_text = acceptance_json['agreements'][0]['text']
-                return render(request, 'qualtrics_link/agreement.html', {'request': request, 'agreement' : acceptance_text })
-        else:
-             return render(request, 'qualtrics_link/error.html', {'request': request, 'msg' : 'error retrieving acceptance_resp' })
-    else:
-        return render(request, 'qualtrics_link/error.html', {'request': request, 'msg' : 'Agreement service call returned '+acceptance_resp.status_code })
-
-
     peopleurl = settings.ICOMMONS_COMMON['ICOMMONS_API_HOST']+'people/by_id/'+huid+'.json'
-    s = requests.Session()
-    s.mount('https://', MyAdapter())
-    resp = s.get(peopleurl , verify=False, auth=(settings.ICOMMONS_COMMON['ICOMMONS_API_USER'], settings.ICOMMONS_COMMON['ICOMMONS_API_PASS']))
+    peoplesession = requests.Session()
+    peoplesession.mount('https://', MyAdapter())
+    resp = peoplesession.get(peopleurl, verify=False, auth=(settings.ICOMMONS_COMMON['ICOMMONS_API_USER'], settings.ICOMMONS_COMMON['ICOMMONS_API_PASS']))
     
     if resp.status_code == 200:
         data = resp.json()
         if 'people' in data:
             person = data['people'][0]
-
-            """
-            We should return an error if firstname, lastname, or email is empty
-            """
-
+            #pp = pprint.PrettyPrinter(indent=4)
+            #pp.pprint(person)
+            
+            # We should return an error if firstname, lastname, or email is empty
+            
             if 'firstName' in person:
                 firstname = person['firstName']
             else:
@@ -225,59 +209,118 @@ def launch(request):
             else:
                 email = None
 
-            """
-            School Affiliations check
-            """
-            if 'schoolAffiliations' in person:
-                schoolaffiliations = person['schoolAffiliations']
-                valid_school_code = getValidSchool(schoolaffiliations)
-                if valid_school_code:
-                    valid_school = True
-                    role = 'student'
-                    division = valid_school_code
-                    logger.debug('valid_school='+str(valid_school_code))
-                else:
-                    logger.debug('no schoolaffiliations found')
-            else:
-                schoolaffiliations = None
-
-
-            """
-            Person Affiliations check
-            
+            #Person Affiliations check
             if 'personAffiliation' in person:
                 personaffiliation = person['personAffiliation']
                 if personaffiliation.lower() != 'not available':
                     role = personaffiliation
             else:
                 personaffiliation = None
-            """
 
-            """
-            Department Affiliations check
-            """
+            #School Affiliations check    
+            if 'schoolAffiliations' in person:
+                schoolaffiliations = person['schoolAffiliations']
+                valid_school_code = getvalidschool(schoolaffiliations)
+                if valid_school_code:
+                    valid_school = True
+                    role = 'student'
+                    division = valid_school_code
+                    #logger.debug('valid_school='+str(valid_school_code))
+            else:
+                schoolaffiliations = None
+
+            # Department Affiliations check
             if 'departmentAffiliation' in person:
                 departmentaffiliation = person['departmentAffiliation']
-                valid_department = isDeptValid(departmentaffiliation)
+                valid_department = isdeptvalid(departmentaffiliation)
                 if valid_department:
-                    valid_department = True
+                    #valid_department = True
                     role = 'employee'
                     division = departmentaffiliation
-                    valid_department_code = departmentaffiliation
-                    logger.debug('valid_department='+str(departmentaffiliation))
+                    #valid_department_code = departmentaffiliation
+                    #logger.debug('valid_department='+str(departmentaffiliation))
             else:
                 departmentaffiliation = None
+        else:
+            logger.error('huid='+huid+', api call returned response code '+str(resp.status_code))
+            logger.error('api call: '+peopleurl)
+            logger.error('response text: no people data found when calling api') 
+            return render(request, 'qualtrics_link/error.html', {'request': request, 'msg' : 'no people were found'})
+    else:
+        logger.error('huid='+huid+', api call returned response code '+str(resp.status_code))
+        logger.error('api call: '+peopleurl)
+        logger.error('response text: '+resp.text)
+        return render(request, 'qualtrics_link/error.html', {'request': request, 'msg' : 'response code '+str(resp.status_code)})
+
+
+    user_in_whitelist = isuserinwhitelist(huid)
+    print 'User is in whitelist: '+str(user_in_whitelist)
+ 
+
+    if valid_department or valid_school or user_in_whitelist:
+        user_can_access = True
+    else:
+        #Check to see if the user is a member of a group that has access    
+        group_url = settings.ICOMMONS_COMMON['ICOMMONS_API_HOST']+'groups/membership_by_user/'+huid+'.json'
+        group_session = requests.Session()
+        group_session.mount('https://', MyAdapter())
+        group_resp = group_session.get(group_url, verify=False, auth=(settings.ICOMMONS_COMMON['ICOMMONS_API_USER'], settings.ICOMMONS_COMMON['ICOMMONS_API_PASS']))
+        
+        allowedgroups_dict = settings.QUALTRICS_LINK.get('AUTH_GROUPS', None)
+        allowedgroups_set = set(allowedgroups_dict.keys())
+
+        if group_resp.status_code == 200:
+            group_json = group_resp.json()
+            groups = group_json['groups']
+          
+            usergroups = set()
+            for group in groups:
+                groupid = '{}:{}'.format(group['idType'], group['idValue'])
+                usergroups.add(groupid)
+            
+            authgroups = allowedgroups_set & usergroups 
+            
+            if len(authgroups) > 0:
+                user_can_access = True
 
         else:
-            return render(request, 'qualtrics_link/error.html', {'request': request, 'msg' : 'no people were found' })
-    else:
-        return render(request, 'qualtrics_link/error.html', {'request': request, 'msg' : 'response code '+resp.status_code })
+            logger.error('huid='+huid+', api call returned response code '+str(group_resp.status_code))
+            logger.error('api call: '+group_url)
+            logger.error('Looking for "groups" in response')
+            logger.error('response text: '+group_resp.text)
+            return render(request, 'qualtrics_link/error.html', {'request': request, 'msg' : 'Group api call returned '+str(group_resp.status_code)})
 
- 
-    if valid_department or valid_school or isuserinwhitelist(huid):
-        m = hashlib.md5()
-        m.update(huid)
-        enc_id = m.hexdigest()
+
+    if user_can_access:
+        #Check to see if the user has accepted the terms of service    
+        agreementid = settings.QUALTRICS_LINK['AGREEMENT_ID']
+        acceptance_url = settings.ICOMMONS_COMMON['ICOMMONS_API_HOST']+'policy_agreement/acceptance/'+agreementid+'/'+huid+'.json'
+        acceptance_session = requests.Session()
+        acceptance_session.mount('https://', MyAdapter())
+        acceptance_resp = acceptance_session.get(acceptance_url, verify=False, auth=(settings.ICOMMONS_COMMON['ICOMMONS_API_USER'], settings.ICOMMONS_COMMON['ICOMMONS_API_PASS']))
+        
+        if acceptance_resp.status_code == 200:
+            acceptance_json = acceptance_resp.json()
+            if 'agreements' in acceptance_json:
+                lenth = len(acceptance_json['agreements'])
+                if lenth > 0:
+                    acceptance_text = acceptance_json['agreements'][0]['text']
+                    return render(request, 'qualtrics_link/agreement.html', {'request': request, 'agreement' : acceptance_text})
+            else:
+                logger.error('huid='+huid+', api call returned response code '+acceptance_resp.status_code)
+                logger.error('api call: '+acceptance_url)
+                logger.error('Looking for "agreements" in response')
+                logger.error('response text: '+acceptance_resp.text)
+                return render(request, 'qualtrics_link/error.html', {'request': request, 'msg' : 'error retrieving acceptance_resp'})
+        else:
+            logger.error('huid='+huid+', api call returned response code '+acceptance_resp.status_code)
+            logger.error('api call: '+acceptance_url)
+            logger.error('response text: '+acceptance_resp.text)
+            return render(request, 'qualtrics_link/error.html', {'request': request, 'msg' : 'Agreement service call returned '+acceptance_resp.status_code})
+
+        hasher = hashlib.md5()
+        hasher.update(huid)
+        enc_id = hasher.hexdigest()
 
         keyvaluedict = {
             'id' : enc_id,
@@ -290,23 +333,25 @@ def launch(request):
             'division' : division,
         }
 
-        keyValuePairs = "id="+enc_id+"&timestamp="+date+"&expiration="+exp_date+"&firstname="+firstname+"&lastname="+lastname+"&email="+email+"&UserType="+role+"&Division="+division
+        keyvaluepairs = "id="+enc_id+"&timestamp="+date+"&expiration="+exp_date+"&firstname="+firstname+"&lastname="+lastname+"&email="+email+"&UserType="+role+"&Division="+division
         key = settings.QUALTRICS_LINK['QUALTRICS_APP_KEY']
         secret = bytes(key)
-        data = bytes(keyValuePairs)
-        encoded = base64.b64encode( hmac.new( secret, data, hashlib.sha256 ).digest() )
-        token = keyValuePairs + '&mac=' + encoded; 
+        data = bytes(keyvaluepairs)
+        encoded = base64.b64encode(hmac.new(secret, data, hashlib.sha256).digest())
+        token = keyvaluepairs+'&mac='+encoded 
         raw = pad(token)
-        cipher = AES.new( key, AES.MODE_ECB)
-        encodedToken =  base64.b64encode( cipher.encrypt( raw ) ) 
-        link = 'https://new.qualtrics.com/ControlPanel/ssoTest.php?key='+key+'&mac=sha256&ssotoken='+encodedToken
+        cipher = AES.new(key, AES.MODE_ECB)
+        encodedtoken = base64.b64encode(cipher.encrypt(raw)) 
+        link = 'https://new.qualtrics.com/ControlPanel/ssoTest.php?key='+key+'&mac=sha256&ssotoken='+encodedtoken
 
-        """
-        the redirect line below will be how the application works if everything is good for the user. 
-        """
+        #the redirect line below will be how the application works if everything is good for the user. 
         #return redirect(link)
+        return render(request, 'qualtrics_link/main.html', {'request': request, 'link' : link, 'huid' : huid, 'keyValueDict' :  keyvaluedict, 'person' : person, 'form' : form})
 
-        return render(request, 'qualtrics_link/main.html', {'request': request, 'link' : link, 'huid' : huid, 'keyValueDict' :  keyvaluedict, 'form' : form})
+    else:
+
+        
+
 
 @login_required
 @require_http_methods(['GET'])

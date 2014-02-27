@@ -8,8 +8,15 @@
 
 <style>
  .my-new-list { display: inline;}
+ .table { border: thin solid black; width: 40%; }
  #formdiv { margin: 5px 5px;}
  #datadiv { margin: 5px 5px;}
+
+td {
+   display: table-cell;
+   word-break:break-word;
+}
+
 </style>
 
 {% endblock %}
@@ -26,20 +33,26 @@
 </div>
 
 <br />
-<div id="datadiv">Data:</div>
+<div id="datadiv">Data from Qualtrics:</div>
 <br />
- <table>
+
+ <table class="table">
+ 	<caption>Person Data</caption>
+    {% for key,value in  person.items %}
+    <tr> <th>{{key}}</th><td>{{value}}</td></tr> 
+    {% endfor %}
+</table>
+<br />
+ <table class="table">
+ 	<caption>Processed Data</caption>
    	<tr> <th>user_id</th><td>{{huid}} </td></tr> 
     <tr> <th>authenticated</th><td>{{request.user.is_authenticated}}</td></tr> 
     {% for key,value in  keyValueDict.items %}
-
     <tr> <th>{{key}}</th><td>{{value}}</td></tr> 
-
     {% endfor %}
-    <tr> <th>url</th><td><a href="{{link}}">{{link}}</a></td></tr> 
 </table>
 
-	
+<p><a href="{{link}}">{{link}}</a></p>
 
 {% endblock %}
 
