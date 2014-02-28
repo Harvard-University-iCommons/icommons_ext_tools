@@ -8,7 +8,7 @@
 
 <style>
  .my-new-list { display: normal;}
- .table { width: 40%; }
+ .table { width: 33%; }
  caption { margin-bottom: 10px; font-size: large; font-weight: bold;}
  #formdiv { margin: 5px 5px;}
  #datadiv { margin: 5px 5px;}
@@ -36,11 +36,13 @@ td {
 
 <br />
 
+<div id="datadiv">Data from the Qualtrics API:</div>
+
 <br />
 
 <table>
 	<tr>
-		<td><div id="datadiv">Data from the Qualtrics API:</div></td>
+		
 		<td valign="top" class="tdcss">
 			<table class="table">
 			 	<caption>Person Data from iCommons API</caption>
@@ -77,23 +79,22 @@ $(document).ready(function() {
 	
 		var items = [];
 		$.each( data.org_info[0].getResponseCountsByOrganization.Result, function( key, val ) {
-		    items.push( "<li id='" + key + "'> <span class='qdata'>" + key + ": " + val + "</span></li>" );
-		  });
+		    	items.push( "<div class='qdata'>" + key + ": " + val + "</div>" );
+		  	});
 		$.each( data.org_info[1].getOrgActivity.Result, function( key, val ) {
 			$.each( val, function(tkey, value) {
-		    	items.push( "<li id='" + tkey + "'> <span class='qdata'>" + tkey + ": " + value + "</span></li>" );
+		    	items.push( "<div class='qdata'>" + tkey + ": " + value + "</div>" );
 		    });
-		  });
+		});
 		
+		$( "<div/>", {
+		"class": "my-new-list",
+		html: items.join( "" )
+		}).appendTo( "#datadiv" );
 
-		 
-		  $( "<ul/>", {
-		    "class": "my-new-list",
-		    html: items.join( "" )
-		  }).appendTo( "#datadiv" );
-		  $('#datadiv ul').css('list-style-type', 'none');
-		  $('#datadiv ul li').css('display', 'normal');
-		  $('li').css('margin-left','10px');
+		$('#datadiv ul').css('list-style-type', 'none');
+		$('#datadiv ul li').css('display', 'normal');
+		$('li').css('margin-left','10px');
 	});
 
 

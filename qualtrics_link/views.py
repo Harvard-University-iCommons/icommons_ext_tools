@@ -342,7 +342,7 @@ def launch(request):
         key = settings.QUALTRICS_LINK['QUALTRICS_APP_KEY']
         secret = bytes(key)
         data = bytes(keyvaluepairs)
-        encoded = base64.b64encode(hmac.new(secret, data, hashlib.sha256).digest())
+        encoded = base64.b64encode(hmac.new(secret, data, hashlib.sha1).digest())
         token = keyvaluepairs+'&mac='+encoded 
         raw = pad(token)
         cipher = AES.new(key, AES.MODE_ECB)
@@ -356,7 +356,7 @@ def launch(request):
             logger.info('IN DEBUG MODE')
             return render(request, 'qualtrics_link/main.html', {'request': request, 'qualtricslink' : qualtricslink, 'ssotestlink': ssotestlink, 'huid' : huid, 'keyValueDict' :  keyvaluedict, 'person' : person, 'form' : form})
         else:
-            return redirect(link)
+            return redirect(qualtricslink)
     else:
         
         return render(request, 'qualtrics_link/notauthorized.html', {'request': request, 'person' : person, 'division' : division})
