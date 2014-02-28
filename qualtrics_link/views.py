@@ -348,7 +348,7 @@ def launch(request):
         cipher = AES.new(key, AES.MODE_ECB)
         encodedtoken = base64.b64encode(cipher.encrypt(raw)) 
         
-        ssotestlink = 'https://new.qualtrics.com/ControlPanel/ssoTest.php?key='+key+'&mac=sha256&ssotoken='+encodedtoken
+        ssotestlink = 'https://new.qualtrics.com/ControlPanel/ssoTest.php?key='+key+'&mac=sha1&ssotoken='+encodedtoken
         qualtricslink = 'https://harvard.qualtrics.com/ControlPanel/?ssotoken='+encodedtoken
 
         #the redirect line below will be how the application works if everything is good for the user. 
