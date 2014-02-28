@@ -32,13 +32,13 @@ path.append(SITE_ROOT)
 #ADMINS = SECURE_SETTINGS.get('admins')
 
 # This is the address that emails will be sent "from"
-#SERVER_EMAIL = 'iCommons Tools <icommons-bounces@harvard.edu>'
+SERVER_EMAIL = 'iCommons Tools <icommons-bounces@harvard.edu>'
 
-#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-#EMAIL_HOST = 'mailhost.harvard.edu'
-#EMAIL_USE_TLS = True
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'mailhost.harvard.edu'
+EMAIL_USE_TLS = True
 
-#MANAGERS = ADMINS
+MANAGERS = ADMINS
 
 # DATABASES are defined in individual environment settings
 
