@@ -1,11 +1,11 @@
-
+# test.py
 from .base import *
 #from .secure import SECURE_SETTINGS
-#DEBUG = True
+DEBUG = True
 #TEMPLATE_DEBUG = DEBUG
 #CRISPY_FAIL_SILENTLY = not DEBUG
 
-ALLOWED_HOSTS = ['termtool-qa.icommons.harvard.edu']
+ALLOWED_HOSTS = ['termtool-test.icommons.harvard.edu']
 
 ICOMMONS_COMMON = {
     'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
@@ -39,11 +39,11 @@ QUALTRICS_LINK = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'isiteqa',
-        'USER': SECURE_SETTINGS['DJANGO_DB_USER'],
-        'PASSWORD': SECURE_SETTINGS['DJANGO_DB_PASS'],
+        'NAME': 'isitedev',
+        'USER': SECURE_SETTINGS['django_db_user'],
+        'PASSWORD': SECURE_SETTINGS['django_db_pass'],
         'HOST': 'icd3.isites.harvard.edu',
-        'PORT': '8003',
+        'PORT': '8103',
         'OPTIONS': {
             'threaded': True,
         },
@@ -59,23 +59,23 @@ DATABASE_EXTRAS = {
 }
 '''
 
-INSTALLED_APPS += ('gunicorn',)
+STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
-CACHES = {
-    'default': {
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': '127.0.0.1:6379',
-        'OPTIONS': {
-            'PARSER_CLASS': 'redis.connection.HiredisParser'
-        },
-    },
+INSTALLED_APPS += (
+    #'debug_toolbar',
+    #'rest_framework.authtoken',
+    'gunicorn',
+)
+
+'''
+MIDDLEWARE_CLASSES += ('debug_toolbar.middleware.DebugToolbarMiddleware',)
+
+# For Django Debug Toolbar:
+INTERNAL_IPS = ('127.0.0.1', '10.0.2.2',)
+DEBUG_TOOLBAR_CONFIG = {
+    'INTERCEPT_REDIRECTS': False,
 }
-
-SESSION_ENGINE = 'redis_sessions.session'
-SESSION_REDIS_HOST = 'localhost'
-SESSION_REDIS_PORT = 6379
-
-SESSION_COOKIE_SECURE = True
+'''
 
 LOGGING = {
     'version': 1,
@@ -167,4 +167,39 @@ LOGGING = {
 }
 
 
-GUNICORN_CONFIG = 'gunicorn_qa.py'
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': '127.0.0.1:6379',
+        'OPTIONS': {
+            'PARSER_CLASS': 'redis.connection.HiredisParser'
+        },
+    },
+}
+
+SESSION_ENGINE = 'redis_sessions.session'
+SESSION_REDIS_HOST = 'localhost'
+SESSION_REDIS_PORT = 6379
+
+'''
+HUEY = {
+    'backend': 'huey.backends.redis_backend',  # required.
+    'name': 'hueytest',
+    'connection': {'host': 'localhost', 'port': 6379},
+    'always_eager': False,  # Defaults to False when running via manage.py run_huey
+    # Options to pass into the consumer when running ``manage.py run_huey``
+    'consumer_options': {'workers': 1, },
+}
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.file'
+'''
+'''
+The dictionary below contains group id's and school names. 
+These are the groups that are allowed to edit term informtion.
+The school must be the same as the school_id in the school model.
+'''
+
+
+GUNICORN_CONFIG = 'gunicorn_test.py'
+
+
