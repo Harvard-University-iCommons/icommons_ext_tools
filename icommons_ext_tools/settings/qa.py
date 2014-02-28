@@ -40,8 +40,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
         'NAME': 'isiteqa',
-        'USER': SECURE_SETTINGS['DJANGO_DB_USER'],
-        'PASSWORD': SECURE_SETTINGS['DJANGO_DB_PASS'],
+        'USER': SECURE_SETTINGS['django_db_user'],
+        'PASSWORD': SECURE_SETTINGS['django_db_pass'],
         'HOST': 'icd3.isites.harvard.edu',
         'PORT': '8003',
         'OPTIONS': {
