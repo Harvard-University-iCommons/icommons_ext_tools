@@ -347,12 +347,14 @@ def launch(request):
         raw = pad(token)
         cipher = AES.new(key, AES.MODE_ECB)
         encodedtoken = base64.b64encode(cipher.encrypt(raw)) 
-        link = 'https://new.qualtrics.com/ControlPanel/ssoTest.php?key='+key+'&mac=sha256&ssotoken='+encodedtoken
+        
+        ssotestlink = 'https://new.qualtrics.com/ControlPanel/ssoTest.php?key='+key+'&mac=sha256&ssotoken='+encodedtoken
+        qualtricslink = 'https://harvard.qualtrics.com/ControlPanel/?ssotoken='+encodedtoken
 
         #the redirect line below will be how the application works if everything is good for the user. 
         if settings.DEBUG:
             logger.info('IN DEBUG MODE')
-            return render(request, 'qualtrics_link/main.html', {'request': request, 'link' : link, 'huid' : huid, 'keyValueDict' :  keyvaluedict, 'person' : person, 'form' : form})
+            return render(request, 'qualtrics_link/main.html', {'request': request, 'qualtricslink' : qualtricslink, 'ssotestlink': ssotestlink, 'huid' : huid, 'keyValueDict' :  keyvaluedict, 'person' : person, 'form' : form})
         else:
             return redirect(link)
     else:

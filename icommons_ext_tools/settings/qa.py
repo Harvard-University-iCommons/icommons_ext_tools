@@ -1,7 +1,7 @@
 
 from .base import *
 #from .secure import SECURE_SETTINGS
-#DEBUG = True
+DEBUG = True
 #TEMPLATE_DEBUG = DEBUG
 #CRISPY_FAIL_SILENTLY = not DEBUG
 

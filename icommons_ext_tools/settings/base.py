@@ -38,7 +38,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mailhost.harvard.edu'
 EMAIL_USE_TLS = True
 
-MANAGERS = ADMINS
+#MANAGERS = ADMINS
 
 # DATABASES are defined in individual environment settings
 
