@@ -7,17 +7,32 @@
 {{ block.super }}
 
 <style>
- .my-new-list { display: normal; float: right;}
- .table {  }
- caption { margin-bottom: 10px; font-size: large; font-weight: bold;}
- /*#formdiv { margin: 5px 5px;}*/
- #datadiv { float: right; }
- .tdcss { padding-right: 20px;}
- .qdata { }
-td {
-   display: table-cell;
-   word-break:break-word;
-}
+	.my-new-list { 
+		display: normal; 
+		float: right;
+	}
+	.table {  }
+	caption { 
+		margin-bottom: 10px; 
+		font-size: large; 
+		font-weight: bold;
+	}
+	.caption {
+		margin-bottom: 10px; 
+		font-size: large; 
+		font-weight: bold;
+	}
+	#datadiv { 
+		float: right; 
+	}
+	.tdcss { 
+		padding-right: 20px;
+	}
+	.qdata { }
+	td {
+		display: table-cell;
+		word-break:break-word;
+	}
 
 </style>
 
@@ -36,7 +51,9 @@ td {
 
 <br />
 
-<div id="datadiv">Data from the Qualtrics API:<br />
+<div id="datadiv"><span class="caption">Data from the Qualtrics API:</span>
+	<br />
+	<br />
 </div>
 
 <br />
@@ -60,6 +77,7 @@ td {
 			    {% for key,value in  keyValueDict.items %}
 			    <tr> <th>{{key}}</th><td>{{value}}</td></tr> 
 			    {% endfor %}
+			    <tr><th>user_in_whitelist</th><td>{{user_in_whitelist}}</td></tr>
 			</table>
 		</td>
 	</tr>

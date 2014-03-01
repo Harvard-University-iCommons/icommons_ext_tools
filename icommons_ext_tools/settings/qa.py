@@ -23,16 +23,9 @@ QUALTRICS_LINK = {
     'QUALTRICS_API_USER' : SECURE_SETTINGS['qualtrics_api_user'], 
     'QUALTRICS_API_TOKEN' : SECURE_SETTINGS['qualtrics_api_token'], 
 
+    # to use auth_groups set allow_auth_groups to True and provide a list if groups
+    'ALLOW_AUTH_GROUPS' : False, # can be True or False
     'AUTH_GROUPS': {
-        'IcGroup:25096': 'gse',
-        'IcGroup:25095': 'colgsas',
-        'IcGroup:25097': 'hls',
-        'IcGroup:25098': 'hsph',
-        'IcGroup:25099': 'hds',
-        'IcGroup:25100': 'gsd',
-        'IcGroup:25101': 'ext',
-        'IcGroup:25102': 'hks',
-        'IcGroup:25178': 'sum'
     },
 }
 

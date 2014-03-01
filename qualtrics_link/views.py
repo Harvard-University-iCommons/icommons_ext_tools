@@ -94,10 +94,10 @@ AREA_LOOKUP = {
 def get_client_ip(request):
     x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
     if x_forwarded_for:
-        ip = x_forwarded_for.split(',')[0]
+        ipaddress = x_forwarded_for.split(',')[0]
     else:
-        ip = request.META.get('REMOTE_ADDR')
-    return ip
+        ipaddress = request.META.get('REMOTE_ADDR')
+    return ipaddress
 
 def lookupunit(unit):
     if unit in AREA_LOOKUP:
@@ -127,14 +127,19 @@ def isdeptvalid(dept):
 def isuserinwhitelist(huid):
     try:
         person = QualtricsAccessList.objects.get(user_id=huid)
-        expiration_date = person.expiration_date   
-        if expiration_date >= date.today():
-            print 'PASSED: '+str(expiration_date)  + ' is greater than '+str(date.today())
-            return True
+        if person.expiration_date:
+            expiration_date = person.expiration_date   
+            if expiration_date >= date.today():
+                # the user is in the whitelist and has an expiration date that is valid
+                return True
+            else:
+                # the user is in the whitelist and has an expiration date that has expired
+                return False
         else:
-            print 'FAILED: '+str(expiration_date)  + ' is less than '+str(date.today())
+            # the user is in the whitelist but has no expiration date
+            return True
     except QualtricsAccessList.DoesNotExist:
-        print 'FAILED: user not in whitelist'
+        # the user is not in the whitelist'
         return False
 
 
@@ -156,6 +161,7 @@ def launch(request):
     email = None
     role = 'generic'
     division = 'Other'
+    client_ip = get_client_ip(request)
 
     """
     get the current date in the correct format i.e. '2008-07-16T15:42:51'
@@ -240,8 +246,6 @@ def launch(request):
             else:
                 departmentaffiliation = None
 
-
-
         else:
             logger.error('huid='+huid+', api call returned response code '+str(resp.status_code))
             logger.error('api call: '+peopleurl)
@@ -255,13 +259,14 @@ def launch(request):
 
 
     user_in_whitelist = isuserinwhitelist(huid)
-    print 'User is in whitelist: '+str(user_in_whitelist)
+    #print 'User is in whitelist: '+str(user_in_whitelist)
  
-
     if valid_department or valid_school or user_in_whitelist:
         user_can_access = True
-    else:
-        #Check to see if the user is a member of a group that has access    
+
+    elif settings.QUALTRICS_LINK.get('ALLOW_AUTH_GROUPS', False):
+        #Check to see if the user is a member of a group that has access
+        # this call can be repalced by a new decorator  
         group_url = settings.ICOMMONS_COMMON['ICOMMONS_API_HOST']+'groups/membership_by_user/'+huid+'.json'
         group_session = requests.Session()
         group_session.mount('https://', MyAdapter())
@@ -334,9 +339,8 @@ def launch(request):
             'role' : role,
             'division' : division,
         }
-        
 
-        logline = "{}\t{}\t{}".format(timestamp, role, division)
+        logline = "{}\t{}\t{}\t{}".format(timestamp, client_ip, role, division)
         logger.info(logline)
         keyvaluepairs = "id="+enc_id+"&timestamp="+timestamp+"&expiration="+exp_date+"&firstname="+firstname+"&lastname="+lastname+"&email="+email+"&UserType="+role+"&Division="+division
         key = settings.QUALTRICS_LINK['QUALTRICS_APP_KEY']
@@ -354,7 +358,7 @@ def launch(request):
         #the redirect line below will be how the application works if everything is good for the user. 
         if settings.DEBUG:
             logger.info('IN DEBUG MODE')
-            return render(request, 'qualtrics_link/main.html', {'request': request, 'qualtricslink' : qualtricslink, 'ssotestlink': ssotestlink, 'huid' : huid, 'keyValueDict' :  keyvaluedict, 'person' : person, 'form' : form})
+            return render(request, 'qualtrics_link/main.html', {'request': request, 'qualtricslink' : qualtricslink, 'ssotestlink': ssotestlink, 'huid' : huid, 'user_in_whitelist' : user_in_whitelist, 'keyValueDict' :  keyvaluedict, 'person' : person, 'form' : form})
         else:
             return redirect(qualtricslink)
     else:
