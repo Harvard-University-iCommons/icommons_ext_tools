@@ -3,10 +3,13 @@
 import hashlib
 import hmac
 import base64
+import logging
 from Crypto.Cipher import AES
 from django.conf import settings
 from datetime import date
 from icommons_common.models import QualtricsAccessList
+
+logger = logging.getLogger(__name__)
 
 BLACKLIST = set(['HBS', 'HMS', 'HSDM'])
 AREA_LOOKUP = {
@@ -35,6 +38,8 @@ AREA_LOOKUP = {
     'HBS'  : 'HBS',
     'HSDM' : 'HSDM',
     'HMS'  : 'HMS',
+    'Not Available' : 'Other',
+    'Other' : 'Other',
 } 
 
 BS = 16
@@ -80,22 +85,24 @@ def lookupunit(unit):
     if unit in AREA_LOOKUP:
         return AREA_LOOKUP[unit]
     else:
+        logger.info('unit not found: {}'.format(unit))
         return 'Other'
+
+def isunitvalid(unit):
+    if unit not in BLACKLIST:
+        return True
+    return False
 
 def getvalidschool(schools):
     for schoolcode in schools:
         school = lookupunit(schoolcode)
         if  school not in BLACKLIST:
             return school
-    return None
 
-def isdeptvalid(dept):
-    if dept.lower() == 'not available':
-        return True
+def getvaliddept(dept):
     division = lookupunit(dept)
-    if  division in BLACKLIST:
-        return False
-    return True
+    if division not in BLACKLIST:
+        return division
 
 def isuserinwhitelist(huid):
     try:
@@ -128,17 +135,17 @@ def builduserdict(data):
         if 'firstName' in person:
             userdata['firstname'] = person['firstName']
         else:
-            userdata['firstname'] = None
+            userdata['firstname'] = 'Not Available'
 
         if 'lastName' in person:
             userdata['lastname'] = person['lastName']
         else:
-            userdata['lastname'] = None
+            userdata['lastname'] = 'Not Available'
 
         if 'email' in person:
             userdata['email'] = person['email']
         else:
-            userdata['email'] = None
+            userdata['email'] = 'Not Available'
 
         #Person Affiliations check
         if 'personAffiliation' in person:
@@ -147,6 +154,7 @@ def builduserdict(data):
             if personaffiliation.lower() != 'not available':
                 userdata['role'] = personaffiliation
         else:
+            userdata['personaffiliation'] = 'Not Available'
             userdata['personaffiliation'] = None
 
         #School Affiliations check    
@@ -154,22 +162,25 @@ def builduserdict(data):
             schoolaffiliations = person['schoolAffiliations']
             userdata['schoolaffiliations'] = schoolaffiliations
             valid_school_code = getvalidschool(schoolaffiliations)
-            if valid_school_code:
+            if valid_school_code is not None:
                 userdata['validschool'] = True
                 userdata['role'] = 'student'
                 userdata['division'] = valid_school_code
         else:
+            userdata['validschool'] = False
             userdata['schoolaffiliations'] = None
 
         # Department Affiliations check
         if 'departmentAffiliation' in person:
             departmentaffiliation = person['departmentAffiliation']
             userdata['departmentaffiliation'] = departmentaffiliation
-            valid_department = isdeptvalid(departmentaffiliation)
-            if valid_department:
+            valid_department = getvaliddept(departmentaffiliation)
+            if valid_department is not None:
+                userdata['validdept'] = True
                 userdata['role'] = 'employee'
                 userdata['division'] = departmentaffiliation
         else:
+            userdata['validdept'] = False
             userdata['departmentaffiliation'] = None
 
     return userdata

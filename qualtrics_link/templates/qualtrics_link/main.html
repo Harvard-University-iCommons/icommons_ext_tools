@@ -43,7 +43,7 @@
 <h2>Qualtrics Status</h2>
 
 <div id="formdiv">
-<form action="launch" method="get">{% csrf_token %}
+<form action="internal" method="get">{% csrf_token %}
 	{{ form.as_p }}
 	<input type="submit" value="Submit" />
 </form>

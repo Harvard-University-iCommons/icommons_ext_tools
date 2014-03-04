@@ -10,20 +10,17 @@
 
 {% block content %}
 
+<p>{{division}}</p>
 
-<div class="noaccess">
-Due to contractual obligations, Qualtrics is not available through iCommons to Harvard affiliates, Harvard Medical School, Harvard Dental School, or Harvard Business School.
-</div>
+<p class="noaccess">
+Affiliates from Harvard Medical School and Harvard Dental School have access to Qualtrics through a local school license.  HMS/HSDM users should contact <a href="mailto:mycourses_support@hms.harvard.edu">mycourses_support@hms.harvard.edu</a> or 617-432-1773 for more information.
+</p>
 
-{{ division }}
+<p class="noaccess">
+Affiliates from Harvard Business School are not able to access Qualtrics through the university license and the service is not currently offered by HBS IT.
+</p>
 
-<table class="table">
- 	<caption>Person Data</caption>
-    {% for key,value in  person.items %}
-    <tr> <th>{{key}}</th><td>{{value}}</td></tr> 
-    {% endfor %}
-</table>
-
+<p class="noaccess">If you believe that you should be able to access Qualtrics, please contact ithelp@harvard.edu and we'll verify that your Harvard account is configured correctly.</p>
 
 {% endblock %}
 
