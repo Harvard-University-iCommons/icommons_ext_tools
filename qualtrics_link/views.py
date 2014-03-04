@@ -1,43 +1,21 @@
 
 
-from django.shortcuts import render, render_to_response, redirect
+from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
-from time import time
+#from time import time
 import logging
-from requests.adapters import HTTPAdapter
-from requests.packages.urllib3.poolmanager import PoolManager
-import ssl
-import json
-import re
 from django.conf import settings
-from django.template import RequestContext
-from django.core.urlresolvers import reverse
 from django.contrib.auth.decorators import login_required
 from icommons_common.monitor.views import BaseMonitorResponseView
 from icommons_common.models import QualtricsAccessList
 from django.http import HttpResponse
-from django.views import generic
-from django.contrib import messages
 import time
 import datetime
 from datetime import date
-import hashlib
-import hmac
-from Crypto import Random
-from Crypto.Cipher import AES
-import base64
-import requests 
 import urllib
-from django.conf import settings
-import logging
-
-import pprint
-
 from qualtrics_link.icommonsapi import IcommonsApi
 from qualtrics_link.util import *
 from qualtrics_link.forms import SpoofForm
-
-#from util import util
 
 logger = logging.getLogger(__name__)
 
@@ -75,13 +53,14 @@ def launch(request):
     client_ip = getclientip(request)
 
     # get the expiration date in the correct format i.e. '2008-07-16T15:42:51' (date format is same as above)
-    # In this case we take the current time and add 5 minutes (18000 seconds)
+    # In this case we take the current time and add 1 minutes (60 seconds)
     
     currenttime = time.time()
     timestamp = datetime.datetime.fromtimestamp(currenttime).strftime('%Y-%m-%dT%H:%M:%S')
-    exp_ts = time.time() + 18000
+    
+    exp_ts = time.time() + 60
     exp_date = datetime.datetime.fromtimestamp(exp_ts).strftime('%Y-%m-%dT%H:%M:%S')
- 
+
     huid = request.user.username
     persondataobj = IcommonsApi(huid)
     resp = persondataobj.getpersondata()
@@ -158,14 +137,14 @@ def internal(request):
 
     # get the current date in the correct format i.e. '2008-07-16T15:42:51'
 
-    ts = time.time()
-    timestamp = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%dT%H:%M:%S')
+    currenttime = time.time()
+    timestamp = datetime.datetime.fromtimestamp(currenttime).strftime('%Y-%m-%dT%H:%M:%S')
 
     
     # get the expiration date in the correct format i.e. '2008-07-16T15:42:51' (date format is same as above)
-    # In this case we take the current time and add 15 minutes (900 seconds)
+    # In this case we take the current time and add 10 minutes (600 seconds)
     
-    exp_ts = time.time() + 18000
+    exp_ts = time.time() + 600
     exp_date = datetime.datetime.fromtimestamp(exp_ts).strftime('%Y-%m-%dT%H:%M:%S')
 
     
