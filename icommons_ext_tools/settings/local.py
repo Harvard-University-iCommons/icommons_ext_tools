@@ -7,24 +7,30 @@ CRISPY_FAIL_SILENTLY = not DEBUG
 
 
 ICOMMONS_COMMON = {
+
     'ICOMMONS_API_HOST': 'https://qa.isites.harvard.edu/services/',
     'ICOMMONS_API_USER': SECURE_SETTINGS['icommons_api_user'],
     'ICOMMONS_API_PASS': SECURE_SETTINGS['icommons_api_pass'],
-    #'CANVAS_API_BASE_URL': 'https://canvas.icommons.harvard.edu/api/v1',
-    #'CANVAS_API_HEADERS': {'Authorization': 'Bearer ' + SECURE_SETTINGS['CANVAS_TOKEN']},
 }
 
 
 QUALTRICS_LINK = {
 
-    'AGREEMENT_ID' : '260',
+    'AGREEMENT_ID' : SECURE_SETTINGS['qualtrics_agreement_id'],
     'QUALTRICS_APP_KEY' : SECURE_SETTINGS['qualtrics_app_key'],
     'QUALTRICS_API_URL' : SECURE_SETTINGS['qualtrics_api_url'], 
     'QUALTRICS_API_USER' : SECURE_SETTINGS['qualtrics_api_user'], 
     'QUALTRICS_API_TOKEN' : SECURE_SETTINGS['qualtrics_api_token'], 
 }
 
+DATABASE_ROUTERS = ['icommons_ext_tools.routers.DatabaseAppsRouter', ]
+
+DATABASE_APPS_MAPPING = {
+    'qualtrics_link': 'default',
+}
+
 DATABASES = {
+
     'default': {
         'ENGINE': 'django.db.backends.oracle',
         'NAME': 'isitedev',

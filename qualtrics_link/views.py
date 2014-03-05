@@ -8,12 +8,13 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from icommons_common.monitor.views import BaseMonitorResponseView
 from icommons_common.models import QualtricsAccessList
+from icommons_common.icommonsapi.icommonsapi import IcommonsApi
 from django.http import HttpResponse
 import time
 import datetime
 from datetime import date
 import urllib
-from qualtrics_link.icommonsapi import IcommonsApi
+#from qualtrics_link.icommonsapi import IcommonsApi
 from qualtrics_link.util import *
 from qualtrics_link.forms import SpoofForm
 
@@ -28,8 +29,6 @@ class MonitorResponseView(BaseMonitorResponseView):
 BS = 16
 pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS) 
 unpad = lambda s : s[0:-ord(s[-1])]
-
-
 
 
 @require_http_methods(['GET'])
