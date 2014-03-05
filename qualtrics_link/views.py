@@ -63,7 +63,7 @@ def launch(request):
 
     huid = request.user.username
     persondataobj = IcommonsApi()
-    resp = persondataobj.getpersondata(huid)
+    resp = persondataobj.people_by_id(huid)
 
     if resp.status_code == 200:
         data = resp.json()
@@ -94,7 +94,7 @@ def launch(request):
     if usercanaccess:
         #Check to see if the user has accepted the terms of service    
         agreementid = settings.QUALTRICS_LINK['AGREEMENT_ID']
-        acceptance_resp = persondataobj.getuseracceptance(agreementid, huid)
+        acceptance_resp = persondataobj.tos_get_acceptance(agreementid, huid)
         
         if acceptance_resp.status_code == 200:
             acceptance_json = acceptance_resp.json()
@@ -165,7 +165,7 @@ def internal(request):
 
     # initialize the icommons api module
     persondataobj = IcommonsApi()
-    person = persondataobj.getpersondata(huid)
+    person = persondataobj.people_by_id(huid)
 
     if person.status_code == 200:
         data = person.json()
@@ -199,7 +199,7 @@ def internal(request):
     if usercanaccess:
         # If they are allowed to use Qualtrics, check to see if the user has accepted the terms of service    
         agreementid = settings.QUALTRICS_LINK['AGREEMENT_ID']
-        acceptance_resp = persondataobj.getuseracceptance(agreementid, huid)
+        acceptance_resp = persondataobj.tos_get_acceptance(agreementid, huid)
         
         if acceptance_resp.status_code == 200:
             acceptance_json = acceptance_resp.json()
@@ -242,7 +242,7 @@ def user_accept_terms(request):
     persondataobj = IcommonsApi()
     ipaddress = qualtrics_link.util.getclientip(request)
     params = {'agreementId' : '260', 'ipAddress' : ipaddress,}
-    resp = persondataobj.create_acceptance(params, huid)
+    resp = persondataobj.tos_create_acceptance(params, huid)
     
     if resp.status_code == 200:
         logger.info(resp.text)
