@@ -7,7 +7,7 @@ CRISPY_FAIL_SILENTLY = not DEBUG
 
 
 ICOMMONS_COMMON = {
-    'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
+    'ICOMMONS_API_HOST': 'https://qa.isites.harvard.edu/services/',
     'ICOMMONS_API_USER': SECURE_SETTINGS['icommons_api_user'],
     'ICOMMONS_API_PASS': SECURE_SETTINGS['icommons_api_pass'],
     #'CANVAS_API_BASE_URL': 'https://canvas.icommons.harvard.edu/api/v1',
@@ -22,18 +22,6 @@ QUALTRICS_LINK = {
     'QUALTRICS_API_URL' : SECURE_SETTINGS['qualtrics_api_url'], 
     'QUALTRICS_API_USER' : SECURE_SETTINGS['qualtrics_api_user'], 
     'QUALTRICS_API_TOKEN' : SECURE_SETTINGS['qualtrics_api_token'], 
-
-    'AUTH_GROUPS': {
-        'IcGroup:25096': 'gse',
-        'IcGroup:25095': 'colgsas',
-        'IcGroup:25097': 'hls',
-        'IcGroup:25098': 'hsph',
-        'IcGroup:25099': 'hds',
-        'IcGroup:25100': 'gsd',
-        'IcGroup:25101': 'ext',
-        'IcGroup:25102': 'hks',
-        'IcGroup:25178': 'sum'
-    },
 }
 
 DATABASES = {

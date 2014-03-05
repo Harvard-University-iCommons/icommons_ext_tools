@@ -9,6 +9,12 @@ import ssl
 import requests 
 import logging
 
+# this is handy for debugging requests
+#import httplib
+#httplib.HTTPConnection.debuglevel = 1
+
+logger = logging.getLogger(__name__)
+
 class MyAdapter(HTTPAdapter):
 # We need to subclass the HttpAdater class to allow connections
 # to SSL version 1. 
@@ -23,38 +29,42 @@ class IcommonsApi(object):
     def __init__(self):
         self.sslsession = requests.Session()
         self.sslsession.mount('https://', MyAdapter())
+        self.host = settings.ICOMMONS_COMMON['ICOMMONS_API_HOST']
+        self.username = settings.ICOMMONS_COMMON['ICOMMONS_API_USER']
+        self.password = settings.ICOMMONS_COMMON['ICOMMONS_API_PASS']
 
     def getpersondata(self, huid):
-        peopleurl = settings.ICOMMONS_COMMON['ICOMMONS_API_HOST']+'people/by_id/'+huid+'.json'
+        url = self.host+'people/by_id/'+huid+'.json'
         #peoplesession = requests.Session()
         #peoplesession.mount('https://', MyAdapter())
-        resp = self.sslsession.get(peopleurl, verify=False, auth=(settings.ICOMMONS_COMMON['ICOMMONS_API_USER'], \
-        	settings.ICOMMONS_COMMON['ICOMMONS_API_PASS']))
+        logger.debug('API CALL: '+url)
+        resp = self.sslsession.get(url, verify=False, auth=(self.username, self.password))
         return resp
 
     def getpersongroupdata(self, huid):
-        group_url = settings.ICOMMONS_COMMON['ICOMMONS_API_HOST']+'groups/membership_by_user/'+huid+'.json'
+        url = self.host+'groups/membership_by_user/'+huid+'.json'
         #group_session = requests.Session()
         #group_session.mount('https://', MyAdapter())
-        group_resp = self.sslsession.get(group_url, verify=False, auth=(settings.ICOMMONS_COMMON['ICOMMONS_API_USER'], \
-            settings.ICOMMONS_COMMON['ICOMMONS_API_PASS']))
+        logger.debug('API CALL: '+url)
+        group_resp = self.sslsession.get(url, verify=False, auth=(self.username, self.password))
         return group_resp
 
     def getuseracceptance(self, agreementid, huid):
-        acceptance_url = settings.ICOMMONS_COMMON['ICOMMONS_API_HOST']+'policy_agreement/acceptance/'+agreementid+'/'+huid+'.json'
+        url = self.host+'policy_agreement/acceptance/'+agreementid+'/'+huid+'.json'
         #acceptance_session = requests.Session()
         #acceptance_session.mount('https://', MyAdapter())
-        acceptance_resp = self.sslsession.get(acceptance_url, verify=False, auth=(settings.ICOMMONS_COMMON['ICOMMONS_API_USER'], \
-        	settings.ICOMMONS_COMMON['ICOMMONS_API_PASS']))
+        logger.debug('API CALL: '+url)
+        acceptance_resp = self.sslsession.get(url, verify=False, auth=(self.username, self.password))
         return acceptance_resp
 
     def create_acceptance(self, params, huid):
         #data = json.dumps(params)
-        useracceptanceurl = settings.ICOMMONS_COMMON['ICOMMONS_API_HOST']+'policy_agreement/create_acceptance/'+huid
+        url = self.host+'policy_agreement/create_acceptance/'+huid
         #sslsession = requests.Session()
         #sslsession.mount('https://', MyAdapter())
+        logger.debug('API CALL: '+url)
         headers = {'content-type': 'application/x-www-form-urlencoded'}
-        resp = self.sslsession.post(useracceptanceurl, verify=False, \
-            data=params, headers=headers, auth=(settings.ICOMMONS_COMMON['ICOMMONS_API_USER'], settings.ICOMMONS_COMMON['ICOMMONS_API_PASS']))
+        resp = self.sslsession.post(url, verify=False, \
+            data=params, headers=headers, auth=(self.username, self.password))
         return resp
 

@@ -44,7 +44,6 @@ def launch(request):
     validdepartment = False
     userinwhitelist = False
     usercanaccess = False
-    #valid_school_code = None
     firstname = None
     lastname = None
     email = None
@@ -58,8 +57,8 @@ def launch(request):
     currentdate = datetime.datetime.utcfromtimestamp(currenttime).strftime('%Y-%m-%dT%H:%M:%S')
 
     # get the expiration date in the correct format i.e. '2008-07-16T15:42:51' (date format is same as above)
-    # In this case we take the current time and add 10 minutes (600 seconds)
-    expirationdate = datetime.datetime.utcfromtimestamp(currenttime + 600).strftime('%Y-%m-%dT%H:%M:%S')
+    # In this case we take the current time and add 5 minutes (300 seconds)
+    expirationdate = datetime.datetime.utcfromtimestamp(currenttime + 300).strftime('%Y-%m-%dT%H:%M:%S')
 
     huid = request.user.username
     persondataobj = IcommonsApi()
@@ -81,7 +80,7 @@ def launch(request):
     else:
         loggmsg = 'huid: {}, api call returned response code {}'.format(huid, str(resp.status_code))
         logger.error(loggmsg)
-        return render(request, 'qualtrics_link/error.html', {'request': request, 'msg' : 'response code '+str(resp.status_code)})
+        return render(request, 'qualtrics_link/error.html', {'request': request})
 
     userinwhitelist = isuserinwhitelist(huid)
  
@@ -106,11 +105,11 @@ def launch(request):
             else:
                 loggmsg = 'huid: {}, api call returned response code {}'.format(huid, str(resp.status_code))
                 logger.error(loggmsg)
-                return render(request, 'qualtrics_link/error.html', {'request': request, 'msg' : 'error retrieving acceptance_resp'})
+                return render(request, 'qualtrics_link/error.html', {'request': request})
         else:
             loggmsg = 'huid: {}, api call returned response code {}'.format(huid, str(resp.status_code))
             logger.error(loggmsg)
-            return render(request, 'qualtrics_link/error.html', {'request': request, 'msg' : 'Agreement service call returned '+acceptance_resp.status_code})
+            return render(request, 'qualtrics_link/error.html', {'request': request})
 
         enc_id = getencryptedhuid(huid)
         keyvaluepairs = "id="+enc_id+"&timestamp="+currentdate+"&expiration="+expirationdate+"&firstname="+firstname+"&lastname="+lastname+"&email="+email+"&UserType="+role+"&Division="+division
@@ -187,7 +186,7 @@ def internal(request):
     else:
         loggmsg = 'huid: {}, api call returned response code {}'.format(huid, str(person.status_code))
         logger.error(loggmsg)
-        return render(request, 'qualtrics_link/error.html', {'request': request, 'msg' : 'response code '+str(person.status_code)})
+        return render(request, 'qualtrics_link/error.html', {'request': request})
 
     userinwhitelist = isuserinwhitelist(huid)
  
@@ -212,20 +211,17 @@ def internal(request):
             else:
                 loggmsg = 'huid: {}, api call returned response code {}'.format(huid, str(person.status_code))
                 logger.error(loggmsg)
-                return render(request, 'qualtrics_link/error.html', {'request': request, 'msg' : 'error retrieving acceptance_resp'})
+                return render(request, 'qualtrics_link/error.html', {'request': request})
         else:
             loggmsg = 'huid: {}, api call returned response code {}'.format(huid, str(person.status_code))
             logger.error(loggmsg)
-            return render(request, 'qualtrics_link/error.html', {'request': request, 'msg' : 'Agreement service call returned '+acceptance_resp.status_code})
+            return render(request, 'qualtrics_link/error.html', {'request': request})
 
         
         enc_id = getencryptedhuid(huid)
-
         logline = "{}\t{}\t{}\t{}".format(time.time(), clientip, role, division)
         logger.info(logline)
-
         keyvaluepairs = "id="+enc_id+"&timestamp="+currentdate+"&expiration="+expirationdate+"&firstname="+firstname+"&lastname="+lastname+"&email="+email+"&UserType="+role+"&Division="+division
-        
         ssotestlink = getssotesturl(keyvaluepairs)
         qualtricslink = getqualtricsurl(keyvaluepairs) #'https://harvard.qualtrics.com/ControlPanel/?ssotoken='+encodedtoken
 
@@ -234,7 +230,7 @@ def internal(request):
     else:
         logline = "notauthorized\t{}\t{}\t{}\t{}".format(time.time(), clientip, role, division)
         logger.info(logline)
-        return render(request, 'qualtrics_link/notauthorized.html', {'request': request, 'division' : division})
+        return render(request, 'qualtrics_link/notauthinternal.html', {'request': request, 'person' : user, 'division' : division})
 
 
 @login_required
@@ -250,19 +246,12 @@ def user_accept_terms(request):
     ipaddress = getclientip(request)
     params = {'agreementId' : '260', 'ipAddress' : ipaddress,}
     resp = persondataobj.create_acceptance(params, huid)
-    #data = json.dumps(params)
-    #useracceptanceurl = settings.ICOMMONS_COMMON['ICOMMONS_API_HOST']+'policy_agreement/create_acceptance/'+huid
-    #sslsession = requests.Session()
-    #sslsession.mount('https://', MyAdapter())
-    #headers = {'content-type': 'application/x-www-form-urlencoded'}
-    #resp = sslsession.post(useracceptanceurl, verify=False, \
-    #    data=params, headers=headers, auth=(settings.ICOMMONS_COMMON['ICOMMONS_API_USER'], settings.ICOMMONS_COMMON['ICOMMONS_API_PASS']))
     
     if resp.status_code == 200:
         logger.info(resp.text)
         return redirect('ql:launch')
     else:
-        return render(request, 'qualtrics_link/error.html', {'request': request, 'msg' : 'no people were found'})
+        return render(request, 'qualtrics_link/error.html', {'request': request})
     
     return render(request, 'qualtrics_link/main.html', {'request': request})
 

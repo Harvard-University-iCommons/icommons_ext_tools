@@ -22,11 +22,6 @@ QUALTRICS_LINK = {
     'QUALTRICS_API_URL' : SECURE_SETTINGS['qualtrics_api_url'], 
     'QUALTRICS_API_USER' : SECURE_SETTINGS['qualtrics_api_user'], 
     'QUALTRICS_API_TOKEN' : SECURE_SETTINGS['qualtrics_api_token'], 
-
-    # to use auth_groups set allow_auth_groups to True and provide a list if groups
-    'ALLOW_AUTH_GROUPS' : False, # can be True or False
-    'AUTH_GROUPS': {
-    },
 }
 
 DATABASES = {

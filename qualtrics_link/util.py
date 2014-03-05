@@ -128,6 +128,11 @@ def builduserdict(data):
     
     userdata['role'] = 'generic'
     userdata['division'] = 'Other'
+    userdata['validschool'] = False
+    userdata['validdept'] = False
+    userdata['schoolaffiliations'] = None
+    userdata['departmentaffiliation'] = None
+    userdata['personaffiliation'] = None
     
     if 'people' in data:
         person = data['people'][0]
@@ -150,37 +155,30 @@ def builduserdict(data):
         #Person Affiliations check
         if 'personAffiliation' in person:
             personaffiliation = person['personAffiliation']
-            userdata['personaffiliation'] = personaffiliation
             if personaffiliation.lower() != 'not available':
+                userdata['personaffiliation'] = personaffiliation
                 userdata['role'] = personaffiliation
-        else:
-            userdata['personaffiliation'] = 'Not Available'
-            userdata['personaffiliation'] = None
 
         #School Affiliations check    
         if 'schoolAffiliations' in person:
             schoolaffiliations = person['schoolAffiliations']
             userdata['schoolaffiliations'] = schoolaffiliations
+            userdata['division'] = schoolaffiliations
             valid_school_code = getvalidschool(schoolaffiliations)
             if valid_school_code is not None:
                 userdata['validschool'] = True
                 userdata['role'] = 'student'
                 userdata['division'] = valid_school_code
-        else:
-            userdata['validschool'] = False
-            userdata['schoolaffiliations'] = None
 
         # Department Affiliations check
         if 'departmentAffiliation' in person:
             departmentaffiliation = person['departmentAffiliation']
             userdata['departmentaffiliation'] = departmentaffiliation
+            userdata['role'] = 'employee'
+            userdata['division'] = departmentaffiliation
             valid_department = getvaliddept(departmentaffiliation)
             if valid_department is not None:
                 userdata['validdept'] = True
-                userdata['role'] = 'employee'
-                userdata['division'] = departmentaffiliation
-        else:
-            userdata['validdept'] = False
-            userdata['departmentaffiliation'] = None
-
+                userdata['division'] = valid_department
+       
     return userdata
