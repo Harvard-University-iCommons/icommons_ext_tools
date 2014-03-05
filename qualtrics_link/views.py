@@ -8,7 +8,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from icommons_common.monitor.views import BaseMonitorResponseView
 from icommons_common.models import QualtricsAccessList
-from icommons_common.icommonsapi.icommonsapi import IcommonsApi
+from icommons_common.icommonsapi import IcommonsApi
 from icommons_common.auth.decorators import group_membership_restriction
 from django.http import HttpResponse
 import time
