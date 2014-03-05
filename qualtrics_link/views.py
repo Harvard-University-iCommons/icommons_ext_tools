@@ -9,13 +9,15 @@ from django.contrib.auth.decorators import login_required
 from icommons_common.monitor.views import BaseMonitorResponseView
 from icommons_common.models import QualtricsAccessList
 from icommons_common.icommonsapi.icommonsapi import IcommonsApi
+from icommons_common.auth.decorators import group_membership_restriction
 from django.http import HttpResponse
 import time
 import datetime
 from datetime import date
 import urllib
 #from qualtrics_link.icommonsapi import IcommonsApi
-from qualtrics_link.util import *
+#from qualtrics_link.util import *
+import qualtrics_link.util
 from qualtrics_link.forms import SpoofForm
 
 logger = logging.getLogger(__name__)
@@ -48,7 +50,7 @@ def launch(request):
     email = None
     role = None
     division = None
-    clientip = getclientip(request)
+    clientip = qualtrics_link.util.getclientip(request)
 
     # get the expiration date in the correct format i.e. '2008-07-16T15:42:51' (date format is same as above)
     # In this case we take the current time and add 1 minutes (60 seconds)
@@ -65,7 +67,7 @@ def launch(request):
 
     if resp.status_code == 200:
         data = resp.json()
-        userdict = builduserdict(data)
+        userdict = qualtrics_link.util.builduserdict(data)
         firstname = userdict['firstname']
         lastname = userdict['lastname']
         email = userdict['email']
@@ -77,11 +79,11 @@ def launch(request):
             validdepartment = userdict['validdept']
 
     else:
-        loggmsg = 'huid: {}, api call returned response code {}'.format(huid, str(resp.status_code))
-        logger.error(loggmsg)
+        logmsg = 'huid: {}, api call returned response code {}'.format(huid, str(resp.status_code))
+        logger.error(logmsg)
         return render(request, 'qualtrics_link/error.html', {'request': request})
 
-    userinwhitelist = isuserinwhitelist(huid)
+    userinwhitelist = qualtrics_link.util.isuserinwhitelist(huid)
  
     # check if the user can use qualtrics or not
     # the value of usercanaccess is set to False by default
@@ -102,30 +104,31 @@ def launch(request):
                     acceptance_text = acceptance_json['agreements'][0]['text']
                     return render(request, 'qualtrics_link/agreement.html', {'request': request, 'agreement' : acceptance_text})
             else:
-                loggmsg = 'huid: {}, api call returned response code {}'.format(huid, str(resp.status_code))
-                logger.error(loggmsg)
+                logmsg = 'huid: {}, api call returned response code {}'.format(huid, str(resp.status_code))
+                logger.error(logmsg)
                 return render(request, 'qualtrics_link/error.html', {'request': request})
         else:
-            loggmsg = 'huid: {}, api call returned response code {}'.format(huid, str(resp.status_code))
-            logger.error(loggmsg)
+            logmsg = 'huid: {}, api call returned response code {}'.format(huid, str(resp.status_code))
+            logger.error(logmsg)
             return render(request, 'qualtrics_link/error.html', {'request': request})
 
-        enc_id = getencryptedhuid(huid)
+        enc_id = qualtrics_link.util.getencryptedhuid(huid)
         keyvaluepairs = "id="+enc_id+"&timestamp="+currentdate+"&expiration="+expirationdate+"&firstname="+firstname+"&lastname="+lastname+"&email="+email+"&UserType="+role+"&Division="+division
-        qualtricslink = getqualtricsurl(keyvaluepairs) #'https://harvard.qualtrics.com/ControlPanel/?ssotoken='+encodedtoken
-        logline = "{}\t{}\t{}\t{}".format(time.time(), clientip, role, division)
+        qualtricslink = qualtrics_link.util.getqualtricsurl(keyvaluepairs) 
+        logline = "{}\t{}\t{}\t{}".format(currentdate, clientip, role, division)
         logger.info(logline)
 
         #the redirect line below will be how the application works if everything is good for the user. 
         return redirect(qualtricslink)
 
     else:
-        logline = "notauthorized\t{}\t{}\t{}\t{}".format(time.time(), clientip, role, division)
+        logline = "notauthorized\t{}\t{}\t{}\t{}".format(currentdate, clientip, role, division)
         logger.info(logline)
         return render(request, 'qualtrics_link/notauthorized.html', {'request': request})
 
 
 @login_required
+@group_membership_restriction(settings.QUALTRICS_LINK['QUALTRICS_AUTH_GROUP'])
 @require_http_methods(['GET'])
 def internal(request):
 
@@ -138,7 +141,7 @@ def internal(request):
     email = None
     role = None
     division = None
-    clientip = getclientip(request)
+    clientip = qualtrics_link.util.getclientip(request)
 
     # get the current date in the correct format i.e. '2008-07-16T15:42:51'
     currenttime = time.time()
@@ -148,10 +151,7 @@ def internal(request):
     # In this case we take the current time and add 10 minutes (600 seconds)
     expirationdate = datetime.datetime.utcfromtimestamp(currenttime + 600).strftime('%Y-%m-%dT%H:%M:%S')
 
-    # get the users id from the session, then encrypt it using the hashlib.md5 method. 
-    # Example of my huid from the qualtrics site: 3190b96f2c08b147f504034dfc051a8d#harvard
-    # The id matches minus the #harvard at the end.
-    
+    # Form to allow admins to spoof other users
     if 'huid' in request.GET: # If the form has been submitted...
         # ContactForm was defined in the the previous section
         spoofform = SpoofForm(request.GET) # A form bound to the POST data
@@ -163,13 +163,14 @@ def internal(request):
         spoofform = SpoofForm() # An unbound form
         huid = request.user.username
 
+    # initialize the icommons api module
     persondataobj = IcommonsApi()
     person = persondataobj.getpersondata(huid)
 
     if person.status_code == 200:
         data = person.json()
         user = data['people'][0]
-        userdict = builduserdict(data)
+        userdict = qualtrics_link.util.builduserdict(data)
         firstname = userdict['firstname']
         lastname = userdict['lastname']
         email = userdict['email']
@@ -183,11 +184,11 @@ def internal(request):
         userdict['expirationtime'] = expirationdate
 
     else:
-        loggmsg = 'huid: {}, api call returned response code {}'.format(huid, str(person.status_code))
-        logger.error(loggmsg)
+        logmsg = 'huid: {}, api call returned response code {}'.format(huid, str(person.status_code))
+        logger.error(logmsg)
         return render(request, 'qualtrics_link/error.html', {'request': request})
 
-    userinwhitelist = isuserinwhitelist(huid)
+    userinwhitelist = qualtrics_link.util.isuserinwhitelist(huid)
  
     # check if the user can use qualtrics or not
     # the value of usercanaccess is set to False by default
@@ -208,29 +209,26 @@ def internal(request):
                     acceptance_text = acceptance_json['agreements'][0]['text']
                     return render(request, 'qualtrics_link/agreement.html', {'request': request, 'agreement' : acceptance_text})
             else:
-                loggmsg = 'huid: {}, api call returned response code {}'.format(huid, str(person.status_code))
-                logger.error(loggmsg)
+                logmsg = 'huid: {}, api call returned response code {}'.format(huid, str(person.status_code))
+                logger.error(logmsg)
                 return render(request, 'qualtrics_link/error.html', {'request': request})
         else:
-            loggmsg = 'huid: {}, api call returned response code {}'.format(huid, str(person.status_code))
-            logger.error(loggmsg)
+            logmsg = 'huid: {}, api call returned response code {}'.format(huid, str(person.status_code))
+            logger.error(logmsg)
             return render(request, 'qualtrics_link/error.html', {'request': request})
 
-        
-        enc_id = getencryptedhuid(huid)
-        logline = "{}\t{}\t{}\t{}".format(time.time(), clientip, role, division)
+        enc_id = qualtrics_link.util.getencryptedhuid(huid)
+        logline = "{}\t{}\t{}\t{}".format(currentdate, clientip, role, division)
         logger.info(logline)
         keyvaluepairs = "id="+enc_id+"&timestamp="+currentdate+"&expiration="+expirationdate+"&firstname="+firstname+"&lastname="+lastname+"&email="+email+"&UserType="+role+"&Division="+division
-        ssotestlink = getssotesturl(keyvaluepairs)
-        qualtricslink = getqualtricsurl(keyvaluepairs) #'https://harvard.qualtrics.com/ControlPanel/?ssotoken='+encodedtoken
-
+        ssotestlink = qualtrics_link.util.getssotesturl(keyvaluepairs)
+        qualtricslink = qualtrics_link.util.getqualtricsurl(keyvaluepairs) #'https://harvard.qualtrics.com/ControlPanel/?ssotoken='+encodedtoken
         return render(request, 'qualtrics_link/main.html', {'request': request, 'qualtricslink' : qualtricslink, 'ssotestlink': ssotestlink, 'huid' : huid, 'user_in_whitelist' : userinwhitelist, 'keyValueDict' :  userdict, 'person' : user, 'form' : spoofform})
         
     else:
-        logline = "notauthorized\t{}\t{}\t{}\t{}".format(time.time(), clientip, role, division)
+        logline = "notauthorized\t{}\t{}\t{}\t{}".format(currentdate, clientip, role, division)
         logger.info(logline)
         return render(request, 'qualtrics_link/notauthinternal.html', {'request': request, 'person' : user, 'division' : division})
-
 
 @login_required
 @require_http_methods(['GET'])
@@ -242,7 +240,7 @@ def user_accept_terms(request):
 
     huid = request.user.username
     persondataobj = IcommonsApi()
-    ipaddress = getclientip(request)
+    ipaddress = qualtrics_link.util.getclientip(request)
     params = {'agreementId' : '260', 'ipAddress' : ipaddress,}
     resp = persondataobj.create_acceptance(params, huid)
     
@@ -258,7 +256,7 @@ def user_accept_terms(request):
 @require_http_methods(['GET'])
 def user_decline_terms(request):
 
-    return render(request, 'qualtrics_link/main.html', {'request': request})
+    return redirect(settings.QUALTRICS_LINK['USER_DECLINED_TERMS_URL'])
 
 
 @login_required

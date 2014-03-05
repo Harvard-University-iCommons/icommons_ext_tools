@@ -21,6 +21,8 @@ QUALTRICS_LINK = {
     'QUALTRICS_API_URL' : SECURE_SETTINGS['qualtrics_api_url'], 
     'QUALTRICS_API_USER' : SECURE_SETTINGS['qualtrics_api_user'], 
     'QUALTRICS_API_TOKEN' : SECURE_SETTINGS['qualtrics_api_token'], 
+    'QUALTRICS_AUTH_GROUP' : SECURE_SETTINGS['qualtrics_auth_group'],
+    'USER_DECLINED_TERMS_URL' : 'http://surveytools.harvard.edu',
 }
 
 DATABASE_ROUTERS = ['icommons_ext_tools.routers.DatabaseAppsRouter', ]
