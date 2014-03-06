@@ -3,22 +3,31 @@
 {% block title %}Qualtrics Terms of Service Agreement{% endblock %}
 {% block pagetitle %}Qualtrics Terms of Service Agreement{% endblock %}
 
-{% block content %}
-	<h2>Qualtrics@Harvard</h2>
+{% block stylesheet %}
+{{ block.super }}
+{% endblock %}
 
-<div class="result">Data</div>
+{% block content %}
+
+<h2>Qualtrics@Harvard</h2>
+
+<p>Qualtrics is web-based survey software available for use by
+Harvard faculty, students and staff to support teaching and
+research at Harvard. Surveys can be created and distributed by
+anyone with a Harvard PIN login. Ideal for:</p>
+
+<ul>
+<li>Simple one-time surveys to ongoing research</li>
+<li>Targeting respondents by e-mail address</li>
+<li>Publicly available surveys</li>
+<li>A wide range of question types</li>
+<li>Branching and piping</li>
+<li>Robust reporting</li>
+</ul>
+
 
 {% endblock %}
 
 {% block javascript %}
 {{ block.super }}
-<script type="text/javascript">
-	$( document ).ready(function() {
-		$.get( "get_org_info", function( data ) {
-		  $( "div.result" ).html( data.org_info );
-		  console.log(data.org_info);
-		});
-	});
-</script>
-
 {% endblock %}
