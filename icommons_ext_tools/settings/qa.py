@@ -1,21 +1,17 @@
 
 from .base import *
-#from .secure import SECURE_SETTINGS
-DEBUG = True
-#TEMPLATE_DEBUG = DEBUG
-#CRISPY_FAIL_SILENTLY = not DEBUG
+
+DEBUG = False
 
 ALLOWED_HOSTS = ['termtool-qa.icommons.harvard.edu']
 
 ICOMMONS_COMMON = {
-
     'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
     'ICOMMONS_API_USER': SECURE_SETTINGS['icommons_api_user'],
     'ICOMMONS_API_PASS': SECURE_SETTINGS['icommons_api_pass'],
 }
 
 QUALTRICS_LINK = {
-
     'AGREEMENT_ID' : SECURE_SETTINGS['qualtrics_agreement_id'],
     'QUALTRICS_APP_KEY' : SECURE_SETTINGS['qualtrics_app_key'],
     'QUALTRICS_API_URL' : SECURE_SETTINGS['qualtrics_api_url'], 
@@ -58,19 +54,24 @@ INSTALLED_APPS += ('gunicorn',)
 
 CACHES = {
     'default': {
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': '127.0.0.1:6379',
-        'OPTIONS': {
-            'PARSER_CLASS': 'redis.connection.HiredisParser'
-        },
-    },
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
 }
 
-SESSION_ENGINE = 'redis_sessions.session'
-SESSION_REDIS_HOST = 'localhost'
-SESSION_REDIS_PORT = 6379
+#CACHES = {
+#    'default': {
+#        'BACKEND': 'redis_cache.RedisCache',
+#        'LOCATION': '127.0.0.1:6379',
+#        'OPTIONS': {
+#            'PARSER_CLASS': 'redis.connection.HiredisParser'
+#        },
+#    },
+#}
 
-SESSION_COOKIE_SECURE = True
+#SESSION_ENGINE = 'redis_sessions.session'
+#SESSION_REDIS_HOST = 'localhost'
+#SESSION_REDIS_PORT = 6379
+#SESSION_COOKIE_SECURE = True
 
 LOGGING = {
     'version': 1,
