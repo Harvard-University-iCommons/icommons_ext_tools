@@ -9,10 +9,10 @@
 
 {{agreement|safe}}
 
-<div class="btn btn-default">
-	<a href="{% url 'ql:user_accept_terms' %}">Accept</a>
-</div>
-<a href="{% url 'ql:user_decline_terms' %}">[ Decline ]</a>
+
+<a href="{% url 'ql:user_accept_terms' %}" class="btn btn-default">Accept</a>
+
+<a href="{% url 'ql:user_decline_terms' %}" class="btn btn-link"> Decline </a>
  
 {% endblock %}
 

@@ -68,15 +68,15 @@ def launch(request):
     if resp.status_code == 200:
         data = resp.json()
         userdict = qualtrics_link.util.builduserdict(data)
-        firstname = userdict['firstname']
-        lastname = userdict['lastname']
-        email = userdict['email']
-        role = userdict['role']
-        division = userdict['division']
+        firstname = userdict.get('firstname')
+        lastname = userdict.get('lastname')
+        email = userdict.get('email')
+        role = userdict.get('role')
+        division = userdict.get('division')
         if 'validschool' in userdict:
-            validschool = userdict['validschool']
+            validschool = userdict.get('validschool')
         if 'validdept' in userdict:    
-            validdepartment = userdict['validdept']
+            validdepartment = userdict.get('validdept')
 
     else:
         logmsg = 'huid: {}, api call returned response code {}'.format(huid, str(resp.status_code))
@@ -93,7 +93,7 @@ def launch(request):
 
     if usercanaccess:
         #Check to see if the user has accepted the terms of service    
-        agreementid = settings.QUALTRICS_LINK['AGREEMENT_ID']
+        agreementid = settings.QUALTRICS_LINK.get('AGREEMENT_ID', '260')
         acceptance_resp = persondataobj.tos_get_acceptance(agreementid, huid)
         
         if acceptance_resp.status_code == 200:
@@ -128,7 +128,7 @@ def launch(request):
 
 
 @login_required
-@group_membership_restriction(settings.QUALTRICS_LINK['QUALTRICS_AUTH_GROUP'])
+@group_membership_restriction(settings.QUALTRICS_LINK.get('QUALTRICS_AUTH_GROUP'))
 @require_http_methods(['GET'])
 def internal(request):
 
@@ -171,15 +171,15 @@ def internal(request):
         data = person.json()
         user = data['people'][0]
         userdict = qualtrics_link.util.builduserdict(data)
-        firstname = userdict['firstname']
-        lastname = userdict['lastname']
-        email = userdict['email']
-        role = userdict['role']
-        division = userdict['division']
+        firstname = userdict.get('firstname')
+        lastname = userdict.get('lastname')
+        email = userdict.get('email')
+        role = userdict.get('role')
+        division = userdict.get('division')
         if 'validschool' in userdict:
-            validschool = userdict['validschool']
+            validschool = userdict.get('validschool')
         if 'validdept' in userdict:    
-            validdepartment = userdict['validdept']
+            validdepartment = userdict.get('validdept')
         userdict['currenttime'] = currentdate
         userdict['expirationtime'] = expirationdate
 
@@ -198,7 +198,7 @@ def internal(request):
     
     if usercanaccess:
         # If they are allowed to use Qualtrics, check to see if the user has accepted the terms of service    
-        agreementid = settings.QUALTRICS_LINK['AGREEMENT_ID']
+        agreementid = settings.QUALTRICS_LINK.get('AGREEMENT_ID')
         acceptance_resp = persondataobj.tos_get_acceptance(agreementid, huid)
         
         if acceptance_resp.status_code == 200:
@@ -256,20 +256,20 @@ def user_accept_terms(request):
 @require_http_methods(['GET'])
 def user_decline_terms(request):
 
-    return redirect(settings.QUALTRICS_LINK['USER_DECLINED_TERMS_URL'])
+    return redirect(settings.QUALTRICS_LINK.get('USER_DECLINED_TERMS_URL', 'http://surveytools.harvard.edu'))
 
 
 @login_required
 @require_http_methods(['GET'])
 def get_org_info(request):
 
-    apiurl = settings.QUALTRICS_LINK['QUALTRICS_API_URL']
+    apiurl = settings.QUALTRICS_LINK.get('QUALTRICS_API_URL')
     enddate = date.today().strftime("%Y-%m-%d")
 
     query = {
         'Request' : 'getResponseCountsByOrganization',
-        'User' : settings.QUALTRICS_LINK['QUALTRICS_API_USER'],
-        'Token' : settings.QUALTRICS_LINK['QUALTRICS_API_TOKEN'],
+        'User' : settings.QUALTRICS_LINK.get('QUALTRICS_API_USER'),
+        'Token' : settings.QUALTRICS_LINK.get('QUALTRICS_API_TOKEN'),
         'StartDate' : '2010-01-01',
         'EndDate' : enddate,
         'Format' : 'JSON',
@@ -283,8 +283,8 @@ def get_org_info(request):
 
     query2 = {
         'Request' : 'getOrgActivity',
-        'User' : settings.QUALTRICS_LINK['QUALTRICS_API_USER'],
-        'Token' : settings.QUALTRICS_LINK['QUALTRICS_API_TOKEN'],
+        'User' : settings.QUALTRICS_LINK.get('QUALTRICS_API_USER'),
+        'Token' : settings.QUALTRICS_LINK.get('QUALTRICS_API_TOKEN'),
         'Format' : 'JSON',
         'Version' : '2.0',
         'Organization' : 'harvard', 

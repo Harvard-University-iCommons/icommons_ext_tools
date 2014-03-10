@@ -83,6 +83,8 @@
 	</tr>
 </table>
 
+<div id="calloutdata"></div>
+
 <p><a href="{{ssotestlink}}">Qualtrics SSO test Link</a></p>
 <p><a href="{{qualtricslink}}">Qualtrics Survey Link</a></p>
 
@@ -105,7 +107,22 @@ $(document).ready(function() {
 		    	items.push( "<div class='qdata'>" + tkey + ": " + value + "</div>" );
 		    });
 		});
+
+		users = data.org_info[1].getOrgActivity.Result.UserActivity.TotalUsers;
+		surveys = data.org_info[1].getOrgActivity.Result.Surveys.TotalSurveys;
+		responses = data.org_info[0].getResponseCountsByOrganization.Result.Auditable;
 		
+		var calloutitems = [];
+		calloutitems.push("<li class='qdata'>Users: "+users+"</li>");
+		calloutitems.push("<li class='qdata'>Surveys: "+surveys+"</li>");
+		calloutitems.push("<li class='qdata'>Responses: "+responses+"</li>");
+
+		$("<ul/>",{
+		"class": "my-new-list", 
+		html: calloutitems.join("")
+		}).appendTo("#calloutdata");
+
+
 		$( "<div/>", {
 		"class": "my-new-list",
 		html: items.join( "" )
@@ -115,9 +132,6 @@ $(document).ready(function() {
 		$('#datadiv ul li').css('display', 'normal');
 		$('li').css('margin-left','10px');
 	});
-
-
-
 });
 </script>
 

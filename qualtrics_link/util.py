@@ -52,7 +52,7 @@ def getencryptedhuid(huid):
     return encid
 
 def createencodedtoken(keyvaluepairs):
-    key = settings.QUALTRICS_LINK['QUALTRICS_APP_KEY']
+    key = settings.QUALTRICS_LINK.get('QUALTRICS_APP_KEY')
     secret = bytes(key)
     data = bytes(keyvaluepairs)
     encoded = base64.b64encode(hmac.new(secret, data).digest())
@@ -63,7 +63,7 @@ def createencodedtoken(keyvaluepairs):
     return encodedtoken
 
 def getssotesturl(keyvaluepairs):
-    key = settings.QUALTRICS_LINK['QUALTRICS_APP_KEY']
+    key = settings.QUALTRICS_LINK.get('QUALTRICS_APP_KEY')
     encodedtoken = createencodedtoken(keyvaluepairs)
     ssotestlink = 'https://new.qualtrics.com/ControlPanel/ssoTest.php?key='+key+'&mac=md5&ssotoken='+encodedtoken
     return ssotestlink
@@ -96,7 +96,7 @@ def isunitvalid(unit):
 def getvalidschool(schools):
     for schoolcode in schools:
         school = lookupunit(schoolcode)
-        if  school not in BLACKLIST:
+        if school not in BLACKLIST:
             return school
 
 def getvaliddept(dept):
@@ -138,30 +138,30 @@ def builduserdict(data):
         person = data['people'][0]
         
         if 'firstName' in person:
-            userdata['firstname'] = person['firstName']
+            userdata['firstname'] = person.get('firstName')
         else:
             userdata['firstname'] = 'Not Available'
 
         if 'lastName' in person:
-            userdata['lastname'] = person['lastName']
+            userdata['lastname'] = person.get('lastName')
         else:
             userdata['lastname'] = 'Not Available'
 
         if 'email' in person:
-            userdata['email'] = person['email']
+            userdata['email'] = person.get('email')
         else:
             userdata['email'] = 'Not Available'
 
         #Person Affiliations check
         if 'personAffiliation' in person:
-            personaffiliation = person['personAffiliation']
+            personaffiliation = person.get('personAffiliation')
             if personaffiliation.lower() != 'not available':
                 userdata['personaffiliation'] = personaffiliation
                 userdata['role'] = personaffiliation
 
         #School Affiliations check    
         if 'schoolAffiliations' in person:
-            schoolaffiliations = person['schoolAffiliations']
+            schoolaffiliations = person.get('schoolAffiliations')
             userdata['schoolaffiliations'] = schoolaffiliations
             userdata['division'] = schoolaffiliations
             valid_school_code = getvalidschool(schoolaffiliations)
@@ -172,7 +172,7 @@ def builduserdict(data):
 
         # Department Affiliations check
         if 'departmentAffiliation' in person:
-            departmentaffiliation = person['departmentAffiliation']
+            departmentaffiliation = person.get('departmentAffiliation')
             userdata['departmentaffiliation'] = departmentaffiliation
             userdata['role'] = 'employee'
             userdata['division'] = departmentaffiliation
