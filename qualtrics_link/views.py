@@ -246,7 +246,7 @@ def user_accept_terms(request):
     
     if resp.status_code == 200:
         logger.info(resp.text)
-        return redirect('ql:launch')
+        return redirect(settings.QUALTRICS_LINK.get('USER_ACCEPTED_TERMS_URL', 'ql:launch'))
     else:
         return render(request, 'qualtrics_link/error.html', {'request': request})
     
