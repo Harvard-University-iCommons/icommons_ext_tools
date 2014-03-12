@@ -33,6 +33,9 @@
 		display: table-cell;
 		word-break:break-word;
 	}
+	#calloutdata {
+		margin-bottom: 10px;
+	}
 
 </style>
 
@@ -51,16 +54,12 @@
 
 <br />
 
-<div id="datadiv"><span class="caption">Data from the Qualtrics API:</span>
-	<br />
-	<br />
-</div>
+
 
 <br />
 
 <table>
 	<tr>
-		
 		<td valign="top" class="tdcss">
 			<table class="table">
 			 	<caption>Person Data from iCommons API</caption>
@@ -80,10 +79,15 @@
 			    <tr><th>user_in_whitelist</th><td>{{user_in_whitelist}}</td></tr>
 			</table>
 		</td>
+		<td valign="top">
+			<div id="datadiv"><span class="caption">Data from the Qualtrics API:</span></div>
+		</td>
 	</tr>
 </table>
 
+
 <div id="calloutdata"></div>
+
 
 <p><a href="{{ssotestlink}}">Qualtrics SSO test Link</a></p>
 <p><a href="{{qualtricslink}}">Qualtrics Survey Link</a></p>

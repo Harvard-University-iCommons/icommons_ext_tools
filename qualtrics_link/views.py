@@ -15,6 +15,7 @@ import time
 import datetime
 from datetime import date
 import urllib
+import pprint
 #from qualtrics_link.icommonsapi import IcommonsApi
 #from qualtrics_link.util import *
 import qualtrics_link.util
@@ -151,6 +152,12 @@ def internal(request):
     # In this case we take the current time and add 10 minutes (600 seconds)
     expirationdate = datetime.datetime.utcfromtimestamp(currenttime + 600).strftime('%Y-%m-%dT%H:%M:%S')
 
+    #pp = pprint.PrettyPrinter(indent=4)
+    print '************************************'
+    #pp.pprint(request.session)
+    print 'USER: '+str(request.session.get('spoofid'))
+    print '************************************'
+
     # Form to allow admins to spoof other users
     if 'huid' in request.GET: # If the form has been submitted...
         # ContactForm was defined in the the previous section
@@ -158,7 +165,13 @@ def internal(request):
         if spoofform.is_valid(): # All validation rules pass
             huid = request.GET['huid']
             if huid == '':
+                if 'spoofid' in request.session:
+                    del request.session['spoofid']
                 huid = request.user.username
+                
+    elif 'spoofid' in request.session:
+        huid = request.session.get('spoofid')
+        spoofform = SpoofForm({'huid' : huid})
     else:
         spoofform = SpoofForm() # An unbound form
         huid = request.user.username
@@ -207,6 +220,7 @@ def internal(request):
                 lenth = len(acceptance_json['agreements'])
                 if lenth > 0:
                     acceptance_text = acceptance_json['agreements'][0]['text']
+                    request.session['spoofid'] = huid
                     return render(request, 'qualtrics_link/agreement.html', {'request': request, 'agreement' : acceptance_text})
             else:
                 logmsg = 'huid: {}, api call returned response code {}'.format(huid, str(person.status_code))
@@ -238,7 +252,10 @@ def user_accept_terms(request):
     #import httplib
     #httplib.HTTPConnection.debuglevel = 1
 
-    huid = request.user.username
+    huid = request.session.get('spoofid', False)
+    if not huid:
+        huid = request.user.username
+
     persondataobj = IcommonsApi()
     ipaddress = qualtrics_link.util.getclientip(request)
     params = {'agreementId' : '260', 'ipAddress' : ipaddress,}
