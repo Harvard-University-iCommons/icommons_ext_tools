@@ -1,0 +1,19 @@
+# test environment requirements
+
+# includes the base.txt requirements needed in all environments
+-r base.txt   
+ 
+# below are requirements specific to the test environment
+newrelic==2.8.0.7
+
+django-debug-toolbar==1.0.1
+
+git+https://github.com/inducer/pudb.git#egg=pudb
+
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@develop#egg=django-icommons-common
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@develop#egg=django-icommons-ui
+
+gunicorn
+
+#git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v1.2.4#egg=django-icommons-common
+#git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v0.4#egg=django-icommons-ui
