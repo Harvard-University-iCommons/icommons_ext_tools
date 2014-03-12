@@ -11,29 +11,23 @@ ICOMMONS_COMMON = {
     'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
     'ICOMMONS_API_USER': SECURE_SETTINGS['icommons_api_user'],
     'ICOMMONS_API_PASS': SECURE_SETTINGS['icommons_api_pass'],
-    #'CANVAS_API_BASE_URL': 'https://canvas.icommons.harvard.edu/api/v1',
-    #'CANVAS_API_HEADERS': {'Authorization': 'Bearer ' + SECURE_SETTINGS['CANVAS_TOKEN']},
 }
 
 QUALTRICS_LINK = {
-
-    'AGREEMENT_ID' : '260',
+    'AGREEMENT_ID' : SECURE_SETTINGS['qualtrics_agreement_id'],
     'QUALTRICS_APP_KEY' : SECURE_SETTINGS['qualtrics_app_key'],
     'QUALTRICS_API_URL' : SECURE_SETTINGS['qualtrics_api_url'], 
     'QUALTRICS_API_USER' : SECURE_SETTINGS['qualtrics_api_user'], 
     'QUALTRICS_API_TOKEN' : SECURE_SETTINGS['qualtrics_api_token'], 
+    'QUALTRICS_AUTH_GROUP' : SECURE_SETTINGS['qualtrics_auth_group'],
+    'USER_DECLINED_TERMS_URL' : 'ql:internal', # only in QA
+    'USER_ACCEPTED_TERMS_URL' : 'ql:internal', # only in QA
+}
 
-    'AUTH_GROUPS': {
-        'IcGroup:25096': 'gse',
-        'IcGroup:25095': 'colgsas',
-        'IcGroup:25097': 'hls',
-        'IcGroup:25098': 'hsph',
-        'IcGroup:25099': 'hds',
-        'IcGroup:25100': 'gsd',
-        'IcGroup:25101': 'ext',
-        'IcGroup:25102': 'hks',
-        'IcGroup:25178': 'sum'
-    },
+DATABASE_ROUTERS = ['icommons_ext_tools.routers.DatabaseAppsRouter', ]
+
+DATABASE_APPS_MAPPING = {
+    'qualtrics_link': 'default',
 }
 
 DATABASES = {
@@ -169,17 +163,9 @@ LOGGING = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': '127.0.0.1:6379',
-        'OPTIONS': {
-            'PARSER_CLASS': 'redis.connection.HiredisParser'
-        },
-    },
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
 }
-
-SESSION_ENGINE = 'redis_sessions.session'
-SESSION_REDIS_HOST = 'localhost'
-SESSION_REDIS_PORT = 6379
 
 '''
 HUEY = {
