@@ -11,35 +11,84 @@ from icommons_common.models import QualtricsAccessList
 
 logger = logging.getLogger(__name__)
 
-BLACKLIST = set(['HBS', 'HMS', 'HSDM'])
+BLACKLIST = set(['HBS', 'HMS', 'HSDM', 'HBP'])
 AREA_LOOKUP = {
-    'SUM'  : 'EXT',
-    'EXT'  : 'EXT',
-    'DCE'  : 'EXT',
-    'ECS'  : 'EXT',
-    'FAS'  : 'FAS',
-    'EAS'  : 'FAS', 
-    'COL'  : 'FAS',
-    'FGS'  : 'FAS',
-    'GSD'  : 'GSD',
-    'DES'  : 'GSD',
-    'EDU'  : 'GSE',
-    'GSE'  : 'GSE',
-    'HDS'  : 'HDS',
-    'DIV'  : 'HDS',
-    'HKS'  : 'HKS',
-    'KSG'  : 'HKS',
-    'HLS'  : 'HLS',
-    'LAW'  : 'HLS',
-    'HSPH' : 'HSPH',
-    'SPH'  : 'HSPH',
-    'UIS'  : 'HUIT',
-    'HUIT' : 'HUIT',
-    'HBS'  : 'HBS',
+    'AAD' : 'HAA (Alumni Assoc.)',
+    'ADG' : 'Central Administration',
+    'ARB' : 'Central Administration',
+    'ART' : 'Central Administration',
+    'COL' : 'FAS',
+    'DCE' : 'EXT',
+    'DEF' : 'Central Administration',
+    'DES' : 'GSD',
+    'DIN' : 'Central Administration',
+    'DIV' : 'HDS',
+    'DOK' : 'Central Administration',
+    'EAS' : 'FAS',
+    'EAS' : 'FAS', 
+    'ECS' : 'EXT',
+    'EDU' : 'GSE',
+    'EXT' : 'EXT',
+    'FAS' : 'FAS',
+    'FCL' : 'Central Administration',
+    'FGS' : 'FAS',
+    'GSD' : 'GSD',
+    'GSE' : 'GSE',
+    'HAM' : 'Central Administration',
+    'HAS' : 'Central Administration',
+    'HBP' : 'HBS',
+    'HBS' : 'HBS',
+    'HCL' : 'FAS',
+    'HCU' : 'Central Administration',
+    'HDS' : 'HDS',
+    'HGR' : 'Central Administration',
+    'HIO' : 'Central Administration',
+    'HKS' : 'HKS',
+    'HLN' : 'Central Administration',
+    'HLS' : 'HLS',
+    'HMC' : 'Central Administration',
+    'HMS' : 'HMS',
+    'HRE' : 'Central Administration',
     'HSDM' : 'HSDM',
-    'HMS'  : 'HMS',
+    'HSPH' : 'HSPH',
+    'HUIT' : 'HUIT',
+    'HUL' : 'Central Administration',
+    'HUP' : 'Central Administration',
+    'HUS' : 'Central Administration',
+    'HVN' : 'Central Administration',
+    'INI' : 'Central Administration',
+    'KSG' : 'HKS',
+    'LAS' : 'Central Administration',
+    'LAW' : 'HLS',
+    'LHF' : 'Central Administration',
+    'MAG' : 'Central Administration',
+    'MAR' : 'Central Administration',
+    'MEM' : 'Central Administration',
+    'NIE' : 'Central Administration',
     'Not Available' : 'Other',
+    'OGB' : 'Central Administration',
+    'OGC' : 'Central Administration',
+    'OHR' : 'Central Administration',
+    'OPR' : 'Central Administration',
     'Other' : 'Other',
+    'PAI' : 'Central Administration',
+    'POL' : 'Central Administration',
+    'RAD' : 'Radcliffe',
+    'SAO' : 'Central Administration',
+    'SDM' : 'HSDM',
+    'SPH' : 'HSPH',
+    'SPH' : 'HSPH',
+    'SUM' : 'EXT',
+    'TBD' : 'Central Administration',
+    'UHS' : 'Central Administration',
+    'UIS' : 'HUIT',
+    'UNP' : 'Central Administration',
+    'UOS' : 'Central Administration',
+    'UPO' : 'Central Administration',
+    'VIT' : 'Central Administration',
+    'VPA' : 'Central Administration',
+    'VPF' : 'Central Administration',
+    'VPG' : 'Central Administration',
 } 
 
 BS = 16
@@ -137,48 +186,33 @@ def builduserdict(data):
     if 'people' in data:
         person = data['people'][0]
         
-        if 'firstName' in person:
-            userdata['firstname'] = person.get('firstName')
-        else:
-            userdata['firstname'] = 'Not Available'
-
-        if 'lastName' in person:
-            userdata['lastname'] = person.get('lastName')
-        else:
-            userdata['lastname'] = 'Not Available'
-
-        if 'email' in person:
-            userdata['email'] = person.get('email')
-        else:
-            userdata['email'] = 'Not Available'
+        userdata['firstname'] = person.get('firstName', 'Not Available')
+        userdata['lastname'] = person.get('lastName', 'Not Available')
+        userdata['email'] = person.get('email', 'Not Available')
 
         #Person Affiliations check
-        if 'personAffiliation' in person:
-            personaffiliation = person.get('personAffiliation')
-            if personaffiliation.lower() != 'not available':
-                userdata['personaffiliation'] = personaffiliation
-                userdata['role'] = personaffiliation
+        personaffiliation = person.get('personAffiliation', 'Not Available')
+        if personaffiliation.lower() != 'not available':
+            userdata['personaffiliation'] = personaffiliation
+            userdata['role'] = personaffiliation
 
         #School Affiliations check    
-        if 'schoolAffiliations' in person:
-            schoolaffiliations = person.get('schoolAffiliations')
-            userdata['schoolaffiliations'] = schoolaffiliations
-            userdata['division'] = schoolaffiliations
-            valid_school_code = getvalidschool(schoolaffiliations)
-            if valid_school_code is not None:
-                userdata['validschool'] = True
-                userdata['role'] = 'student'
-                userdata['division'] = valid_school_code
+        schoolaffiliations = person.get('schoolAffiliations', 'Not Available')
+        userdata['schoolaffiliations'] = schoolaffiliations
+        valid_school_code = getvalidschool(schoolaffiliations)
+        if valid_school_code is not None:
+            userdata['validschool'] = True
+            userdata['role'] = 'student'
+            userdata['division'] = valid_school_code
 
         # Department Affiliations check
-        if 'departmentAffiliation' in person:
-            departmentaffiliation = person.get('departmentAffiliation')
+        departmentaffiliation = person.get('departmentAffiliation', 'Not Available')
+        if departmentaffiliation != 'Not Available':
             userdata['departmentaffiliation'] = departmentaffiliation
-            userdata['role'] = 'employee'
-            userdata['division'] = departmentaffiliation
             valid_department = getvaliddept(departmentaffiliation)
             if valid_department is not None:
                 userdata['validdept'] = True
+                userdata['role'] = 'employee'
                 userdata['division'] = valid_department
        
     return userdata

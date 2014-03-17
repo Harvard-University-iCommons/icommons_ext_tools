@@ -2,7 +2,6 @@
 
 from django.shortcuts import render, redirect
 from django.views.decorators.http import require_http_methods
-#from time import time
 import logging
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -11,18 +10,15 @@ from icommons_common.models import QualtricsAccessList
 from icommons_common.icommonsapi import IcommonsApi
 from icommons_common.auth.decorators import group_membership_restriction
 from django.http import HttpResponse
+from datetime import date
 import time
 import datetime
-from datetime import date
 import urllib
 import pprint
-#from qualtrics_link.icommonsapi import IcommonsApi
-#from qualtrics_link.util import *
 import qualtrics_link.util
 from qualtrics_link.forms import SpoofForm
 
 logger = logging.getLogger(__name__)
-
 
 class MonitorResponseView(BaseMonitorResponseView):
     def healthy(self):
@@ -152,29 +148,31 @@ def internal(request):
     # In this case we take the current time and add 10 minutes (600 seconds)
     expirationdate = datetime.datetime.utcfromtimestamp(currenttime + 600).strftime('%Y-%m-%dT%H:%M:%S')
 
-    #pp = pprint.PrettyPrinter(indent=4)
-    print '************************************'
-    #pp.pprint(request.session)
-    print 'USER: '+str(request.session.get('spoofid'))
-    print '************************************'
-
+ 
     # Form to allow admins to spoof other users
     if 'huid' in request.GET: # If the form has been submitted...
         # ContactForm was defined in the the previous section
         spoofform = SpoofForm(request.GET) # A form bound to the POST data
         if spoofform.is_valid(): # All validation rules pass
             huid = request.GET['huid']
+            logger.info('USER: '+str(request.user.username)+ ' Spoofing: ' +huid)
             if huid == '':
                 if 'spoofid' in request.session:
                     del request.session['spoofid']
                 huid = request.user.username
                 
     elif 'spoofid' in request.session:
+        # we got here becuase the user accepted the tos and we needed a way to stay the spoofed user
         huid = request.session.get('spoofid')
+        
+        logger.info('USER: '+str(request.user.username)+ ' Spoofing: ' +str(request.session.get('spoofid', 'None')))
+        
         spoofform = SpoofForm({'huid' : huid})
     else:
         spoofform = SpoofForm() # An unbound form
         huid = request.user.username
+
+
 
     # initialize the icommons api module
     persondataobj = IcommonsApi()
