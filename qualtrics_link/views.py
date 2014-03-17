@@ -155,6 +155,7 @@ def internal(request):
         spoofform = SpoofForm(request.GET) # A form bound to the POST data
         if spoofform.is_valid(): # All validation rules pass
             huid = request.GET['huid']
+            huid = huid.strip()
             logger.info('USER: '+str(request.user.username)+ ' Spoofing: ' +huid)
             if huid == '':
                 if 'spoofid' in request.session:
@@ -164,13 +165,15 @@ def internal(request):
     elif 'spoofid' in request.session:
         # we got here becuase the user accepted the tos and we needed a way to stay the spoofed user
         huid = request.session.get('spoofid')
+        huid = huid.strip()
         
         logger.info('USER: '+str(request.user.username)+ ' Spoofing: ' +str(request.session.get('spoofid', 'None')))
         
-        spoofform = SpoofForm({'huid' : huid})
+        spoofform = SpoofForm({'huid' : huid.strip()})
     else:
         spoofform = SpoofForm() # An unbound form
         huid = request.user.username
+        huid = huid.strip()
 
 
 
