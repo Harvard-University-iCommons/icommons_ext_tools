@@ -36,11 +36,11 @@ DATABASE_APPS_MAPPING = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'isiteqa',
+        'NAME': 'isitedgd',
         'USER': SECURE_SETTINGS['django_db_user'],
         'PASSWORD': SECURE_SETTINGS['django_db_pass'],
         'HOST': 'icd3.isites.harvard.edu',
-        'PORT': '8003',
+        'PORT': '8103',
         'OPTIONS': {
             'threaded': True,
         },
@@ -58,25 +58,25 @@ DATABASE_EXTRAS = {
 
 INSTALLED_APPS += ('gunicorn',)
 
-#CACHES = {
-#    'default': {
-#        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
-#    }
-#}
-
 CACHES = {
     'default': {
-        'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': '127.0.0.1:6379',
-        'OPTIONS': {
-            'PARSER_CLASS': 'redis.connection.HiredisParser'
-        },
-    },
+        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+    }
 }
 
-SESSION_ENGINE = 'redis_sessions.session'
-SESSION_REDIS_HOST = 'localhost'
-SESSION_REDIS_PORT = 6379
+#CACHES = {
+#    'default': {
+#        'BACKEND': 'redis_cache.RedisCache',
+#        'LOCATION': '127.0.0.1:6379',
+#        'OPTIONS': {
+#            'PARSER_CLASS': 'redis.connection.HiredisParser'
+#        },
+#    },
+#}
+
+#SESSION_ENGINE = 'redis_sessions.session'
+#SESSION_REDIS_HOST = 'localhost'
+#SESSION_REDIS_PORT = 6379
 #
 
 LOGGING = {
@@ -168,6 +168,6 @@ LOGGING = {
     }
 }
 
-SESSION_COOKIE_SECURE = True
+#SESSION_COOKIE_SECURE = True
 
 GUNICORN_CONFIG = 'gunicorn_prod.py'
