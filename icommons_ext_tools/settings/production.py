@@ -98,7 +98,7 @@ LOGGING = {
     'handlers': {
         'mail_admins': {
             'level': 'ERROR',
-            'filters': ['require_debug_false'),
+            'filters': ['require_debug_false'],
             'class': 'django.utils.log.AdminEmailHandler'
         },
         # Log to a text file that can be rotated by logrotate
@@ -115,52 +115,52 @@ LOGGING = {
     },
     'loggers': {
         'django.request': {
-            'handlers': ['console', 'logfile'),
+            'handlers': ['console', 'logfile'],
             'level': 'ERROR',
             'propagate': True,
         },
         'django': {
-            'handlers': ['console', 'logfile'),
+            'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'qualtrics_link': {
-            'handlers': ['console', 'logfile'),
+            'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'icommons_common': {
-            'handlers': ['mail_admins', 'console', 'logfile'),
+            'handlers': ['mail_admins', 'console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'oraclepool': {
-            'handlers': ['console', 'logfile'),
+            'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'huey.consumer': {
-            'handlers': ['logfile'),
+            'handlers': ['logfile'],
             'level': 'INFO',
             'propagate': True,
         },
         'icommons_common.auth.views': {
-            'handlers': ['console', 'logfile'),
+            'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'rest_framework': {
-            'handlers': ['console', 'logfile'),
+            'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'django.db.backends.oracle': {
-            'handlers': ['console', 'logfile'),
+            'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'canvas_shopping': {
-            'handlers': ['mail_admins', 'console', 'logfile', ),
+            'handlers': ['mail_admins', 'console', 'logfile', ],
             'level': 'DEBUG',
             'propagate': True,
         },
