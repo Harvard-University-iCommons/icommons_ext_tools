@@ -3,8 +3,8 @@ from .base import *
 
 import os
 
-os.environ['http_proxy'] = 'http://10.34.5.254:8080'
-os.environ['https_proxy'] = 'http://10.34.5.254:8080'
+#os.environ['http_proxy'] = 'http://10.34.5.254:8080'
+#os.environ['https_proxy'] = 'http://10.34.5.254:8080'
 
 DEBUG = False
 
