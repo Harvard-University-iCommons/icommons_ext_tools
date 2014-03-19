@@ -100,7 +100,7 @@
 <script type="text/javascript">
 
 $(document).ready(function() {
-	$.getJSON( "get_org_info", function( data ) {
+	$.getJSON( "get_org_info.json", function( data ) {
 	
 		var items = [];
 		$.each( data.org_info[0].getResponseCountsByOrganization.Result, function( key, val ) {
