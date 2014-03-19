@@ -277,7 +277,6 @@ def user_decline_terms(request):
     return redirect(settings.QUALTRICS_LINK.get('USER_DECLINED_TERMS_URL', 'http://surveytools.harvard.edu'))
 
 
-@login_required
 @require_http_methods(['GET'])
 def get_org_info(request):
 
