@@ -39,8 +39,8 @@ DATABASES = {
         'NAME': 'isitedgd',
         'USER': SECURE_SETTINGS.get('django_db_user'),
         'PASSWORD': SECURE_SETTINGS.get('django_db_pass'),
-        'HOST': 'icd3.isites.harvard.edu',
-        'PORT': '8103',
+        'HOST': 'dbnode3.isites.harvard.edu',
+        'PORT': '8003',
         'OPTIONS': {
             'threaded': True,
         },
