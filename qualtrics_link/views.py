@@ -64,7 +64,7 @@ def launch(request):
     if not huid.isdigit():
         logline = "xidnotauthorized\t{}\t{}".format(currentdate, clientip)
         logger.info(logline)
-        return render(request, 'qualtrics_link/xidnotauthorized.html', {'request': request})
+        return render(request, 'qualtrics_link/notauthorized.html', {'request': request})
     
     persondataobj = IcommonsApi()
     resp = persondataobj.people_by_id(huid)
@@ -186,7 +186,7 @@ def internal(request):
     if not huid.isdigit():
         logline = "xidnotauthorized\t{}\t{}".format(currentdate, clientip)
         logger.info(logline)
-        return render(request, 'qualtrics_link/xidnotauthorized.html', {'request': request})
+        return render(request, 'qualtrics_link/notauthorized.html', {'request': request})
 
 
 
