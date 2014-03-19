@@ -59,6 +59,13 @@ def launch(request):
     expirationdate = datetime.datetime.utcfromtimestamp(currenttime + 300).strftime('%Y-%m-%dT%H:%M:%S')
 
     huid = request.user.username
+
+    # make sure this is an HUID
+    if not huid.isdigit():
+        logline = "xidnotauthorized\t{}\t{}".format(currentdate, clientip)
+        logger.info(logline)
+        return render(request, 'qualtrics_link/xidnotauthorized.html', {'request': request})
+    
     persondataobj = IcommonsApi()
     resp = persondataobj.people_by_id(huid)
 
@@ -174,6 +181,12 @@ def internal(request):
         spoofform = SpoofForm() # An unbound form
         huid = request.user.username
         huid = huid.strip()
+
+
+    if not huid.isdigit():
+        logline = "xidnotauthorized\t{}\t{}".format(currentdate, clientip)
+        logger.info(logline)
+        return render(request, 'qualtrics_link/xidnotauthorized.html', {'request': request})
 
 
 
