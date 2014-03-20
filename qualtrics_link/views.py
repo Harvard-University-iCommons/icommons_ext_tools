@@ -323,8 +323,10 @@ def get_org_info(request):
     params = urllib.urlencode(query2)
     apiresponse = urllib.urlopen(apiurl, params)
     orgactivity = '{ "getOrgActivity" : '+apiresponse.read()+ '}'
-    result = 'thejson({ "org_info" : ['+responsecounts+ ','+orgactivity+' ]})'
-    return HttpResponse(result, content_type="application/json")
+    result = '{ "org_info" : ['+responsecounts+ ','+orgactivity+' ]}'
+    response = HttpResponse(result, content_type="application/json")
+    response["Access-Control-Allow-Origin"] = "*" 
+    return response
 
 
 
