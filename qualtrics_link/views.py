@@ -323,7 +323,7 @@ def get_org_info(request):
     params = urllib.urlencode(query2)
     apiresponse = urllib.urlopen(apiurl, params)
     orgactivity = '{ "getOrgActivity" : '+apiresponse.read()+ '}'
-    result = '{ "org_info" : ['+responsecounts+ ','+orgactivity+' ]}'
+    result = 'thejson({ "org_info" : ['+responsecounts+ ','+orgactivity+' ]})'
     return HttpResponse(result, content_type="application/json")
 
 
