@@ -296,6 +296,8 @@ def get_org_info(request):
     apiurl = settings.QUALTRICS_LINK.get('QUALTRICS_API_URL')
     enddate = date.today().strftime("%Y-%m-%d")
 
+    #pp = pprint.PrettyPrinter(indent=4)
+
     query = {
         'Request' : 'getResponseCountsByOrganization',
         'User' : settings.QUALTRICS_LINK.get('QUALTRICS_API_USER'),
@@ -306,10 +308,19 @@ def get_org_info(request):
         'Version' : '2.0',
     }
 
-    params = urllib.urlencode(query)
-    apiresponse = urllib.urlopen(apiurl, params)
-    responsecounts = '{ "getResponseCountsByOrganization" : '+apiresponse.read()+ '}'
+    if 'getResponseCountsByOrganization' not in request.session:
+        params = urllib.urlencode(query)
+        apiresponse = urllib.urlopen(apiurl, params)
+        result = apiresponse.read()
+        request.session['getResponseCountsByOrganization'] = result
+    else:
+        result = request.session.get('getResponseCountsByOrganization', '{}')
+
+    #pp.pprint(result)
+
+    responsecounts = '{ "getResponseCountsByOrganization" : '+result+ '}'
     apiresponse = None
+    result = None
 
     query2 = {
         'Request' : 'getOrgActivity',
@@ -320,10 +331,19 @@ def get_org_info(request):
         'Organization' : 'harvard', 
     }
 
-    params = urllib.urlencode(query2)
-    apiresponse = urllib.urlopen(apiurl, params)
-    orgactivity = '{ "getOrgActivity" : '+apiresponse.read()+ '}'
+    if 'getOrgActivity' not in request.session:
+        params = urllib.urlencode(query2)
+        apiresponse = urllib.urlopen(apiurl, params)
+        result = apiresponse.read()
+        request.session['getOrgActivity'] = result
+    else:
+        result = request.session.get('getOrgActivity', '{}')
+
+    #pp.pprint(result)
+
+    orgactivity = '{ "getOrgActivity" : '+result+ '}'
     result = '{ "org_info" : ['+responsecounts+ ','+orgactivity+' ]}'
+
     response = HttpResponse(result, content_type="application/json")
     response["Access-Control-Allow-Origin"] = "*" 
     return response
