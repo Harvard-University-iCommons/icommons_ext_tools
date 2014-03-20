@@ -23,8 +23,8 @@ QUALTRICS_LINK = {
     'QUALTRICS_API_USER' : SECURE_SETTINGS.get('qualtrics_api_user'), 
     'QUALTRICS_API_TOKEN' : SECURE_SETTINGS.get('qualtrics_api_token'), 
     'QUALTRICS_AUTH_GROUP' : SECURE_SETTINGS.get('qualtrics_auth_group'),
-    'USER_DECLINED_TERMS_URL' : 'http://surveytools.harvard.edu', # only in QA
-    'USER_ACCEPTED_TERMS_URL' : 'ql:launch', # only in QA
+    'USER_DECLINED_TERMS_URL' : 'http://surveytools.harvard.edu', 
+    'USER_ACCEPTED_TERMS_URL' : 'ql:launch', 
 }
 
 DATABASE_ROUTERS = ['icommons_ext_tools.routers.DatabaseAppsRouter', ]
