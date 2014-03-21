@@ -77,10 +77,8 @@ def launch(request):
         email = userdict.get('email')
         role = userdict.get('role')
         division = userdict.get('division')
-        if 'validschool' in userdict:
-            validschool = userdict.get('validschool')
-        if 'validdept' in userdict:    
-            validdepartment = userdict.get('validdept')
+        validschool = userdict.get('validschool', False)
+        validdepartment = userdict.get('validdept', False)
 
     else:
         logmsg = 'huid: {}, api call returned response code {}'.format(huid, str(resp.status_code))
@@ -173,22 +171,17 @@ def internal(request):
         # we got here becuase the user accepted the tos and we needed a way to stay the spoofed user
         huid = request.session.get('spoofid')
         huid = huid.strip()
-        
         logger.info('USER: '+str(request.user.username)+ ' Spoofing: ' +str(request.session.get('spoofid', 'None')))
-        
         spoofform = SpoofForm({'huid' : huid.strip()})
     else:
         spoofform = SpoofForm() # An unbound form
         huid = request.user.username
         huid = huid.strip()
 
-
     if not huid.isdigit():
         logline = "xidnotauthorized\t{}\t{}".format(currentdate, clientip)
         logger.info(logline)
         return render(request, 'qualtrics_link/notauthorized.html', {'request': request})
-
-
 
     # initialize the icommons api module
     persondataobj = IcommonsApi()
@@ -203,12 +196,10 @@ def internal(request):
         email = userdict.get('email')
         role = userdict.get('role')
         division = userdict.get('division')
-        if 'validschool' in userdict:
-            validschool = userdict.get('validschool')
-        if 'validdept' in userdict:    
-            validdepartment = userdict.get('validdept')
-        userdict['currenttime'] = currentdate
-        userdict['expirationtime'] = expirationdate
+        validschool = userdict.get('validschool', False)
+        validdepartment = userdict.get('validdept', False)
+        #userdict['currenttime'] = currentdate
+        #userdict['expirationtime'] = expirationdate
 
     else:
         logmsg = 'huid: {}, api call returned response code {}'.format(huid, str(person.status_code))
@@ -256,7 +247,7 @@ def internal(request):
     else:
         logline = "notauthorized\t{}\t{}\t{}\t{}".format(currentdate, clientip, role, division)
         logger.info(logline)
-        return render(request, 'qualtrics_link/notauthinternal.html', {'request': request, 'person' : user, 'division' : division})
+        return render(request, 'qualtrics_link/notauthinternal.html', {'request': request, 'person' : user, 'processeddata' : userdict})
 
 @login_required
 @require_http_methods(['GET'])

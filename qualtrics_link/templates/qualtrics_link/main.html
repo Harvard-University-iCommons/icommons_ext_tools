@@ -11,7 +11,7 @@
 		display: normal; 
 		float: right;
 	}
-	.table {  }
+	
 	caption { 
 		margin-bottom: 10px; 
 		font-size: large; 
@@ -22,20 +22,14 @@
 		font-size: large; 
 		font-weight: bold;
 	}
-	#datadiv { 
-		float: right; 
-	}
-	.tdcss { 
-		padding-right: 20px;
-	}
-	.qdata { }
 	td {
 		display: table-cell;
 		word-break:break-word;
 	}
-	#calloutdata {
-		margin-bottom: 10px;
+	.title {
+		text-align: center;
 	}
+	.spoof-form { width: 38%; }
 
 </style>
 
@@ -43,33 +37,37 @@
 
 {% block content %}
 
-<h2>Qualtrics Status</h2>
-
-<div id="formdiv">
-<form action="internal" method="get">{% csrf_token %}
-	{{ form.as_p }}
-	<input type="submit" value="Submit" class="btn btn-primary"/>
-</form>
-</div>
+<h1>Qualtrics Internal Dashboard</h1>
 
 <br />
 
+<div class="well spoof-form">
+<h4>Enter an HUID to spoof</h4>
+<form action="internal" method="get" role="form">{% csrf_token %}
+	{% for field in form %}
+	{{ field.label_tag }}&nbsp;{{ field }}
+	{% endfor %}
+	<input type="submit" value="Submit" class="btn btn-default"/>
+</form>
+</div>
 
 
 <br />
 
 <table>
 	<tr>
-		<td valign="top" class="tdcss">
-			<table class="table">
-			 	<caption>Person Data from iCommons API</caption>
+		<td valign="top">
+			<table class="table table-striped table-hover">
+			 	<caption>iCommons API Data</caption>
 			    {% for key,value in  person.items %}
 			    <tr> <th>{{key}}</th><td>{{value}}</td></tr> 
 			    {% endfor %}
 			</table>
+			<p><a href="{{ssotestlink}}" class="btn btn-primary">Qualtrics SSO test Link</a></p>
+			<p><a href="{{qualtricslink}}" class="btn btn-primary">Qualtrics Survey Link</a></p>
 		</td>
 		<td valign="top">
-			 <table class="table">
+			 <table class="table table-striped table-hover">
 			 	<caption>Processed Data</caption>
 			   	<tr> <th>user_id</th><td>{{huid}} </td></tr> 
 			    <tr> <th>authenticated</th><td>{{request.user.is_authenticated}}</td></tr> 
@@ -79,18 +77,11 @@
 			    <tr><th>user_in_whitelist</th><td>{{user_in_whitelist}}</td></tr>
 			</table>
 		</td>
-		<td valign="top">
-			<div id="datadiv"><span class="caption">Data from the Qualtrics API:</span></div>
+		<td valign="top" id="data">
 		</td>
 	</tr>
 </table>
 
-
-<div id="calloutdata"></div>
-
-
-<p><a href="{{ssotestlink}}">Qualtrics SSO test Link</a></p>
-<p><a href="{{qualtricslink}}">Qualtrics Survey Link</a></p>
 
 {% endblock %}
 
@@ -103,38 +94,24 @@ $(document).ready(function() {
 	$.getJSON( "get_org_info.json", function( data ) {
 	
 		var items = [];
+		items.push('<caption>Qualtrics API Data</caption>');
+		items.push('<tr><th colspan=2 class="alert alert-info">getResponseCountsByOrganization</th></tr>')
 		$.each( data.org_info[0].getResponseCountsByOrganization.Result, function( key, val ) {
-		    	items.push( "<div class='qdata'>" + key + ": " + val + "</div>" );
+		    	items.push( "<tr><th>" + key + "</th><td>" + val + "</td></tr>" );
 		  	});
+
+		items.push('<tr><th colspan=2 class="alert alert-info">getOrgActivity</th></tr>')
 		$.each( data.org_info[1].getOrgActivity.Result, function( key, val ) {
 			$.each( val, function(tkey, value) {
-		    	items.push( "<div class='qdata'>" + tkey + ": " + value + "</div>" );
+		    	items.push( "<tr><th>" + tkey + "</th><td>" + value + "</td></tr>" );
 		    });
 		});
 
-		users = data.org_info[1].getOrgActivity.Result.UserActivity.TotalUsers;
-		surveys = data.org_info[1].getOrgActivity.Result.Surveys.TotalSurveys;
-		responses = data.org_info[0].getResponseCountsByOrganization.Result.Auditable;
-		
-		var calloutitems = [];
-		calloutitems.push("<li class='qdata'>Users: "+users+"</li>");
-		calloutitems.push("<li class='qdata'>Surveys: "+surveys+"</li>");
-		calloutitems.push("<li class='qdata'>Responses: "+responses+"</li>");
-
-		$("<ul/>",{
-		"class": "my-new-list", 
-		html: calloutitems.join("")
-		}).appendTo("#calloutdata");
-
-
-		$( "<div/>", {
-		"class": "my-new-list",
+		$( "<table/>", {
+		"class": "table table-striped table-hover",
 		html: items.join( "" )
-		}).appendTo( "#datadiv" );
+		}).appendTo( "#data" );
 
-		$('#datadiv ul').css('list-style-type', 'none');
-		$('#datadiv ul li').css('display', 'normal');
-		$('li').css('margin-left','10px');
 	});
 });
 </script>

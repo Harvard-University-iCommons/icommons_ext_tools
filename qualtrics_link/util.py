@@ -179,9 +179,9 @@ def builduserdict(data):
     userdata['division'] = 'Other'
     userdata['validschool'] = False
     userdata['validdept'] = False
-    userdata['schoolaffiliations'] = None
-    userdata['departmentaffiliation'] = None
-    userdata['personaffiliation'] = None
+    #userdata['schoolaffiliations'] = None
+    #userdata['departmentaffiliation'] = None
+    #userdata['personaffiliation'] = None
     
     if 'people' in data:
         person = data['people'][0]
@@ -193,12 +193,13 @@ def builduserdict(data):
         #Person Affiliations check
         personaffiliation = person.get('personAffiliation', 'Not Available')
         if personaffiliation.lower() != 'not available':
-            userdata['personaffiliation'] = personaffiliation
+            #userdata['personaffiliation'] = personaffiliation
             userdata['role'] = personaffiliation
 
         #School Affiliations check    
         schoolaffiliations = person.get('schoolAffiliations', 'Not Available')
-        userdata['schoolaffiliations'] = schoolaffiliations
+
+        #userdata['schoolaffiliations'] = schoolaffiliations
         valid_school_code = getvalidschool(schoolaffiliations)
         if valid_school_code is not None:
             userdata['validschool'] = True
@@ -207,12 +208,13 @@ def builduserdict(data):
 
         # Department Affiliations check
         departmentaffiliation = person.get('departmentAffiliation', 'Not Available')
-        if departmentaffiliation != 'Not Available':
-            userdata['departmentaffiliation'] = departmentaffiliation
+        if departmentaffiliation.lower() != 'not available':
+            #userdata['departmentaffiliation'] = departmentaffiliation
             valid_department = getvaliddept(departmentaffiliation)
             if valid_department is not None:
                 userdata['validdept'] = True
                 userdata['role'] = 'employee'
                 userdata['division'] = valid_department
-       
+
+      
     return userdata
