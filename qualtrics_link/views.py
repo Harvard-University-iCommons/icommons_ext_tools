@@ -178,7 +178,9 @@ def internal(request):
         huid = request.user.username
         huid = huid.strip()
 
-    if not huid.isdigit():
+    userinwhitelist = qualtrics_link.util.isuserinwhitelist(huid)
+
+    if not huid.isdigit() and not userinwhitelist:
         logline = "xidnotauthorized\t{}\t{}".format(currentdate, clientip)
         logger.info(logline)
         return render(request, 'qualtrics_link/notauthorized.html', {'request': request})
@@ -206,7 +208,7 @@ def internal(request):
         logger.error(logmsg)
         return render(request, 'qualtrics_link/error.html', {'request': request})
 
-    userinwhitelist = qualtrics_link.util.isuserinwhitelist(huid)
+    
  
     # check if the user can use qualtrics or not
     # the value of usercanaccess is set to False by default
