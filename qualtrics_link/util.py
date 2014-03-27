@@ -191,10 +191,10 @@ def builduserdict(data):
         userdata['email'] = person.get('email', 'Not Available')
 
         #Person Affiliations check
-        personaffiliation = person.get('personAffiliation', 'Not Available')
-        if personaffiliation.lower() != 'not available':
+        #personaffiliation = person.get('personAffiliation', 'Not Available')
+        #if personaffiliation.lower() != 'not available':
             #userdata['personaffiliation'] = personaffiliation
-            userdata['role'] = personaffiliation
+            #userdata['role'] = personaffiliation
 
         #School Affiliations check    
         schoolaffiliations = person.get('schoolAffiliations', 'Not Available')
