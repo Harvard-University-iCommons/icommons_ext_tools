@@ -59,9 +59,10 @@ def launch(request):
     expirationdate = datetime.datetime.utcfromtimestamp(currenttime + 300).strftime('%Y-%m-%dT%H:%M:%S')
 
     huid = request.user.username
+    userinwhitelist = qualtrics_link.util.isuserinwhitelist(huid)
 
     # make sure this is an HUID
-    if not huid.isdigit():
+    if not huid.isdigit() and not userinwhitelist:
         logline = "xidnotauthorized\t{}\t{}".format(currentdate, clientip)
         logger.info(logline)
         return render(request, 'qualtrics_link/notauthorized.html', {'request': request})
@@ -85,7 +86,6 @@ def launch(request):
         logger.error(logmsg)
         return render(request, 'qualtrics_link/error.html', {'request': request})
 
-    userinwhitelist = qualtrics_link.util.isuserinwhitelist(huid)
  
     # check if the user can use qualtrics or not
     # the value of usercanaccess is set to False by default
@@ -275,7 +275,7 @@ def user_accept_terms(request):
     logger.error(logline)
     return render(request, 'qualtrics_link/error.html', {'request': request})
     
-    
+
 @login_required
 @require_http_methods(['GET'])
 def user_decline_terms(request):
