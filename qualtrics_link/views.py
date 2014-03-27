@@ -267,17 +267,21 @@ def user_accept_terms(request):
     resp = persondataobj.tos_create_acceptance(params, huid)
     
     if resp.status_code == 200:
-        logger.info(resp.text)
+        logline = "termsofservice accepted: \t{}\t{}\t{}".format(ipaddress, '260')
+        logger.info(logline)
         return redirect(settings.QUALTRICS_LINK.get('USER_ACCEPTED_TERMS_URL', 'ql:launch'))
-    else:
-        return render(request, 'qualtrics_link/error.html', {'request': request})
     
-    return render(request, 'qualtrics_link/main.html', {'request': request})
-
+    logline = "Error accepting terms of service"
+    logger.error(logline)
+    return render(request, 'qualtrics_link/error.html', {'request': request})
+    
+    
 @login_required
 @require_http_methods(['GET'])
 def user_decline_terms(request):
 
+    logline = "User decliend terms of service"
+    logger.info(logline)
     return redirect(settings.QUALTRICS_LINK.get('USER_DECLINED_TERMS_URL', 'http://surveytools.harvard.edu'))
 
 
