@@ -4,6 +4,7 @@ import hashlib
 import hmac
 import base64
 import logging
+import urllib2
 from Crypto.Cipher import AES
 from django.conf import settings
 from datetime import date
@@ -108,8 +109,8 @@ def createencodedtoken(keyvaluepairs):
     token = keyvaluepairs+'&mac='+encoded 
     raw = pad(token)
     cipher = AES.new(key, AES.MODE_ECB)
-    encodedtoken = base64.b64encode(cipher.encrypt(raw)) 
-    return encodedtoken
+    encodedtoken = base64.b64encode(cipher.encrypt(raw))
+    return urllib2.quote(encodedtoken.encode("utf8"),'') 
 
 def getssotesturl(keyvaluepairs):
     key = settings.QUALTRICS_LINK.get('QUALTRICS_APP_KEY')
@@ -120,6 +121,7 @@ def getssotesturl(keyvaluepairs):
 def getqualtricsurl(keyvaluepairs):
     encodedtoken = createencodedtoken(keyvaluepairs)
     qualtricsurl = 'https://harvard.qualtrics.com/ControlPanel/?ssotoken='+encodedtoken
+    print qualtricsurl
     return qualtricsurl
 
 def getclientip(request):

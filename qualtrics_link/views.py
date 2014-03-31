@@ -269,7 +269,7 @@ def user_accept_terms(request):
     resp = persondataobj.tos_create_acceptance(params, huid)
     
     if resp.status_code == 200:
-        logline = "termsofservice accepted: \t{}\t{}\t{}".format(ipaddress, '260')
+        logline = "termsofservice accepted: \t{}\t{}".format(ipaddress, '260')
         logger.info(logline)
         return redirect(settings.QUALTRICS_LINK.get('USER_ACCEPTED_TERMS_URL', 'ql:launch'))
     
