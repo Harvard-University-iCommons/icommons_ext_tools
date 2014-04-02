@@ -9,12 +9,76 @@
 
 {% block content %}
 
-<h2>Select Template or Previous Course</h2>
+<p>Course selected: {{session.course_id}}</p>
 
-<a href="{% url 'cw:select_isite_import' %}" class="btn btn-success">Next</a>
+<p><a href="{% url 'cw:select_course' %}" class="btn btn-primary">Back</a></p>
+
+<form action="select_isite_import" method="get" role="form">
+	{% csrf_token %}
+<table class="datatable table table-striped table-bordered">
+     <caption class="alert alert-info">Select a Template from the list below</caption>
+    <thead>
+        <tr>
+        	<th></th>
+         	<th>Template ID</th>
+            <th>Template Term</th>
+            <th>Template Name</th>
+        </tr>
+    </thead>
+    <tbody>
+    	<tr><td><input type="radio" name="template" value="1234" required></td>
+    		<td>1234</td>
+    		<td>FALL 2014</td>
+    		<td>FAS Core Template</td>
+    	</tr>
+    	<tr>
+    		<td><input type="radio" name="template" value="5678" required></td>
+    		<td>5678</td>
+    		<td>SUM 2014</td>
+    		<td>EXT SUMMER</td>
+    	</tr>
+	<tbody>
+</table>
+
+<p>Or</p>
+
+<table class="datatable table table-striped table-bordered">
+     <caption class="alert alert-info">Select a previous years course to use as the template</caption>
+    <thead>
+        <tr>
+        	<th></th>
+         	<th>Course ID</th>
+            <th>Short Name</th>
+            <th>Title</th>
+        </tr>
+    </thead>
+    <tbody>
+    	<tr><td><input type="radio" name="template" value="197237" required></td>
+    		<td>197237</td>
+    		<td>PHY216</td>
+    		<td>Principles of photoelectric systems</td>
+    	</tr>
+    	<tr>
+    		<td><input type="radio" name="template" value="197249" required></td>
+    		<td>197249</td>
+    		<td>GRK197</td>
+    		<td>Greek Plays</td>
+    	</tr>
+	<tbody>
+</table>
+
+<input type="submit" value="Next" class="btn btn-success"/>
+</form>
+
+
 
 {% endblock %}
 
 {% block javascript %}
 {{ block.super }}
+<script>
+	$(document).ready(function() {
+		$('.datatable').dataTable();
+	});
+</script>
 {% endblock %}

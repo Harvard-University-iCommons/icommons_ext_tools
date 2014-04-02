@@ -9,12 +9,49 @@
 
 {% block content %}
 
-<h2>Select iSite to import files</h2>
+<p>Course selected: {{session.course_id}}</p>
+<p>Template selected: {{session.template_id}}</p>
 
-<a href="{% url 'cw:finish' %}" class="btn btn-success">Next</a>
+<p><a href="{% url 'cw:select_template_or_course' %}" class="btn btn-primary">Back</a></p>
+
+<form action="finish" method="get" role="form">
+	{% csrf_token %}
+<table class="datatable table table-striped table-bordered">
+    <caption class="alert alert-info">Select and iSite to import files</caption>
+    <thead>
+        <tr>
+        	<th></th>
+         	<th>Course ID</th>
+            <th>Short Name</th>
+            <th>Title</th>
+        </tr>
+    </thead>
+    <tbody>
+    	<tr><td><input type="radio" name="isite_site_id" value="134356765"></td>
+    		<td>197237</td>
+    		<td>PHY216</td>
+    		<td>Principles of photoelectric systems</td>
+    	</tr>
+    	<tr>
+    		<td><input type="radio" name="isite_site_id" value="134356789"></td>
+    		<td>197249</td>
+    		<td>GRK197</td>
+    		<td>Greek Plays</td>
+    	</tr>
+	<tbody>
+</table>
+<input type="submit" value="Next" class="btn btn-success"/>
+</form>
+
+
 
 {% endblock %}
 
 {% block javascript %}
 {{ block.super }}
+<script>
+	$(document).ready(function() {
+		$('.datatable').dataTable();
+	});
+</script>
 {% endblock %}

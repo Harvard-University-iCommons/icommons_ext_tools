@@ -35,8 +35,11 @@ def launch(request):
     """
     doc string
     """
+    #pp = pprint.PrettyPrinter(indent=4)
+    huid = request.user.username
+    #pp.pprint(request)
     logger.info('Launch view')
-    return render(request, 'canvas_wizard/launch.html')
+    return render(request, 'canvas_wizard/launch.html', {'huid': huid})
 
 @login_required
 @require_http_methods(['GET'])
@@ -44,6 +47,15 @@ def select_course(request):
     """
     doc string
     """
+    if 'course_id' in request.session:
+        del request.session['course_id']
+
+    if 'template_id' in request.session:
+        del request.session['template_id']
+    
+    if 'isite_site_id' in request.session:
+        del request.session['isite_site_id']
+
     logger.info('select course view')
     return render(request, 'canvas_wizard/select_course.html')
 
@@ -53,8 +65,12 @@ def select_template_or_course(request):
     """
     doc string
     """
-    logger.info('select course view')
-    return render(request, 'canvas_wizard/select_template_or_course.html')
+
+    if 'course' in request.GET:
+        course_id = request.GET['course']
+        request.session['course_id'] = course_id
+
+    return render(request, 'canvas_wizard/select_template_or_course.html', {'session' : request.session})
 
 @login_required
 @require_http_methods(['GET'])
@@ -62,8 +78,11 @@ def select_isite_import(request):
     """
     doc string
     """
-    logger.info('select course view')
-    return render(request, 'canvas_wizard/select_isite_import.html')
+    if 'template' in request.GET:
+        template_id = request.GET['template']
+        request.session['template_id'] = template_id
+
+    return render(request, 'canvas_wizard/select_isite_import.html', {'session' : request.session})
 
 @login_required
 @require_http_methods(['GET'])
@@ -71,8 +90,15 @@ def finish(request):
     """
     doc string
     """
+    if 'isite_site_id' in request.GET:
+        isite_site_id = request.GET['isite_site_id']
+        request.session['isite_site_id'] = isite_site_id
+
+    # here we will initiate the course copy and isites import
+
+
     logger.info('select course view')
-    return render(request, 'canvas_wizard/finish.html')
+    return render(request, 'canvas_wizard/finish.html', {'session' : request.session})
 
 
 

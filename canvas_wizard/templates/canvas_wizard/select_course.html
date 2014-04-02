@@ -9,12 +9,44 @@
 
 {% block content %}
 
-<h2>Select Course</h2>
+<form action="select_template_or_course" method="get" role="form">
+	{% csrf_token %}
+<table class="datatable table table-striped table-bordered">
+    <caption class="alert alert-info">Select course to create a Canvas site</caption>
+    <thead>
+        <tr>
+        	<th></th>
+         	<th>Course ID</th>
+            <th>Short Name</th>
+            <th>Title</th>
+        </tr>
+    </thead>
+    <tbody>
+    	<tr><td><input type="radio" name="course" value="197237" required></td>
+    		<td>197237</td>
+    		<td>PHY216</td>
+    		<td>Principles of photoelectric systems</td>
+    	</tr>
+    	<tr>
+    		<td><input type="radio" name="course" value="197249" required></td>
+    		<td>197249</td>
+    		<td>GRK197</td>
+    		<td>Greek Plays</td>
+    	</tr>
+	<tbody>
+</table>
+<input type="submit" value="Next" class="btn btn-success"/>
+</form>
 
-<a href="{% url 'cw:select_template_or_course' %}" class="btn btn-success">Next</a>
-
+<!--<a href="{% url 'cw:select_template_or_course' %}" class="btn btn-success">Next</a>
+-->
 {% endblock %}
 
 {% block javascript %}
 {{ block.super }}
+	<script>
+	$(document).ready(function() {
+		$('.datatable').dataTable();
+	});
+</script>
 {% endblock %}
