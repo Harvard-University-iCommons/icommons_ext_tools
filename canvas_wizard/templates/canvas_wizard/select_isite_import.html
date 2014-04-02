@@ -1,0 +1,20 @@
+{% extends "canvas_wizard/base.html" %}
+
+{% block title %}iSite Import{% endblock %}
+{% block pagetitle %}Select iSite to import{% endblock %}
+
+{% block stylesheet %}
+{{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+<h2>Select iSite to import files</h2>
+
+<a href="{% url 'cw:finish' %}" class="btn btn-success">Next</a>
+
+{% endblock %}
+
+{% block javascript %}
+{{ block.super }}
+{% endblock %}

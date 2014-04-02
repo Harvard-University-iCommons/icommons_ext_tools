@@ -27,10 +27,15 @@ QUALTRICS_LINK = {
     'USER_ACCEPTED_TERMS_URL' : 'ql:internal', # only in QA
 }
 
+CANVAS_WIZARD = {
+    
+}
+
 DATABASE_ROUTERS = ['icommons_ext_tools.routers.DatabaseAppsRouter', ]
 
 DATABASE_APPS_MAPPING = {
     'qualtrics_link': 'default',
+    'canvas_wizard' : 'default',
 }
 
 DATABASES = {

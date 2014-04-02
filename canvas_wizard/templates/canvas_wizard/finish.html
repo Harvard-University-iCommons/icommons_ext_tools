@@ -1,0 +1,22 @@
+{% extends "canvas_wizard/base.html" %}
+
+{% block title %}Course Created{% endblock %}
+{% block pagetitle %}Course Created{% endblock %}
+
+{% block stylesheet %}
+{{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+<h2>Thank You</h2>
+
+<a href="http://canvas.icommons.harvard.edu/courses/4580" class="btn btn-primary">Course Link</a>
+
+<a href="{% url 'cw:select_course' %}" class="btn btn-primary">Create another course</a>
+
+{% endblock %}
+
+{% block javascript %}
+{{ block.super }}
+{% endblock %}

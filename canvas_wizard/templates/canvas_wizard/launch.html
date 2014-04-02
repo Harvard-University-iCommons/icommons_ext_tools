@@ -1,0 +1,22 @@
+{% extends "canvas_wizard/base.html" %}
+
+{% block title %}Canvas Course Wizard{% endblock %}
+{% block pagetitle %}Canvas Course Wizard{% endblock %}
+
+{% block stylesheet %}
+{{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+<h2>Canvas Course Wizard</h2>
+
+<p class="lead">Welcome to the Canvas Course Wizard</p>
+
+<a href="{% url 'cw:select_course' %}" class="btn btn-success">Start</a>
+
+{% endblock %}
+
+{% block javascript %}
+{{ block.super }}
+{% endblock %}
