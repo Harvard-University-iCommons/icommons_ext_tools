@@ -14,6 +14,8 @@ import datetime
 import urllib
 import pprint
 
+from canvas_api import Canvasapi
+
 logger = logging.getLogger(__name__)
 
 class MonitorResponseView(BaseMonitorResponseView):
@@ -35,6 +37,7 @@ def launch(request):
     """
     doc string
     """
+    instance = Canvasapi()
     #pp = pprint.PrettyPrinter(indent=4)
     huid = request.user.username
     #pp.pprint(request)
@@ -55,6 +58,11 @@ def select_course(request):
     
     if 'isite_site_id' in request.session:
         del request.session['isite_site_id']
+
+    # get course data for user to select which course they want to create in Canvas
+    # make sure the course does not already exist in Canvas 
+
+    # course data comes from the course instance table
 
     logger.info('select course view')
     return render(request, 'canvas_wizard/select_course.html')
@@ -95,7 +103,7 @@ def finish(request):
         request.session['isite_site_id'] = isite_site_id
 
     # here we will initiate the course copy and isites import
-
+    # instance.create_course_content_migration(source_course_id, course_id)
 
     logger.info('select course view')
     return render(request, 'canvas_wizard/finish.html', {'session' : request.session})
