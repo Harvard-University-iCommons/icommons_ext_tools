@@ -5,20 +5,43 @@
 
 {% block stylesheet %}
 {{ block.super }}
+<style>
+#menu {  text-align: center; list-style-type: none; }
+#menu li { margin-top: 5px; }
+</style>
 {% endblock %}
 
 {% block content %}
 
-<h2>Canvas Course Wizard</h2>
 
-<p class="lead">Welcome to the Canvas Course Wizard</p>
-
-<ul>
-	<li>huid: {{huid}}
-	<li>Need to get sub account id</li>
+<ul id="menu">
+	<li>
+		<h2>Canvas Course Wizard</h2>
+	</li>
+	<li>
+		<p class="lead">Welcome to the Canvas Course Wizard</p>
+	</li>
+	{% if can_use_wizard == 'Y' %}
+	<li>
+		<a href="{% url 'cw:select_course' %}" class="btn btn-primary btn-lg">Provision a Canvas Course</a>
+	</li>
+	{% endif %}
+	{% if can_bulk_create_courses == 'Y' %}
+	<li>
+		<a href="{% url 'cw:select_course' %}" class="btn btn-primary btn-lg">Bulk Create Canvas Courses</a>
+	</li>
+	{% endif %}
+	{% if can_manage_templates == 'Y' %}
+	<li>
+		<a href="{% url 'cw:manage_templates' %}" class="btn btn-primary btn-lg">Manage Templates</a>
+	</li>
+	{% endif %}
+	{% if can_manage_users == 'Y' %}
+	<li>
+		<a href="{% url 'cw:manage_users' %}" class="btn btn-primary btn-lg">Manage Users</a>
+	</li>
+	{% endif %}
 </ul>
-
-<a href="{% url 'cw:select_course' %}" class="btn btn-success">Start</a>
 
 {% endblock %}
 

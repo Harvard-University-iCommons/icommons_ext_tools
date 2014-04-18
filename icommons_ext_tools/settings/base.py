@@ -175,7 +175,7 @@ INSTALLED_APPS = (
     #'canvas_shopping',
     #'qualtrics_whitelist',
     #'gunicorn',
-    #'crispy_forms',
+    'crispy_forms',
     #'isites_export_tool',
     #'huey.djhuey',
     #'rest_framework',

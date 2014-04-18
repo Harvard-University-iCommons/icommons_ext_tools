@@ -9,15 +9,66 @@
 
 {% block content %}
 
-<p>Course selected: {{session.course_id}}</p>
-<p>Template selected: {{session.template_id}}</p>
+ <div class="well well-lg">
+ <table class="table table-bordered">
+    <caption>Selected Course</caption>
+    <thead>
+        <tr>
+            <th>Course Instance ID</th>
+            <th>Term</th>
+            <th>Short Name</th>
+            <th>Title</th>
+        </tr>
+    </thead>
+    <tbody>
+    
+        <tr>
+            <td>{{selected_course.course_instance_id}}</td>
+            <td>{{selected_course.term}}</td>
+            <td>{{selected_course.short_title|safe}} {{selected_course.sub_title|safe}}</td>
+            <td>{{selected_course.title|safe}}</td>
+        </tr>
+    
+    <tbody>
+</table>
+</div>
+<br />
 
-<p><a href="{% url 'cw:select_template_or_course' %}" class="btn btn-primary">Back</a></p>
+ <div class="well well-lg">
+ <table class="table table-bordered">
+    <caption>Selected Template</caption>
+    <thead>
+        <tr>
+            <th>Template ID</th>
+            <th>Term</th>
+            <th>Title</th>
+            <th>Type</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{selected_template.template_id}}</td>
+            <td>{{selected_template.term}}</td>
+            <td>{{selected_template.title|safe}}</td>
+            <td>{{selected_template.type}}</td>
+        </tr>
+    <tbody>
+</table>
+</div>
+<br />
 
-<form action="finish" method="get" role="form">
+<div class="well well-lg">
+<div class="checkbox">
+    <label>
+      <input id="isites-import-checkbox" type="checkbox"> I want to import files from an iSite.
+    </label>
+  </div>
+
+
+<form id="isites-import-form" action="finish" method="get" class="form-horizontal" role="form">
 	{% csrf_token %}
-<table class="datatable table table-striped table-bordered">
-    <caption class="alert alert-info">Select and iSite to import files</caption>
+<table class="table table-bordered">
+    <caption class="lead">Select an iSite to import files (optional)</caption>
     <thead>
         <tr>
         	<th></th>
@@ -27,13 +78,13 @@
         </tr>
     </thead>
     <tbody>
-    	<tr><td><input type="radio" name="isite_site_id" value="134356765"></td>
+    	<tr><td><input class="optional" type="radio" name="isite_site_id" value="134356765"></td>
     		<td>197237</td>
     		<td>PHY216</td>
     		<td>Principles of photoelectric systems</td>
     	</tr>
     	<tr>
-    		<td><input type="radio" name="isite_site_id" value="134356789"></td>
+    		<td><input class="optional" type="radio" name="isite_site_id" value="134356789"></td>
     		<td>197249</td>
     		<td>GRK197</td>
     		<td>Greek Plays</td>
@@ -42,8 +93,7 @@
 </table>
 <input type="submit" value="Next" class="btn btn-success"/>
 </form>
-
-
+</div>
 
 {% endblock %}
 
@@ -51,7 +101,21 @@
 {{ block.super }}
 <script>
 	$(document).ready(function() {
-		$('.datatable').dataTable();
+		
+        //$('.datatable').dataTable();
+
+        $('.optional').prop("disabled", true);
+
+        $('#isites-import-checkbox').change(function(){
+            
+            if($(this).is(":checked")) 
+            {
+                $('.optional').prop("disabled", false);
+            }
+            else {
+                $('.optional').prop("disabled", true);
+            }
+        });
 	});
 </script>
 {% endblock %}

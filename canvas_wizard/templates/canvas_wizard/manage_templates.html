@@ -1,0 +1,62 @@
+{% extends "canvas_wizard/base.html" %}
+
+{% block title %}Manage Templates{% endblock %}
+{% block pagetitle %}Manage Templates{% endblock %}
+
+{% block stylesheet %}
+{{ block.super }}
+<style>
+#del-template-btn { float: right; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="well well-lg">
+<a href="{% url 'cw:add_new_template_form' %}" id="add-template-btn" type="button" class="btn btn-success">Add Template</a>
+<button id="del-template-btn" type="button" class="btn btn-danger">Delete Template</button>
+<br />
+
+<table class="table table-bordered">
+     <caption class="lead">Manage Templates</caption>
+    <thead>
+        <tr>
+            <th></th>
+            <th>Template ID</th>
+            <th>Template Term</th>
+            <th>Template Name</th>
+            <th>Canvas Course ID</th>
+            <th>Date Granted</th>
+        </tr>
+    </thead>
+    <tbody>
+        
+    {% for template in templates %}
+        <tr>
+            <td><input type="radio" name="template" value="template-{{template.template_id}}"></td>
+            <td>{{template.template_id}}</td>
+            <td>{{template.term}}</td>
+            <td>{{template.title}}</td>
+            <td>{{template.canvas_course_id}}</td>
+            <td>{{template.date_granted}}</td>
+        </tr>
+    {% endfor %}
+    
+    <tbody>
+</table>
+</div>
+{% endblock %}
+
+{% block javascript %}
+{{ block.super }}
+<script>
+	$(document).ready(function() {
+		$('.datatable').dataTable();
+		$('#add-template-btn').click(function(){
+			
+		});
+		$('#del-template-btn').click(function(){
+
+		});
+	});
+</script>
+{% endblock %}

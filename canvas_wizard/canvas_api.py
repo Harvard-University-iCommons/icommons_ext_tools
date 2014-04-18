@@ -4,7 +4,7 @@ import requests
 import logging
 import httplib
 import json
-from secure import SECURE_SETTINGS
+from django.conf import settings
 #httplib.HTTPConnection.debuglevel = 1
 
 # You must initialize logging, otherwise you'll not see debug output.
@@ -17,9 +17,9 @@ requests_log.propagate = True
 
 pp = pprint.PrettyPrinter(indent=4)
 
-AUTH_TOKEN = 'Bearer %s' % SECURE_SETTINGS.get('TOKEN')
+AUTH_TOKEN = 'Bearer %s' % settings.CANVAS_WIZARD.get('TOKEN')
 HEADERS = {'Authorization ': AUTH_TOKEN}
-CANVAS_SERVER_BASE_URL = SECURE_SETTINGS.get('CANVAS_SERVER_BASE_URL')
+CANVAS_SERVER_BASE_URL = settings.CANVAS_WIZARD.get('CANVAS_SERVER_BASE_URL')
 
 
 class Canvasapi(object):
