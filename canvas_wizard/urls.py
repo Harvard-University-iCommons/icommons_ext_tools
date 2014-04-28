@@ -31,6 +31,9 @@ urlpatterns = patterns('',
 
     url(r'^add_new_user_form$', 'canvas_wizard.views.add_new_user_form', name='add_new_user_form'),
 
+    url(r'^add_course_delegate_form$', 'canvas_wizard.views.add_course_delegate_form', name='add_course_delegate_form'),
+    url(r'^add_course_delegate_action$', 'canvas_wizard.views.add_course_delegate_action', name='add_course_delegate_action'),
+
     url(r'^add_new_user_action$', 'canvas_wizard.views.add_new_user_action', name='add_new_user_action'),
 
     url(r'^finish$', 'canvas_wizard.views.finish', name='finish'),

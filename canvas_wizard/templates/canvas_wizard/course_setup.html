@@ -1,5 +1,7 @@
 {% extends "canvas_wizard/base.html" %}
 
+{% load crispy_forms_tags %}
+
 {% block title %}Select Template or Previous Course{% endblock %}
 {% block pagetitle %}Select Template or Previous Course{% endblock %}
 
@@ -9,10 +11,14 @@
 
 {% block content %}
 
+
+<a href="{% url 'cw:add_course_delegate_form' %}" class="btn btn-default">Add/View Course Delegate</a>
+
  <div class="well well-lg">
 {% if msg %}
 {{msg}}
 {% else %}
+
 <h1>{{selected_course.title|safe}}</h1>
 <h3>{{selected_course.short_title|safe}} {{selected_course.sub_title|safe}}</h3>
 
@@ -39,6 +45,9 @@
 <br />
 
 {% if admin %}
+
+
+
 <div class="well well-lg">
 <form action="{% url 'cw:select_isite_import' %}" method="get" role="form">
 	{% csrf_token %}
@@ -58,8 +67,8 @@
         <tr>
             <td><input type="radio" name="template" value="template-{{template.template_id}}" required></td>
             <td>{{template.template_id}}</td>
-            <td>{{template.template_term}}</td>
-            <td>{{template.template_title}}</td>
+            <td>{{template.term}}</td>
+            <td>{{template.title}}</td>
             <td>{{template.canvas_course_id}}</td>
         </tr>
     {% endfor %}

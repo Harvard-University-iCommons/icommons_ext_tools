@@ -4,13 +4,11 @@ import logging
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from icommons_common.monitor.views import BaseMonitorResponseView
-from icommons_common.models import School, CourseInstance, Template, TemplateAccessList, TemplateUser, TemplateAccount
+from icommons_common.models import School, CourseInstance, Template, TemplateAccessList, TemplateUser, TemplateAccount, TemplateCourseDelegates
 from icommons_common.canvas_utils import *
 from icommons_common.icommonsapi import IcommonsApi
 from icommons_common.auth.decorators import group_membership_restriction
-
-from canvas_wizard.forms import AddTemplateForm, AddUserForm
-
+from canvas_wizard.forms import AddTemplateForm, AddUserForm, AddCourseDelegateForm
 from django.http import HttpResponse
 from datetime import date
 import time
@@ -18,7 +16,6 @@ import json
 import datetime
 import urllib
 import pprint
-
 from canvas_api import Canvasapi
 
 logger = logging.getLogger(__name__)
@@ -142,6 +139,36 @@ def select_template_or_course(request):
 
 @login_required
 @require_http_methods(['GET'])
+def add_course_delegate_form(request):
+    """
+    doc string
+    """
+    course_dict = request.session['selected_course']
+    course_instance_id = course_dict['course_instance_id']
+    form = AddCourseDelegateForm(initial={'course_instance_id': course_instance_id})
+
+    return render(request, 'canvas_wizard/add_course_delegate_form.html', \
+        {\
+        'request': request, \
+        'form': form, \
+        })
+
+@login_required
+@require_http_methods(['POST'])
+def add_course_delegate_action(request):
+    
+    form = AddCourseDelegateForm(data=request.POST)
+    if form.is_valid():
+        form.save()
+
+    return render(request, 'canvas_wizard/add_course_delegate_form.html', \
+        {\
+        'request': request, \
+        'form': form, \
+        })
+
+@login_required
+@require_http_methods(['GET'])
 def course_setup(request, school, registrar_code, year, term):
     """
     Display course info from url. This view is accessed by url in the form 
@@ -185,6 +212,8 @@ def course_setup(request, school, registrar_code, year, term):
             'description' : selected_course.description,
             'notes' : selected_course.notes,
         }
+
+
         request.session['selected_course'] = selected_course_dict
     except CourseInstance.DoesNotExist:
         msg = 'Course Not Found'
@@ -238,15 +267,15 @@ def select_isite_import(request):
             selected_template = Template.objects.filter(template_id=template_id)
             selected_template_dict = {
                 'template_id' : selected_template.template_id,\
-                'term' : selected_template.template_term,\
-                'title' : selected_template.template_title,\
+                'term' : selected_template.term,\
+                'title' : selected_template.title,\
                 'type' : 'template',\
             }
         else:
             logger.error('An error has occured, template_id does not contain "course" or "template"')
         
-        #request.session['template_id'] = template_id
-
+    course_instances = CourseInstance.objects.filter(course_staff__user_id=huid, course_staff__role_id=2).order_by('-course_instance_id')
+    
     selected_course = request.session['selected_course']
     request.session['selected_template_dict'] = selected_template_dict
 

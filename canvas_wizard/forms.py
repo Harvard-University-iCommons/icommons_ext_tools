@@ -2,7 +2,7 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Div, Submit, Button
 from crispy_forms.bootstrap import FormActions
-from icommons_common.models import Template, TermCode, TemplateUser, TemplateAccount
+from icommons_common.models import Template, TermCode, TemplateUser, TemplateAccount, TemplateCourseDelegates
 from django.forms import ModelForm
 from django.core.exceptions import ValidationError
 #from datetime 
@@ -10,6 +10,44 @@ import datetime
 import logging
 
 logger = logging.getLogger(__name__)
+
+class AddCourseDelegateForm(forms.ModelForm):
+    class Meta:
+        model = TemplateCourseDelegates
+
+    course_instance_id = forms.CharField(max_length=20, widget=forms.HiddenInput())
+    delegate_id = forms.CharField(max_length=20, required=True, label='Enter Delegate ID')
+
+    def __init__(self, *args, **kwargs):
+        super(AddCourseDelegateForm, self).__init__(*args, **kwargs)
+        self.helper = FormHelper(self)
+        self.helper.form_class = 'form-inline'
+        #self.helper.label_class = 'col-lg-2'
+        #self.helper.field_class = 'col-lg-2'
+        self.helper.help_text_inline = True
+        self.helper.render_unmentioned_fields = True
+        self.helper.form_action = 'add_course_delegate_action'
+        self.helper.form_error_title = u"There were problems with the information you submitted."
+        self.helper.layout = Layout(
+            Field('course_instance_id'),
+            Field('delegate_id'),
+            Div(
+                FormActions(
+                    Submit('save', 'Add Delegate', css_class='btn-primary'),
+                )
+                , css_class="text-box")
+            )
+        def clean(self):
+            cleaned_data = super(AddCourseDelegateForm, self).clean()
+
+            return cleaned_data
+
+        def save(self, commit=True, *args, **kwargs):
+            instance = super(AddCourseDelegateForm, self).save(commit=False, *args, **kwargs)
+            if commit:
+                instance.save()
+                
+            return instance
 
 class AddUserForm(forms.ModelForm):
     class Meta:
