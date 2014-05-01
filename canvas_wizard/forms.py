@@ -2,7 +2,8 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Div, Submit, Button
 from crispy_forms.bootstrap import FormActions
-from icommons_common.models import Template, TermCode, TemplateUser, TemplateAccount, TemplateCourseDelegates
+from icommons_common.models import TermCode, Template, TemplateAccessList, TemplateUsers, TemplateAccount, TemplateCourseDelegates
+#from canvas_wizard.models import 
 from django.forms import ModelForm
 from django.core.exceptions import ValidationError
 #from datetime 
@@ -12,25 +13,24 @@ import logging
 logger = logging.getLogger(__name__)
 
 class AddCourseDelegateForm(forms.ModelForm):
+    
     class Meta:
         model = TemplateCourseDelegates
 
     course_instance_id = forms.CharField(max_length=20, widget=forms.HiddenInput())
-    delegate_id = forms.CharField(max_length=20, required=True, label='Enter Delegate ID')
+    delegate_user_id = forms.CharField(max_length=20, required=True, label='Enter Delegate ID')
 
     def __init__(self, *args, **kwargs):
         super(AddCourseDelegateForm, self).__init__(*args, **kwargs)
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-inline'
-        #self.helper.label_class = 'col-lg-2'
-        #self.helper.field_class = 'col-lg-2'
         self.helper.help_text_inline = True
         self.helper.render_unmentioned_fields = True
         self.helper.form_action = 'add_course_delegate_action'
         self.helper.form_error_title = u"There were problems with the information you submitted."
         self.helper.layout = Layout(
             Field('course_instance_id'),
-            Field('delegate_id'),
+            Field('delegate_user_id'),
             Div(
                 FormActions(
                     Submit('save', 'Add Delegate', css_class='btn-primary'),
@@ -51,7 +51,7 @@ class AddCourseDelegateForm(forms.ModelForm):
 
 class AddUserForm(forms.ModelForm):
     class Meta:
-        model = TemplateUser
+        model = TemplateUsers
         #exclude = ['date_added']
     
     TRUE = 'Y'
@@ -66,7 +66,8 @@ class AddUserForm(forms.ModelForm):
     can_manage_templates = forms.ChoiceField(choices=CHOICES)
     can_bulk_create_courses = forms.ChoiceField(choices=CHOICES)
     can_manage_users = forms.ChoiceField(choices=CHOICES)
-    date_added = forms.DateTimeField(initial=datetime.datetime.now, widget=forms.HiddenInput())
+    date_added = forms.DateTimeField(initial=datetime.datetime.now, \
+        widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
         super(AddUserForm, self).__init__(*args, **kwargs)
@@ -95,15 +96,15 @@ class AddUserForm(forms.ModelForm):
     def clean(self):
         cleaned_data = super(AddUserForm, self).clean()
 
-        #cleaned_data['date_added'] = datetime.datetime.now()
+        cleaned_data['date_added'] = datetime.datetime.now()
         #logger.debug('in clean->date_added='+date_added)
 
         return cleaned_data
 
     def save(self, commit=True, *args, **kwargs):
         instance = super(AddUserForm, self).save(commit=False, *args, **kwargs)
-        #cleaned_data = self.cleaned_data
-        #instance.template_id = cleaned_data['template_id']
+        cleaned_data = self.cleaned_data
+        instance.template_id = cleaned_data['date_added']
         if commit:
             instance.save()
             
@@ -119,6 +120,8 @@ class AddTemplateForm(forms.ModelForm):
     term = forms.ModelChoiceField(required=True, queryset=TermCode.objects.all())
     title = forms.CharField(max_length=200)
     canvas_course_id = forms.IntegerField(required=True)
+    date_created = forms.DateTimeField(initial=datetime.datetime.now, \
+        widget=forms.HiddenInput())
     
     def __init__(self, template_id=None, *args, **kwargs):
         super(AddTemplateForm, self).__init__(*args, **kwargs)
@@ -147,13 +150,7 @@ class AddTemplateForm(forms.ModelForm):
         cleaned_data = super(AddTemplateForm, self).clean()
         
         cleaned_data['template_id'] = self._template_id
-        #term = cleaned_data['template_term']
-        #print term
-        print cleaned_data['template_id']
-        print cleaned_data['term']
-        print cleaned_data['title']
-        print cleaned_data['canvas_course_id']
-        logger.debug("clean complete")
+        cleaned_data['date_created'] = datetime.datetime.now()
 
         return cleaned_data
 
@@ -161,6 +158,7 @@ class AddTemplateForm(forms.ModelForm):
         instance = super(AddTemplateForm, self).save(commit=False, *args, **kwargs)
         cleaned_data = self.cleaned_data
         instance.template_id = cleaned_data['template_id']
+        instance.date_created = cleaned_data['date_created']
         if commit:
             instance.save()
             

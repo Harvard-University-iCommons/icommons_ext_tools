@@ -4,7 +4,8 @@ import logging
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from icommons_common.monitor.views import BaseMonitorResponseView
-from icommons_common.models import School, CourseInstance, Template, TemplateAccessList, TemplateUser, TemplateAccount, TemplateCourseDelegates
+from icommons_common.models import School, CourseInstance, Template, TemplateAccessList, TemplateUsers, TemplateAccount, TemplateCourseDelegates
+#from canvas_wizard.models import Template, TemplateAccessList, TemplateUsers, TemplateAccount
 from icommons_common.canvas_utils import *
 from icommons_common.icommonsapi import IcommonsApi
 from icommons_common.auth.decorators import group_membership_restriction
@@ -28,7 +29,7 @@ class MonitorResponseView(BaseMonitorResponseView):
 @require_http_methods(['GET'])
 def index(request):
     """
-    doc string
+    shows a default index page
     """
     return render(request, 'canvas_wizard/index.html')
 
@@ -36,11 +37,11 @@ def index(request):
 @require_http_methods(['GET'])
 def launch(request):
     """
-    doc string
+    the main page, show all the options the logged in user is allowed to see
     """
     huid = request.user.username
     request.session['huid'] = huid
-    templateuser = TemplateUser.objects.get(user_id=huid)    
+    templateuser = TemplateUsers.objects.get(user_id=huid)    
     sis_id = templateuser.sis_account_id
     can_manage_templates = templateuser.can_manage_templates
     can_bulk_create_courses = templateuser.can_bulk_create_courses
@@ -61,7 +62,8 @@ def launch(request):
 @require_http_methods(['GET'])
 def select_course(request):
     """
-    doc string
+    The user can select which course they want to create in canvas. If a course has already
+    been created, it will appear but it will not be selectable. 
     """
 
     userdata = {}
@@ -96,76 +98,13 @@ def select_course(request):
     if 'courses' in request.session:
         del request.session['courses']
 
-    course_instances = CourseInstance.objects.filter(course_staff__user_id=huid, course_staff__role_id=2).order_by('-course_instance_id')
+    course_instances = CourseInstance.objects.filter(course_staff__user_id=huid, \
+        course_staff__role_id=2).order_by('-course_instance_id')
+    
+    # TO DO ***
     # sync_to_canvas=1 We may need to set this if it's not already set
 
     return render(request, 'canvas_wizard/select_course.html', {'courses' : course_instances, 'userdata' : userdata})
-
-'''
-@login_required
-@require_http_methods(['GET'])
-def select_template_or_course(request):
-    """
-    doc string
-    """
-
-    course_instances = CourseInstance.objects.filter(course_staff__user_id=request.session['huid'], \
-        course_staff__role_id=2).order_by('-course_instance_id')
-    templateaccesslist = Template.objects.filter(template_obj__templateuser__template_user_id=request.session['huid'])
-    course_instances = CourseInstance.objects.filter(course_staff__user_id=request.session['huid'], \
-        course_staff__role_id=2, canvas_course_id__gt=0).order_by('-course_instance_id')
-
-    if 'course' in request.GET:
-        course_id = request.GET['course']
-        request.session['course_id'] = course_id
-        selected_course = CourseInstance.objects.get(course_instance_id=course_id)
-
-        selected_course_dict = {
-            'course_instance_id' :selected_course.course_instance_id,
-            'term' : selected_course.term.school.title_short + " / " + selected_course.term.display_name,
-            'short_title' : selected_course.short_title,
-            'title' : selected_course.title,
-        }
-
-        request.session['selected_course'] = selected_course_dict
-    else:
-        logger.error('No course selected!')
-        return redirect('select_course')
-    
-    return render(request, 'canvas_wizard/select_template_or_course.html', \
-        {'session' : request.session, 'selected_course' : selected_course_dict, \
-        'courses' : course_instances, 'templates' : templateaccesslist})
-'''
-
-@login_required
-@require_http_methods(['GET'])
-def add_course_delegate_form(request):
-    """
-    doc string
-    """
-    course_dict = request.session['selected_course']
-    course_instance_id = course_dict['course_instance_id']
-    form = AddCourseDelegateForm(initial={'course_instance_id': course_instance_id})
-
-    return render(request, 'canvas_wizard/add_course_delegate_form.html', \
-        {\
-        'request': request, \
-        'form': form, \
-        })
-
-@login_required
-@require_http_methods(['POST'])
-def add_course_delegate_action(request):
-    
-    form = AddCourseDelegateForm(data=request.POST)
-    if form.is_valid():
-        form.save()
-
-    return render(request, 'canvas_wizard/add_course_delegate_form.html', \
-        {\
-        'request': request, \
-        'form': form, \
-        })
 
 @login_required
 @require_http_methods(['GET'])
@@ -243,12 +182,14 @@ def course_setup(request, school, registrar_code, year, term):
 @require_http_methods(['GET'])
 def select_isite_import(request):
     """
-    doc string
+    Dipslay the form that allows the user to import data from an existing iSite.
+    This only selected the isite, the actual process will be external.
     """
     template_id = None
     selected_course = None
     selected_template = None
     selected_template_dict = None
+    huid = request.session['huid']
     
     if 'template' in request.GET:
         template_id_input = request.GET['template']
@@ -290,8 +231,10 @@ def select_isite_import(request):
 @require_http_methods(['GET'])
 def finish(request):
     """
-    doc string
+    The last step in the course provisioning process. 
+    This is where we execute the course creation and isites export process
     """
+
     if 'isite_site_id' in request.GET:
         isite_site_id = request.GET['isite_site_id']
         request.session['isite_site_id'] = isite_site_id
@@ -304,7 +247,7 @@ def finish(request):
 @require_http_methods(['GET'])
 def manage_templates(request):
     """
-    doc string
+    display the templates page
     """
     templates = Template.objects.filter(template_access__templateuser__user_id=request.session['huid'])
     return render(request, 'canvas_wizard/manage_templates.html', \
@@ -317,7 +260,7 @@ def manage_templates(request):
 #@require_http_methods(['GET'])
 def add_new_template_form(request):
     """
-    doc string
+    display the create template form
     """
     form = AddTemplateForm()
     return render(request, 'canvas_wizard/add_new_template_form.html', \
@@ -330,7 +273,7 @@ def add_new_template_form(request):
 @require_http_methods(['POST'])
 def add_new_template_action(request):
     """
-    doc string
+    save the newly created template to the database
     """
     from django.db import connection, transaction
     logger.debug('in add_new_template_action')
@@ -346,7 +289,7 @@ def add_new_template_action(request):
     if form.is_valid():
         form.save()
         today = datetime.datetime.now()
-        sql = "INSERT INTO TEMPLATE_ACCESS_LIST VALUES('%s', %i, '%s','%s',%i)" % (sis_id, template_id, request.session['huid'], today, access_id)
+        sql = "INSERT INTO TEMPLATE_ACCESS_LIST VALUES(%i, '%s', %i, '%s','%s')" % (access_id, sis_id, template_id, request.session['huid'], today)
         cursor.execute(sql)
         transaction.commit()
 
@@ -362,7 +305,7 @@ def add_new_template_action(request):
 @require_http_methods(['GET'])
 def delete_template(request):
     """
-    doc string
+    action to delete a template - TODO
     """
     
     # get templates
@@ -377,9 +320,9 @@ def delete_template(request):
 @require_http_methods(['GET'])
 def manage_users(request):
     """
-    doc string
+    display a list of current users and buttons to add or delete users 
     """
-    users = TemplateUser.objects.all()
+    users = TemplateUsers.objects.all()
 
     #return render(request, 'canvas_wizard/delete_template.html', {'session' : request.session})
     return render(request, 'canvas_wizard/manage_users.html', \
@@ -392,7 +335,7 @@ def manage_users(request):
 @require_http_methods(['GET'])
 def add_new_user_form(request):
     """
-    doc string
+    display the add new user form
     """
     form = AddUserForm()
 
@@ -407,13 +350,15 @@ def add_new_user_form(request):
 @require_http_methods(['POST'])
 def add_new_user_action(request):
     """
-    doc string
+    save the new user info to the database 
     """
     form = AddUserForm(data=request.POST)
+
+    print form
     if form.is_valid:
         form.save()
 
-    users = TemplateUser.objects.all()
+    users = TemplateUsers.objects.all()
 
     #return render(request, 'canvas_wizard/delete_template.html', {'session' : request.session})
     return render(request, 'canvas_wizard/manage_users.html', \
@@ -421,6 +366,39 @@ def add_new_user_action(request):
         'request': request, \
         'users' : users, \
         'form' : form, \
+        })
+
+@login_required
+@require_http_methods(['GET'])
+def add_course_delegate_form(request):
+    """
+    dipslay the form that allows users to add delegates to a course
+    """
+    course_dict = request.session['selected_course']
+    course_instance_id = course_dict['course_instance_id']
+    form = AddCourseDelegateForm(initial={'course_instance_id': course_instance_id})
+
+    return render(request, 'canvas_wizard/add_course_delegate_form.html', \
+        {\
+        'request': request, \
+        'form': form, \
+        })
+
+@login_required
+@require_http_methods(['POST'])
+def add_course_delegate_action(request):
+    """
+    add delegate action
+    """
+    form = AddCourseDelegateForm(data=request.POST)
+    print form
+    if form.is_valid():
+        form.save()
+        
+    return render(request, 'canvas_wizard/add_course_delegate_form.html', \
+        {\
+        'request': request, \
+        'form': form, \
         })
 
 
