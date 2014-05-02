@@ -100,7 +100,7 @@ def select_course(request):
 
     course_instances = CourseInstance.objects.filter(course_staff__user_id=huid, \
         course_staff__role_id=2).order_by('-course_instance_id')
-    
+
     # TO DO ***
     # sync_to_canvas=1 We may need to set this if it's not already set
 
@@ -374,14 +374,23 @@ def add_course_delegate_form(request):
     """
     dipslay the form that allows users to add delegates to a course
     """
+    from django.db import connection
+    cursor = connection.cursor()
+    cursor.execute('SELECT TEMPLATES_COURSE_DELEGATES_SQ.NEXTVAL FROM DUAL')
+    row = cursor.fetchone()
+    delegate_id = row[0]
+
     course_dict = request.session['selected_course']
     course_instance_id = course_dict['course_instance_id']
-    form = AddCourseDelegateForm(initial={'course_instance_id': course_instance_id})
+    form = AddCourseDelegateForm(initial={'course_instance_id': course_instance_id, 'delegate_id' : delegate_id})
+
+    delegates = TemplateCourseDelegates.objects.all()
 
     return render(request, 'canvas_wizard/add_course_delegate_form.html', \
         {\
         'request': request, \
         'form': form, \
+        'delegates' : delegates, \
         })
 
 @login_required
@@ -391,16 +400,10 @@ def add_course_delegate_action(request):
     add delegate action
     """
     form = AddCourseDelegateForm(data=request.POST)
-    print form
     if form.is_valid():
         form.save()
         
-    return render(request, 'canvas_wizard/add_course_delegate_form.html', \
-        {\
-        'request': request, \
-        'form': form, \
-        })
-
+    return redirect('cw:add_course_delegate_form')
 
 
 

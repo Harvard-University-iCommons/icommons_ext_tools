@@ -17,11 +17,15 @@ class AddCourseDelegateForm(forms.ModelForm):
     class Meta:
         model = TemplateCourseDelegates
 
-    course_instance_id = forms.CharField(max_length=20, widget=forms.HiddenInput())
-    delegate_user_id = forms.CharField(max_length=20, required=True, label='Enter Delegate ID')
+    delegate_id = forms.IntegerField(required=True, widget=forms.HiddenInput())
+    course_instance_id = forms.CharField(required=True, max_length=20, widget=forms.HiddenInput())
+    delegate_user_id = forms.CharField(required=True, max_length=20, label='Enter Delegate ID')
+    date_added = forms.DateTimeField(initial=datetime.datetime.now, \
+        widget=forms.HiddenInput())
 
     def __init__(self, *args, **kwargs):
         super(AddCourseDelegateForm, self).__init__(*args, **kwargs)
+        #self._delegate_id = delegate_id
         self.helper = FormHelper(self)
         self.helper.form_class = 'form-inline'
         self.helper.help_text_inline = True
@@ -29,6 +33,7 @@ class AddCourseDelegateForm(forms.ModelForm):
         self.helper.form_action = 'add_course_delegate_action'
         self.helper.form_error_title = u"There were problems with the information you submitted."
         self.helper.layout = Layout(
+            Field('delegate_id'),
             Field('course_instance_id'),
             Field('delegate_user_id'),
             Div(
@@ -37,13 +42,21 @@ class AddCourseDelegateForm(forms.ModelForm):
                 )
                 , css_class="text-box")
             )
+
         def clean(self):
             cleaned_data = super(AddCourseDelegateForm, self).clean()
+            cleaned_data['date_added'] = datetime.datetime.now()
+            #cleaned_data['delegate_id'] = self._delegate_id
+
+            #print '###########>>>>>>>>>>>>>' + self._delegate_id
 
             return cleaned_data
 
         def save(self, commit=True, *args, **kwargs):
             instance = super(AddCourseDelegateForm, self).save(commit=False, *args, **kwargs)
+            cleaned_data = self.cleaned_data
+            instance.date_added = cleaned_data['date_added']
+            #instance.delegate_id = self._delegate_id
             if commit:
                 instance.save()
                 
@@ -104,7 +117,7 @@ class AddUserForm(forms.ModelForm):
     def save(self, commit=True, *args, **kwargs):
         instance = super(AddUserForm, self).save(commit=False, *args, **kwargs)
         cleaned_data = self.cleaned_data
-        instance.template_id = cleaned_data['date_added']
+        instance.date_added = cleaned_data['date_added']
         if commit:
             instance.save()
             

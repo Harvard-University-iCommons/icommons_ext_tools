@@ -11,9 +11,6 @@
 
 {% block content %}
 
-
-<a href="{% url 'cw:add_course_delegate_form' %}" class="btn btn-default">Add/View Course Delegate</a>
-
  <div class="well well-lg">
 {% if msg %}
 {{msg}}
@@ -49,6 +46,9 @@
 
 
 <div class="well well-lg">
+
+<p><a href="{% url 'cw:add_course_delegate_form' %}" class="btn btn-default">Add/View Course Delegate</a></p>
+
 <form action="{% url 'cw:select_isite_import' %}" method="get" role="form">
 	{% csrf_token %}
 <table class="table table-bordered">
