@@ -5,6 +5,7 @@ import hmac
 import base64
 import logging
 import urllib2
+from unicodedata import normalize
 from Crypto.Cipher import AES
 from django.conf import settings
 from datetime import date
@@ -102,8 +103,12 @@ def getencryptedhuid(huid):
     return encid
 
 def createencodedtoken(keyvaluepairs):
+    #reload(sys)
+    #sys.setdefaultencoding("utf-8")
     key = settings.QUALTRICS_LINK.get('QUALTRICS_APP_KEY')
     secret = bytes(key)
+    keyvaluepairs = normalize('NFKD', keyvaluepairs).encode('ascii', 'ignore')
+    print keyvaluepairs
     data = bytes(keyvaluepairs)
     encoded = base64.b64encode(hmac.new(secret, data).digest())
     token = keyvaluepairs+'&mac='+encoded 
