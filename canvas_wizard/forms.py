@@ -2,7 +2,8 @@ from django import forms
 from crispy_forms.helper import FormHelper
 from crispy_forms.layout import Layout, Field, Div, Submit, Button
 from crispy_forms.bootstrap import FormActions
-from icommons_common.models import TermCode, Template, TemplateAccessList, TemplateUsers, TemplateAccount, TemplateCourseDelegates
+from .models import Template, TemplateAccessList, TemplateUsers, TemplateAccount, TemplateCourseDelegates
+from icommons_common.models import TermCode
 #from canvas_wizard.models import 
 from django.forms import ModelForm
 from django.core.exceptions import ValidationError

@@ -4,8 +4,8 @@ import logging
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from icommons_common.monitor.views import BaseMonitorResponseView
-from icommons_common.models import School, CourseInstance, Template, TemplateAccessList, TemplateUsers, TemplateAccount, TemplateCourseDelegates
-#from canvas_wizard.models import Template, TemplateAccessList, TemplateUsers, TemplateAccount
+from icommons_common.models import School, CourseInstance 
+from .models import Template, TemplateAccessList, TemplateUsers, TemplateAccount, TemplateCourseDelegates
 from icommons_common.canvas_utils import *
 from icommons_common.icommonsapi import IcommonsApi
 from icommons_common.auth.decorators import group_membership_restriction
@@ -123,8 +123,12 @@ def course_setup(request, school, registrar_code, year, term):
     can_use_wizard = None
     course_instances = None
     templateaccesslist = None
-    huid = request.session['huid']
-   
+
+    if 'huid' in request.session:
+        huid = request.session['huid']
+    else:
+        huid = '20533064'
+
     templateaccesslist = Template.objects.filter(template_access__templateuser__user_id=huid)
     course_instances = CourseInstance.objects.filter(\
             course_staff__user_id=huid, \
