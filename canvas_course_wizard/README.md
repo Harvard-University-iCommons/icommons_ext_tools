@@ -21,5 +21,5 @@ How to install and run the application(s):
 	'''
 	$vagrant up
     '''
-
     
+
