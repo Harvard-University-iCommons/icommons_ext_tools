@@ -17,4 +17,6 @@ urlpatterns = patterns('',
     url(r'^ext_tools/pin/', include('icommons_common.auth.urls', namespace="pin")),
 
     url(r'^ext_tools/not_authorized/', 'icommons_ui.views.not_authorized', name="not_authorized"),
+
+    url(r'^ext_tools/course_wizard/', include('canvas_course_wizard.urls', namespace="crs-wiz")),
 )

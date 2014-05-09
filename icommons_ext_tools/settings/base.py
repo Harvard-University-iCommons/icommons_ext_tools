@@ -6,7 +6,6 @@ from os.path import abspath, basename, dirname, join, normpath
 from sys import path
 from django.core.urlresolvers import reverse_lazy
 
-
 ### Path stuff as recommended by Two Scoops / with local mods
 
 # Absolute filesystem path to the Django project config directory:
@@ -179,6 +178,7 @@ INSTALLED_APPS = (
     #'huey.djhuey',
     #'rest_framework',
     #'djsupervisor',
+    'canvas_course_wizard',
 )
 
 # session cookie lasts for 7 hours (in seconds)
