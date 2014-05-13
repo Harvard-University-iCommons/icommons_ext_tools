@@ -53,6 +53,7 @@ DATABASES = {
         'NAME': os.path.join(os.path.dirname(__file__), 'test.db'),
         'TEST_NAME': os.path.join(os.path.dirname(__file__), 'test.db'),
     },
+}
 
 # need to override the NLS_DATE_FORMAT that is set by oraclepool
 '''
