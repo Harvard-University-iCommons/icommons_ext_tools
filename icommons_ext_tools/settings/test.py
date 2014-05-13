@@ -94,11 +94,11 @@ LOGGING = {
             'class': 'django.utils.log.AdminEmailHandler'
         },
         # Log to a text file that can be rotated by logrotate
-        #'logfile': {
-        #    'class': 'logging.handlers.WatchedFileHandler',
-        #    'filename': join(SITE_ROOT, 'logs/icommons_ext_tools.log'),
-        #    'formatter': 'verbose'
-        #},
+        'logfile': {
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': join(SITE_ROOT, 'icommons_ext_tools.log'),
+            'formatter': 'verbose'
+        },
         'console': {
             'level': 'DEBUG',
             'class': 'logging.StreamHandler',
