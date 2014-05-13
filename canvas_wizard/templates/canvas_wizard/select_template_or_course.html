@@ -1,0 +1,105 @@
+{% extends "canvas_wizard/base.html" %}
+
+{% block title %}Select Template or Previous Course{% endblock %}
+{% block pagetitle %}Select Template or Previous Course{% endblock %}
+
+{% block stylesheet %}
+{{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+<p><a href="{% url 'cw:select_course' %}" class="btn btn-primary">Change selected course</a></p>
+ 
+ <div class="well well-lg">
+ <table class="table table-bordered">
+    <thead>
+        <tr>
+            <th>Course ID</th>
+            <th>Term</th>
+            <th>Short Name</th>
+            <th>Title</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{selected_course.course_instance_id}}</td>
+            <td>{{selected_course.term}}</td>
+            <td>{{selected_course.short_title|safe}} {{selected_course.sub_title|safe}}</td>
+            <td>{{selected_course.title|safe}}</td>
+        </tr>
+    <tbody>
+</table>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    <h3 class="panel-title">Select a template or course from a previous year to use as the template</h3>
+  </div>
+  <div class="panel-body">
+<form action="select_isite_import" method="get" role="form">
+	{% csrf_token %}
+<table class="table table-striped table-bordered">
+     <caption class="lead">Templates</caption>
+    <thead>
+        <tr>
+        	<th></th>
+         	<th>Template ID</th>
+            <th>Template Term</th>
+            <th>Template Name</th>
+            <th>Canvas Course ID</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for template in templates %}
+        <tr>
+            <td><input type="radio" name="template" value="{{template.template_id}}" required></td>
+            <td>{{template.template_id}}</td>
+            <td>{{template.template_term}}</td>
+            <td>{{template.template_title}}</td>
+            <td>{{template.canvas_course_id}}</td>
+        </tr>
+    {% endfor %}
+	<tbody>
+</table>
+
+<table class="table table-striped table-bordered">
+     <caption class="lead">Courses</caption>
+    <thead>
+        <tr>
+        	<th></th>
+         	<th>Canvas Course ID</th>
+            <th>Term</th>
+            <th>Short Name</th>
+            <th>Title</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for course in courses %}
+        <tr>
+            <td><input type="radio" name="template" value="{{course.canvas_course_id}}" required></td>
+            <td>{{course.canvas_course_id}}</td>
+            <td>{{course.term}}</td>
+            <td>{{course.short_title|safe}} {{course.sub_title|safe}}</td>
+            <td>{{course.title|safe}}</td>
+        </tr>
+    {% endfor %}
+	<tbody>
+</table>
+
+<input type="submit" value="Next" class="btn btn-success"/>
+</form>
+
+</div>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+{{ block.super }}
+<script>
+	$(document).ready(function() {
+		$('.datatable').dataTable();
+	});
+</script>
+{% endblock %}

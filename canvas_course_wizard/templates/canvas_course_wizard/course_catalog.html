@@ -1,0 +1,26 @@
+{% extends "icommons_ui/base.html" %}
+{% block content %}
+    <div class="well well-lg">
+
+        <h1>{{course.title|safe}}</h1>
+        <h3>{{course.short_title|safe}} {{course.sub_title|safe}}</h3>
+
+        <div id="description">
+            {{course.description|safe}}
+        </div>
+        <br />
+        <div id="location">
+            {{course.meeting_time}}<br />
+            {{course.location}} <br />
+            {{course.term}}
+        </div>
+        <br />
+        <div id="instructor">
+            {{course.instructors_display|safe}}
+        </div>
+        <br />
+        <div id="notes">
+            {{course.notes|safe}}
+        </div>
+    </div>
+{% endblock content %}

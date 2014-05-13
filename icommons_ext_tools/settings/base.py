@@ -6,7 +6,6 @@ from os.path import abspath, basename, dirname, join, normpath
 from sys import path
 from django.core.urlresolvers import reverse_lazy
 
-
 ### Path stuff as recommended by Two Scoops / with local mods
 
 # Absolute filesystem path to the Django project config directory:
@@ -103,8 +102,7 @@ STATICFILES_FINDERS = (
 )
 
 # Make this unique, and don't share it with anybody.
-#SECRET_KEY = '97b&amp;%w8$mnual*xstk5%j0**d+x67n^kd_+juwdqxtl9c$gg@d'
-SECRET_KEY = SECURE_SETTINGS['django_secret_key']
+SECRET_KEY = SECURE_SETTINGS.get('django_secret_key', None)
 
 # List of callables that know how to import templates from various sources.
 TEMPLATE_LOADERS = (
@@ -168,17 +166,19 @@ INSTALLED_APPS = (
     'icommons_common.monitor',
     'icommons_ui',
     'qualtrics_link',
+    'canvas_wizard',
     #'icommons_common.monitor',
     #'term_tool',
     #'qualtrics_taker_auth',
     #'canvas_shopping',
     #'qualtrics_whitelist',
     #'gunicorn',
-    #'crispy_forms',
+    'crispy_forms',
     #'isites_export_tool',
     #'huey.djhuey',
     #'rest_framework',
     #'djsupervisor',
+    'canvas_course_wizard',
 )
 
 # session cookie lasts for 7 hours (in seconds)

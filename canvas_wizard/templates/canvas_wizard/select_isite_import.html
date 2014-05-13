@@ -1,0 +1,121 @@
+{% extends "canvas_wizard/base.html" %}
+
+{% block title %}iSite Import{% endblock %}
+{% block pagetitle %}Select iSite to import{% endblock %}
+
+{% block stylesheet %}
+{{ block.super }}
+{% endblock %}
+
+{% block content %}
+
+ <div class="well well-lg">
+ <table class="table table-bordered">
+    <caption>Selected Course</caption>
+    <thead>
+        <tr>
+            <th>Course Instance ID</th>
+            <th>Term</th>
+            <th>Short Name</th>
+            <th>Title</th>
+        </tr>
+    </thead>
+    <tbody>
+    
+        <tr>
+            <td>{{selected_course.course_instance_id}}</td>
+            <td>{{selected_course.term}}</td>
+            <td>{{selected_course.short_title|safe}} {{selected_course.sub_title|safe}}</td>
+            <td>{{selected_course.title|safe}}</td>
+        </tr>
+    
+    <tbody>
+</table>
+</div>
+<br />
+
+ <div class="well well-lg">
+ <table class="table table-bordered">
+    <caption>Selected Template</caption>
+    <thead>
+        <tr>
+            <th>Template ID</th>
+            <th>Term</th>
+            <th>Title</th>
+            <th>Type</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            <td>{{selected_template.template_id}}</td>
+            <td>{{selected_template.term}}</td>
+            <td>{{selected_template.title|safe}}</td>
+            <td>{{selected_template.type}}</td>
+        </tr>
+    <tbody>
+</table>
+</div>
+<br />
+
+<div class="well well-lg">
+<div class="checkbox">
+    <label>
+      <input id="isites-import-checkbox" type="checkbox"> I want to import files from an iSite.
+    </label>
+  </div>
+
+
+<form id="isites-import-form" action="finish" method="get" class="form-horizontal" role="form">
+	{% csrf_token %}
+<table class="table table-bordered">
+    <caption class="lead">Select an iSite to import files (optional)</caption>
+    <thead>
+        <tr>
+        	<th></th>
+         	<th>Course ID</th>
+            <th>Short Name</th>
+            <th>Title</th>
+        </tr>
+    </thead>
+    <tbody>
+    	<tr><td><input class="optional" type="radio" name="isite_site_id" value="134356765"></td>
+    		<td>197237</td>
+    		<td>PHY216</td>
+    		<td>Principles of photoelectric systems</td>
+    	</tr>
+    	<tr>
+    		<td><input class="optional" type="radio" name="isite_site_id" value="134356789"></td>
+    		<td>197249</td>
+    		<td>GRK197</td>
+    		<td>Greek Plays</td>
+    	</tr>
+	<tbody>
+</table>
+<input type="submit" value="Next" class="btn btn-success"/>
+</form>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+{{ block.super }}
+<script>
+	$(document).ready(function() {
+		
+        //$('.datatable').dataTable();
+
+        $('.optional').prop("disabled", true);
+
+        $('#isites-import-checkbox').change(function(){
+            
+            if($(this).is(":checked")) 
+            {
+                $('.optional').prop("disabled", false);
+            }
+            else {
+                $('.optional').prop("disabled", true);
+            }
+        });
+	});
+</script>
+{% endblock %}

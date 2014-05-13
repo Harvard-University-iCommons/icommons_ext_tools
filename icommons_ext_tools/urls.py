@@ -12,7 +12,11 @@ urlpatterns = patterns('',
 
     url(r'^ext_tools/qualtrics_link/', include('qualtrics_link.urls', namespace="ql")),
 
+    url(r'^ext_tools/canvas_wizard/', include('canvas_wizard.urls', namespace="cw")),
+
     url(r'^ext_tools/pin/', include('icommons_common.auth.urls', namespace="pin")),
 
     url(r'^ext_tools/not_authorized/', 'icommons_ui.views.not_authorized', name="not_authorized"),
+
+    url(r'^ext_tools/course_wizard/', include('canvas_course_wizard.urls', namespace="crs-wiz")),
 )

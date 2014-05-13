@@ -1,0 +1,58 @@
+{% extends "canvas_wizard/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block stylesheet %}
+{{ block.super }}
+{% endblock %}
+
+{% block content %}
+<div class="well well-lg">
+<table class="table table-bordered">
+     <caption class="lead">Delegates</caption>
+    <thead>
+        <tr>
+            <th></th>
+            <th>Delegate ID</th>
+            <th>Course Instance ID</th>
+            <th>Delegate User ID</th>
+            <th>Date Added</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for delegate in delegates %}
+        <tr>
+            <td><input type="radio" name="delegate" value="delegate-{{delegate.delegate_id}}"></td>
+            <td>{{delegate.delegate_id}}</td>
+            <td>{{delegate.course_instance_id}}</td>
+            <td>{{delegate.delegate_user_id}}</td>
+            <td>{{delegate.date_added}}</td>
+        </tr>
+    {% endfor %}
+    <tbody>
+</table>
+</div>
+{% comment %}
+{% crispy form %}
+{% endcomment %}
+<form action="add_course_delegate_action" method="post" class="form-inline" role="form">
+	{% csrf_token %}
+    {# Include the hidden fields #}
+    {% for hidden in form.hidden_fields %}
+    {{ hidden }}
+    {% endfor %}
+    {# Include the visible fields #}
+    {% for field in form.visible_fields %}
+        <div class="form-group">
+            {{ field.errors }}
+            {{ field.label_tag }} {{ field }}
+        </div>
+    {% endfor %}
+    <input type="submit" value="Add Delegate" class="btn btn-default" />
+</form>
+
+{% endblock %}
+
+{% block javascript %}
+{{ block.super }}
+{% endblock %}

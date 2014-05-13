@@ -13,6 +13,10 @@ ICOMMONS_COMMON = {
     'ICOMMONS_API_PASS': SECURE_SETTINGS['icommons_api_pass'],
 }
 
+CANVAS_WIZARD = {
+    'TOKEN' : SECURE_SETTINGS['TOKEN'],
+    'CANVAS_SERVER_BASE_URL' : SECURE_SETTINGS['CANVAS_SERVER_BASE_URL'],
+}
 
 QUALTRICS_LINK = {
 
@@ -27,10 +31,15 @@ QUALTRICS_LINK = {
     'USER_ACCEPTED_TERMS_URL' : 'ql:internal', # only in QA
 }
 
+CANVAS_WIZARD = {
+    
+}
+
 DATABASE_ROUTERS = ['icommons_ext_tools.routers.DatabaseAppsRouter', ]
 
 DATABASE_APPS_MAPPING = {
     'qualtrics_link': 'default',
+    'canvas_wizard' : 'default',
 }
 
 DATABASES = {
@@ -113,6 +122,11 @@ LOGGING = {
             'propagate': True,
         },
         'django': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'canvas_wizard': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,

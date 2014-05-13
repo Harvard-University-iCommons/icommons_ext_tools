@@ -1,0 +1,51 @@
+{% extends "canvas_wizard/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block stylesheet %}
+{{ block.super }}
+<style>
+#del-user-btn { float: right; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="well well-lg">
+<a href="{% url 'cw:add_new_user_form' %}" id="add-user-btn" type="button" class="btn btn-success">Add User</a>
+<button id="del-user-btn" type="button" class="btn btn-danger">Delete User</button>
+<br />
+
+<table class="table table-bordered">
+     <caption class="lead">Users</caption>
+    <thead>
+        <tr>
+            <th></th>
+            <th>Template User ID</th>
+            <th>SIS Account ID</th>
+            <th>Can Manage Templates</th>
+            <th>Can Bulk Create Courses</th>
+            <th>Can Manage Users</th>
+            <th>Date Added</th>
+        </tr>
+    </thead>
+    <tbody>
+    {% for user in users %}
+        <tr>
+            <td><input type="radio" name="template" value="user-{{user.template_user_id}}"></td>
+            <td>{{user.user_id}}</td>
+            <td>{{user.sis_account_id}}</td>
+            <td>{{user.can_manage_templates}}</td>
+            <td>{{user.can_bulk_create_courses}}</td>
+            <td>{{user.can_manage_users}}</td>
+            <td>{{user.date_added}}</td>
+        </tr>
+    {% endfor %}
+    <tbody>
+</table>
+</div>
+
+{% endblock %}
+
+{% block javascript %}
+{{ block.super }}
+{% endblock %}

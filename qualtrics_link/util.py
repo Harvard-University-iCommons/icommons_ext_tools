@@ -103,6 +103,8 @@ def getencryptedhuid(huid):
     return encid
 
 def createencodedtoken(keyvaluepairs):
+    #reload(sys)
+    #sys.setdefaultencoding("utf-8")
     key = settings.QUALTRICS_LINK.get('QUALTRICS_APP_KEY')
     secret = bytes(key)
     keyvaluepairs = normalize('NFKD', keyvaluepairs).encode('ascii', 'ignore')
