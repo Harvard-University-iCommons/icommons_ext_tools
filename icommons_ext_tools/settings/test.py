@@ -9,17 +9,17 @@ ALLOWED_HOSTS = ['termtool-test.icommons.harvard.edu']
 
 ICOMMONS_COMMON = {
     'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
-    'ICOMMONS_API_USER': SECURE_SETTINGS['icommons_api_user'],
-    'ICOMMONS_API_PASS': SECURE_SETTINGS['icommons_api_pass'],
+    'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user', None),
+    'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass', None),
 }
 
 QUALTRICS_LINK = {
-    'AGREEMENT_ID' : SECURE_SETTINGS['qualtrics_agreement_id'],
-    'QUALTRICS_APP_KEY' : SECURE_SETTINGS['qualtrics_app_key'],
-    'QUALTRICS_API_URL' : SECURE_SETTINGS['qualtrics_api_url'], 
-    'QUALTRICS_API_USER' : SECURE_SETTINGS['qualtrics_api_user'], 
-    'QUALTRICS_API_TOKEN' : SECURE_SETTINGS['qualtrics_api_token'], 
-    'QUALTRICS_AUTH_GROUP' : SECURE_SETTINGS['qualtrics_auth_group'],
+    'AGREEMENT_ID' : SECURE_SETTINGS.get('qualtrics_agreement_id', None),
+    'QUALTRICS_APP_KEY' : SECURE_SETTINGS.get('qualtrics_app_key', None),
+    'QUALTRICS_API_URL' : SECURE_SETTINGS.get('qualtrics_api_url', None), 
+    'QUALTRICS_API_USER' : SECURE_SETTINGS.get('qualtrics_api_user', None), 
+    'QUALTRICS_API_TOKEN' : SECURE_SETTINGS.get('qualtrics_api_token', None), 
+    'QUALTRICS_AUTH_GROUP' : SECURE_SETTINGS.get('qualtrics_auth_group', None),
     'USER_DECLINED_TERMS_URL' : 'ql:internal', # only in QA
     'USER_ACCEPTED_TERMS_URL' : 'ql:internal', # only in QA
 }
@@ -34,8 +34,8 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
         'NAME': 'isitedev',
-        'USER': SECURE_SETTINGS['django_db_user'],
-        'PASSWORD': SECURE_SETTINGS['django_db_pass'],
+        'USER': SECURE_SETTINGS.get('django_db_user', None),
+        'PASSWORD': SECURE_SETTINGS.get('django_db_pass', None),
         'HOST': 'icd3.isites.harvard.edu',
         'PORT': '8103',
         'OPTIONS': {
