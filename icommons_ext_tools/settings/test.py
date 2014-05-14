@@ -13,6 +13,11 @@ ICOMMONS_COMMON = {
     'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass', None),
 }
 
+CANVAS_WIZARD = {
+    'TOKEN' : SECURE_SETTINGS.get('TOKEN', 'changeme'),
+    'CANVAS_SERVER_BASE_URL' : SECURE_SETTINGS.get('CANVAS_SERVER_BASE_URL', 'changeme'),
+}
+
 QUALTRICS_LINK = {
     'AGREEMENT_ID' : SECURE_SETTINGS.get('qualtrics_agreement_id', None),
     'QUALTRICS_APP_KEY' : SECURE_SETTINGS.get('qualtrics_app_key', None),
