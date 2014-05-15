@@ -208,6 +208,17 @@ file {'/home/vagrant/icommons_ext_tools':
     target => '/vagrant',
 }
 
+# Create a virtualenv 
+exec {'create-virtualenv':
+    provider => 'shell',
+    user => 'vagrant',
+    group => 'vagrant',
+    require => [ Package['virtualenvwrapper'], File['/home/vagrant/icommons_ext_tools'], File['/etc/profile.d/oracle.sh'] ],
+    environment => ["HOME=/home/vagrant","WORKON_HOME=/home/vagrant/.virtualenvs"],
+    command => '/vagrant/vagrant/venv_bootstrap.sh',
+    creates => '/home/vagrant/.virtualenvs/icommons_ext_tools',
+}
+
 # change into the project directory upon login
 file {'/home/vagrant/.bash_profile':
     owner => 'vagrant',
