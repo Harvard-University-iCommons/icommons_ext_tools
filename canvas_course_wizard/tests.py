@@ -9,34 +9,29 @@ from django.core.urlresolvers import NoReverseMatch
 from icommons_common.models import CourseInstance
 from django.shortcuts import render
 from django.core.exceptions import ObjectDoesNotExist
-# from django.template.response import TemplateResponse
-# Create your tests here.
 
 
 class CourseWizardIndexViewTest(unittest.TestCase):
-
-    def test_route_by_name(self):
-        url = reverse('crs-wiz:wizard-index')
-        self.assertEqual(url, '/ext_tools/course_wizard/')
+    longMessage = True
 
     def test_route_to_view(self):
-        match = resolve('/ext_tools/course_wizard/')
-        self.assertEquals(match.view_name, 'crs-wiz:wizard-index')
-        self.assertEquals('CourseWizardIndexView', match.func.__name__)
-        self.assertTrue(len(match.args) == 0, 'Should be no args for course wizard index view')
-        self.assertTrue(len(match.kwargs) == 0, 'Should be no kwargs for course wizard index view')
+        match = resolve('/', 'canvas_course_wizard.urls')
+        self.assertEqual(match.view_name, 'wizard-indx', "named-url for wizard index didn't match expected result")
+        self.assertEqual('CourseWizardIndexView', match.func.__name__)
+        self.assertEqual(len(match.args), 0, 'Should be no args for course wizard index view')
+        self.assertEqual(len(match.kwargs), 0, 'Should be no kwargs for course wizard index view')
 
     def test_view_instance(self):
         view = CourseWizardIndexView()
-        self.assertIsInstance(view, TemplateView)
-        self.assertIsInstance(view, LoginRequiredMixin)
+        self.assertIsInstance(view, TemplateView, 'Wizard index view should be a subclass of TemplateView')
+        self.assertIsInstance(view, LoginRequiredMixin, 'Wizard index view should implement the LoginRequiredMixin')
         self.assertEquals(view.template_name, 'canvas_course_wizard/index.html')
 
     def test_template_render(self):
         request = RequestFactory().get('/fake-path')
-        template_name = 'canvas_course_wizard/course_catalog.html'
+        template_name = 'canvas_course_wizard/index.html'
         result = render(request, template_name)
-        self.assertEquals(result.status_code, 200)
+        self.assertEquals(result.status_code, 200, 'Wizard index view should render successfully')
             
 
 class CourseCatalogIndexViewTest(unittest.TestCase):
