@@ -1,6 +1,6 @@
 import unittest
 import mock
-from .views import CourseWizardIndexView, CourseIndexView
+from .views import CourseWizardIndexView#, CourseIndexView
 from django.core.urlresolvers import reverse, resolve
 from django.views.generic import TemplateView
 from braces.views import LoginRequiredMixin
@@ -15,7 +15,7 @@ class CourseWizardIndexViewTest(unittest.TestCase):
 
     def test_route_to_view(self):
         match = resolve('/', 'canvas_course_wizard.urls')
-        self.assertEqual(match.view_name, 'wizard-index', "named-url for wizard index didn't match expected result")
+        self.assertEqual(match.view_name, 'wizard-indx', "named-url for wizard index didn't match expected result")
         self.assertEqual('CourseWizardIndexView', match.func.__name__)
         self.assertEqual(len(match.args), 0, 'Should be no args for course wizard index view')
         self.assertEqual(len(match.kwargs), 0, 'Should be no kwargs for course wizard index view')
