@@ -1,9 +1,22 @@
 
-Dependenceis:
+Dependenceis (to build and run localy):
 
-* VirtualBox
-* Vagrant
+1) VirtualBox
+2) Vagrant
 
+Other Project Dependencies:
+
+* See files under the requirements folder (Note some of the dependencies are private repositories that you will not be able to download)
+
+Authentication
+
+You will want to add your own authenication backend in your settings file:
+
+Ex.
+
+AUTHENTICATION_BACKENDS = (
+    'some.path.to.your.auth.backend',
+)
 
 How to install and run the application(s):
 
