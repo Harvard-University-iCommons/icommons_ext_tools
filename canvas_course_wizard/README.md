@@ -21,5 +21,22 @@ How to install and run the application(s):
 	
 	$vagrant up
     
-    
+* setup an ssh key to use to login to the vagrant instance:
+	
+	Ex: on OSX I type
+	$ssh-add ~/.ssh/id_rsa
+
+	You can verfiy the key was added like this:
+
+	$ssh-add -L
+
+* ssh into the vagrant machine:
+
+	$vagrant ssh
+
+* The vagrant process created a virtual environment for you, and should automatically place you in the
+  correct directory with the virtual environment activated. Now you just need to get the application dependencies using pip.
+  
+  $pip install -r requirements/local.txt
+
 
