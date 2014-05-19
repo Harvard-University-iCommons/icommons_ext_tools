@@ -1,12 +1,11 @@
 import unittest
 import mock
 from .views import CourseWizardIndexView, CourseIndexView
-from django.core.urlresolvers import reverse, resolve
+from django.core.urlresolvers import resolve
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
 from braces.views import LoginRequiredMixin
 from django.test import RequestFactory
-from django.core.urlresolvers import NoReverseMatch
 from icommons_common.models import CourseInstance
 from django.shortcuts import render
 
