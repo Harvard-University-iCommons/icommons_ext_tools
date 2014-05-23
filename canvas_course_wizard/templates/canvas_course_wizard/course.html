@@ -22,5 +22,16 @@
         <div id="notes">
             {{course.notes|safe}}
         </div>
+
+        <br />
+        {% if isite_course_url %}
+            {{isite_course_url}}
+        {% endif %}
+        <br />
+        {% if canvas_course_url %}
+            {{canvas_course_url}}
+        {% endif %}
+
+
     </div>
 {% endblock content %}
