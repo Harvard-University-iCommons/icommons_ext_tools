@@ -24,9 +24,12 @@
         </div>
 
         <br />
-        {% if isite_course_url %}
-            {{isite_course_url}}
-        {% endif %}
+        <ul>
+        {% for url in isite_course_url %}
+            <li>{{ url }}</li>
+        {% endfor %}
+        </ul>
+
         <br />
         {% if canvas_course_url %}
             {{canvas_course_url}}

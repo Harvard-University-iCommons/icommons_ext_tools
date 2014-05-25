@@ -1,7 +1,9 @@
 import unittest
 import mock
+from mock import patch, ANY
 from .views import CourseWizardIndexView, CourseIndexView
 from django.core.urlresolvers import reverse, resolve
+from django.core.exceptions import ObjectDoesNotExist
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
 from braces.views import LoginRequiredMixin
@@ -9,7 +11,7 @@ from django.test import RequestFactory
 from django.core.urlresolvers import NoReverseMatch
 from icommons_common.models import CourseInstance, SiteMap, CourseSite
 from django.shortcuts import render
-from django.conf import settings
+#from django.conf import settings
 
 
 class CourseWizardIndexViewTest(unittest.TestCase):
@@ -68,7 +70,9 @@ class CourseIndexViewTest(unittest.TestCase):
     raised before getting to this method, so we'll do the minimal setup required
     '''
 
-    def test_get_context_data_for_non_canvas_course_as_teaching_staff(self):
+    @patch("canvas_course_wizard.views.SiteMap.objects.filter")
+    @patch("canvas_course_wizard.views.super", create=True)
+    def test_get_context_data_for_non_canvas_course_as_teaching_staff(self, mock_super, mock_sitemap):
 
         # Make sure user is considered a staff member
         mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
@@ -79,23 +83,24 @@ class CourseIndexViewTest(unittest.TestCase):
         view.request = self.request
         view.object = mock_ci
         view.is_current_user_member_of_course_staff = mock_is_staffer
-
-        with mock.patch('canvas_course_wizard.views.super', create=True) as mock_super:
-            with mock.patch('canvas_course_wizard.views.SiteMap.objects.get') as mock_sitemap:
-                # Set up the patch mocks
-                mock_super.return_value.get_context_data.return_value = {}
+        mock_super.return_value.get_context_data.return_value = {}
                 # Make the call
-                context = view.get_context_data()
-
+        context = view.get_context_data()
         mock_is_staffer.assert_called_once_with(mock_ci.course_instance_id)
         self.assertTrue(
             context['show_create'], 'A teaching staffer for a non-canvas course should be able to create')
 
-    def test_find_isite_from_course_instance_id(self):
 
+    @patch("canvas_course_wizard.views.SiteMap.objects.filter")
+    @patch("canvas_course_wizard.views.super", create=True)
+    def test_find_isite_from_course_instance_id(self, mock_super, mock_sitemap):
+
+        # error messahe to print if the assertion fails
         error_message = 'Given a course instance_id that has an isite setup, the url to the isite should be constructed and returned in the context'
+
         # Make sure user is considered a staff member
         mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
+
         # Course instance to use for test
         mock_ci = CourseInstance(course_instance_id=9999)
 
@@ -103,20 +108,83 @@ class CourseIndexViewTest(unittest.TestCase):
         view.request = self.request
         view.object = mock_ci
         view.is_current_user_member_of_course_staff = mock_is_staffer
-        with mock.patch('canvas_course_wizard.views.super', create=True) as mock_super:
-            with mock.patch('canvas_course_wizard.views.SiteMap.objects.get') as mock_sitemap:
-                # mock_sitemap.return_value
 
-                # set the return value for the mocked database call
-                mock_sitemap().course_site.external_id = 'k12345'
+        # create a mock list to be the return value for the mock_sitemap call.
+        # We use MagicMock here because MagicMocks are iterable
+        mock_list = mock.MagicMock(name='mock_list')
 
-                mock_super.return_value.get_context_data.return_value = {}
+        # create a mock items for the list
+        mock_item = mock.Mock(name='mock_item')
 
-                # Make the call
-                context = view.get_context_data()
+        # set a value for the mock item, mocking the call to
+        # course_site.external_id (this should be an isites keyword)
+        mock_item.course_site.external_id = 'k12345'
 
+        # add the mock_item to the mock_list, use [] to initialize the list and
+        # make sure to use the magic method __iter__ for the return value
+        mock_list.__iter__.return_value = [mock_item]
+
+        # set the return value for the mock_sitemap to be the list we just created
+        mock_sitemap.return_value = mock_list
+
+        mock_super.return_value.get_context_data.return_value = {}
+
+        # Make the call to get_context_date
+        context = view.get_context_data()
+
+        # test that the lists match
         self.assertEquals(
-            context['isite_course_url'], 'http://isites.harvard.edu/k12345', error_message)
+            context['isite_course_url'], ['http://isites.harvard.edu/k12345'], error_message)
+
+    @patch("canvas_course_wizard.views.SiteMap.objects.filter")
+    @patch("canvas_course_wizard.views.super", create=True)
+    def test_case_where_there_are_multiple_isites_returned(self, mock_super, mock_sitemap):
+
+        # error messahe to print if the assertion fails
+        error_message = 'Given a course instance_id that has an isite setup, the url to the isite should be constructed and returned in the context'
+
+        # Make sure user is considered a staff member
+        mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
+
+        # Course instance to use for test
+        mock_ci = CourseInstance(course_instance_id=9999)
+
+        view = CourseIndexView()
+        view.request = self.request
+        view.object = mock_ci
+        view.is_current_user_member_of_course_staff = mock_is_staffer
+
+        # create a mock list to be the return value for the mock_sitemap call.
+        # We use MagicMock here because MagicMocks are iterable
+        mock_list = mock.MagicMock(name='mock_list')
+
+        # create a mock items for the list
+        mock_item_one = mock.Mock(name='mock_item_one')
+        mock_item_two = mock.Mock(name='mock_item_two')
+
+        # set a value for the mock item, mocking the call to
+        # course_site.external_id (this should be an isites keyword)
+        mock_item_one.course_site.external_id = 'k12345'
+        mock_item_two.course_site.external_id = 'k12346'
+
+        # add the mock_item to the mock_list, use [] to initialize the list and
+        # make sure to use the magic method __iter__ for the return value
+        mock_list.__iter__.return_value = [mock_item_one, mock_item_two]
+
+        # set the return value for the mock_sitemap to be the list we just created
+        mock_sitemap.return_value = mock_list
+
+        mock_super.return_value.get_context_data.return_value = {}
+
+        # Make the call to get_context_date
+        context = view.get_context_data()
+
+        # test that the lists match
+        self.assertEquals(
+            context['isite_course_url'], ['http://isites.harvard.edu/k12345', 'http://isites.harvard.edu/k12346'], error_message)
+
+
+
 
     # def test_isite_url_or_false(self):
     #     with mock.patch('canvas_course_wizard.views.SiteMap') as my_model_mock:
