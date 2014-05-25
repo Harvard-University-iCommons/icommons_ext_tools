@@ -28,13 +28,10 @@
         {% for url in isite_course_url %}
             <li>{{ url }}</li>
         {% endfor %}
-        </ul>
-
-        <br />
         {% if canvas_course_url %}
-            {{canvas_course_url}}
+            <li>{{canvas_course_url}}</li>
         {% endif %}
-
+        </ul>
 
     </div>
 {% endblock content %}
