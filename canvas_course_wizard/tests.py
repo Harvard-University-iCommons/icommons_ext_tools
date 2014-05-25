@@ -69,10 +69,17 @@ class CourseIndexViewTest(unittest.TestCase):
     raised before getting to this method, so we'll do the minimal setup required
     '''
 
+    '''
+    For the tests below, I am setting the __doc__ attribute for each method to be the message that is appended 
+    to the assertion in the event the assertion failed. This takes the form self.method.__doc__
+    '''
+
     @patch("canvas_course_wizard.views.SiteMap.objects.filter")
     @patch("canvas_course_wizard.views.super", create=True)
     def test_get_context_data_for_non_canvas_course_as_teaching_staff(self, mock_super, mock_sitemap):
-
+        '''
+        A teaching staffer for a non-canvas course should be able to create
+        '''
         # Make sure user is considered a staff member
         mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
         # Course instance to use for test
@@ -87,14 +94,13 @@ class CourseIndexViewTest(unittest.TestCase):
         context = view.get_context_data()
         mock_is_staffer.assert_called_once_with(mock_ci.course_instance_id)
         self.assertTrue(
-            context['show_create'], 'A teaching staffer for a non-canvas course should be able to create')
+            context['show_create'],
+            self.test_get_context_data_for_non_canvas_course_as_teaching_staff.__doc__)
 
     @patch("canvas_course_wizard.views.SiteMap.objects.filter")
     @patch("canvas_course_wizard.views.super", create=True)
     def test_case_where_one_isite_returned(self, mock_super, mock_sitemap):
-
-        # error messahe to print if the assertion fails
-        error_message = '''
+        '''
         Given a course instance_id that has an isite setup, the url to the isite 
         should be constructed and returned in the context
         '''
@@ -135,17 +141,13 @@ class CourseIndexViewTest(unittest.TestCase):
 
         # test that the lists match
         self.assertEquals(
-            context['isite_course_url'], ['http://isites.harvard.edu/k12345'], error_message)
+            context['isite_course_url'], ['http://isites.harvard.edu/k12345'],
+            self.test_case_where_one_isite_returned.__doc__)
 
     @patch("canvas_course_wizard.views.SiteMap.objects.filter")
     @patch("canvas_course_wizard.views.super", create=True)
     def test_case_where_there_are_multiple_isites_returned(self, mock_super, mock_sitemap):
         '''
-        Given a course instance_id that has an isite setup, the url to the isite should be 
-        constructed and returned in the context
-        '''
-        # error messahe to print if the assertion fails
-        error_message = '''
         Given a course instance_id that has an isite setup, the url to the isite should be 
         constructed and returned in the context
         '''
@@ -188,18 +190,14 @@ class CourseIndexViewTest(unittest.TestCase):
 
         # test that the lists match
         self.assertEquals(
-            context['isite_course_url'], ['http://isites.harvard.edu/k12345', 'http://isites.harvard.edu/k12346'], error_message)
+            context['isite_course_url'], [
+                'http://isites.harvard.edu/k12345', 'http://isites.harvard.edu/k12346'],
+            self.test_case_where_there_are_multiple_isites_returned.__doc__)
 
     @patch("canvas_course_wizard.views.SiteMap.objects.filter")
     @patch("canvas_course_wizard.views.super", create=True)
     def test_case_where_the_list_is_empty(self, mock_super, mock_sitemap):
         '''
-        Given a course instance_id that does not have any isites, isite_course_url 
-        should be an empty list
-        '''
-        
-        # error messahe to print if the assertion fails
-        error_message = '''
         Given a course instance_id that does not have any isites, isite_course_url 
         should be an empty list
         '''
@@ -233,14 +231,13 @@ class CourseIndexViewTest(unittest.TestCase):
 
         # test that the lists match
         self.assertEquals(
-            context['isite_course_url'], [], error_message)
+            context['isite_course_url'], [],
+            self.test_case_where_the_list_is_empty.__doc__)
 
     @patch("canvas_course_wizard.views.SiteMap.objects.filter")
     @patch("canvas_course_wizard.views.super", create=True)
-    def test_case_where_the_list_is_empty(self, mock_super, mock_sitemap):
-
-        # error messahe to print if the assertion fails
-        error_message = '''
+    def test_case_where_canvas_course_exists(self, mock_super, mock_sitemap):
+        '''
         Given a course instance_id that already has a canvas course setup, the url to 
         the canvas course should be constructed and returned in the context
         '''
@@ -263,14 +260,13 @@ class CourseIndexViewTest(unittest.TestCase):
 
         # test that the lists match
         self.assertEquals(
-            context['canvas_course_url'], 'https://canvas.icommons.harvard.edu/courses/5895', error_message)
+            context['canvas_course_url'], 'https://canvas.icommons.harvard.edu/courses/5895',
+            self.test_case_where_canvas_course_exists.__doc__)
 
     @patch("canvas_course_wizard.views.SiteMap.objects.filter")
     @patch("canvas_course_wizard.views.super", create=True)
-    def test_case_where_the_list_is_empty(self, mock_super, mock_sitemap):
-
-        # error messahe to print if the assertion fails
-        error_message = '''
+    def test_case_where_the_canvas_course_does_not_exist(self, mock_super, mock_sitemap):
+        '''
         Given a course instance_id that does not have a canvas course 
         setup, canvas_course_url should be None
         '''
@@ -293,7 +289,8 @@ class CourseIndexViewTest(unittest.TestCase):
 
         # test that the lists match
         self.assertEquals(
-            context['canvas_course_url'], None, error_message)
+            context['canvas_course_url'], None,
+            self.test_case_where_the_canvas_course_does_not_exist.__doc__)
 
 
 
