@@ -60,24 +60,6 @@ class CourseIndexView(DetailView):
                 isites_urls.append(settings.COURSE_WIZARD.get('OLD_LMS_URL', None)+rec.course_site.external_id)
             context['isite_course_url'] = isites_urls
 
-
-        #if len(site_map) > 0:
-        #    context['isite_course_url'] = settings.COURSE_WIZARD.get('OLD_LMS_URL', None)+site_map[0].course_site.external_id
-        #else:
-        #    context['isite_course_url'] = None
-
-        # try:
-        #     site_map = SiteMap.objects.get(course_instance__course_instance_id=selected_course.course_instance_id, map_type__map_type_id='official')
-    
-        #     context['isite_course_url'] = settings.COURSE_WIZARD.get('OLD_LMS_URL', None)+site_map.course_site.external_id
-        #     #print context['isite_course_url']
-        #     #print '>>>>>>ok<<<<<<<<'
-        # except SiteMap.DoesNotExist:
-        #     print '>>>>>>>>>>>>> the SiteMap.DoesNotExist exception was thrown'
-        #     context['isite_course_url'] = None
-
-
-
         if selected_course.canvas_course_id:
             context['canvas_course_url'] = settings.COURSE_WIZARD.get('CANVAS_SERVER_BASE_URL', None) + 'courses/' + str(selected_course.canvas_course_id)
         else:
