@@ -13,6 +13,44 @@ from icommons_common.models import CourseInstance, SiteMap, CourseSite
 from django.shortcuts import render
 
 
+'''
+Example of testing assertRaises on a mock database call in a class based view:
+
+@patch("canvas_course_wizard.views.SiteMap.objects.get")
+@patch("canvas_course_wizard.views.super", create=True)
+def the_test(self, mock_super, mock_get):
+    mock_get.side_effect = ObjectDoesNotExist("Record not found")
+    
+    # setup the view object 
+    mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
+    
+    # way to mock the CourseInstance using mock
+    mock_ci = mock.Mock(name='CourseInstance')  # CourseInstance(course_instance_id=9999)
+    
+    # way using the CourseInstance object
+    # note this way, the init argument course_instance does not seem to work
+    # you still have to set the value using 'mock_ci.canvas_course_id = '
+    #mock_ci = CourseInstance(course_instance_id=9999) 
+
+    mock_ci.canvas_course_id = None # could be any number also ex: 5895
+    view = CourseIndexView()
+    view.request = self.request
+    view.object = mock_ci
+    view.is_current_user_member_of_course_staff = mock_is_staffer
+    mock_super.return_value.get_context_data.return_value = {}
+    assertRaises(ObjectDoesNotExist, view.get_context_data)
+
+    # ***  we can test the test by changing the exception in assertRaises, it will 
+    #      fail if we try to assert a differnt exception
+
+'''
+
+'''
+For some of the tests below, I am setting the __doc__ attribute for each method to be the message that is appended 
+to the assertion in the event the assertion failed. This takes the form self.method.__doc__
+'''
+
+
 class CourseWizardIndexViewTest(unittest.TestCase):
     longMessage = True
 
@@ -67,11 +105,6 @@ class CourseIndexViewTest(unittest.TestCase):
     '''
     Expectation entering the get_context_data is that the object has been found... a 404 error would have been
     raised before getting to this method, so we'll do the minimal setup required
-    '''
-
-    '''
-    For the tests below, I am setting the __doc__ attribute for each method to be the message that is appended 
-    to the assertion in the event the assertion failed. This takes the form self.method.__doc__
     '''
 
     @patch("canvas_course_wizard.views.SiteMap.objects.filter")
@@ -246,7 +279,8 @@ class CourseIndexViewTest(unittest.TestCase):
         mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
 
         # Course instance to use for test
-        mock_ci = mock.Mock(name='CourseInstance')  # CourseInstance(course_instance_id=9999)
+        #mock_ci = mock.Mock(name='CourseInstance')  # CourseInstance(course_instance_id=9999)
+        mock_ci = CourseInstance()
         mock_ci.canvas_course_id = 5895
         view = CourseIndexView()
         view.request = self.request
@@ -275,7 +309,7 @@ class CourseIndexViewTest(unittest.TestCase):
         mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
 
         # Course instance to use for test
-        mock_ci = mock.Mock(name='CourseInstance')  # CourseInstance(course_instance_id=9999)
+        mock_ci = CourseInstance()
         mock_ci.canvas_course_id = None
         view = CourseIndexView()
         view.request = self.request

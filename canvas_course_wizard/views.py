@@ -20,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 class CourseWizardIndexView(LoginRequiredMixin, TemplateView):
     template_name = "canvas_course_wizard/index.html"
- 
+
 
 class CourseIndexView(DetailView):
     template_name = 'canvas_course_wizard/course.html'
@@ -32,36 +32,52 @@ class CourseIndexView(DetailView):
         user_groups = self.request.session.get('USER_GROUPS', [])
         return staff_group in user_groups
 
-
     def get_context_data(self, **kwargs):
         """ 
         given a course_instance_id determine if an isite exists. 
-        If one does, return the url to the isite. If no, return false.
-        test id for dev 76592 has no iSite, id 21114 has an isite, id 298211 has both 
-        a canvas site and an isite
-
+        If one does, return a list containing the url to the isite. If not, return an empty list.
+        
         given a course_instance_id determine if a canvas site already exists. 
-        If one does, return the url to the site. If no, return false.
-        test id for dev 76592 has no iSite, id 21114 has an isite, id 298211 has both 
-        a canvas site and an isite    
+        If one does, return the url to the site. If not, return false.
+
+        here are some known test id's for dev: 
+            76592 has no iSite
+            21114 has an isite
+            298211 has both a canvas site and an isite
+  
         """
 
         context = super(CourseIndexView, self).get_context_data(**kwargs)
 
         selected_course = self.object
-        isites_urls = list()
-        context['isite_course_url'] = None
 
-        site_map = SiteMap.objects.filter(course_instance__course_instance_id=selected_course.course_instance_id, map_type__map_type_id='official')
-        #print '###############'+str(site_map)
-        #print '<<<<<<<<<<<<<<<'+str(site_map[0])
+        # list to hold the isites urls
+        isites_urls = list()
+        # I could have used isites_urls = [] to create a list, it's a little
+        # faster on initialization but less readable.
+
+        # isites_urls will be an empty list at this point
+        context['isite_course_url'] = isites_urls
+
+        # check to see if there are any 'official' isites sites already setup for
+        # the given course instance id. There can be multiple official isites for a given course instance is (ex: 223464)
+        # I had to add a term to the query 'course_site__course_site_id__gt=0' it turns out that there is one case in the 
+        # dev database where the course_site_id is 0. It seems like this is an anomoly. 
+        site_map = SiteMap.objects.filter(
+            course_instance__course_instance_id=selected_course.course_instance_id, 
+            map_type__map_type_id='official', 
+            course_site__course_site_id__gt=0)
+
         if site_map:
             for rec in site_map:
-                isites_urls.append(settings.COURSE_WIZARD.get('OLD_LMS_URL', None)+rec.course_site.external_id)
+                isites_urls.append(settings.COURSE_WIZARD.get(
+                    'OLD_LMS_URL', None) + rec.course_site.external_id)
             context['isite_course_url'] = isites_urls
 
+        # check to see if a canvas course is already setup for the given course instance id
         if selected_course.canvas_course_id:
-            context['canvas_course_url'] = settings.COURSE_WIZARD.get('CANVAS_SERVER_BASE_URL', None) + 'courses/' + str(selected_course.canvas_course_id)
+            context['canvas_course_url'] = settings.COURSE_WIZARD.get(
+                'CANVAS_SERVER_BASE_URL', None) + 'courses/' + str(selected_course.canvas_course_id)
         else:
             context['canvas_course_url'] = None
 
