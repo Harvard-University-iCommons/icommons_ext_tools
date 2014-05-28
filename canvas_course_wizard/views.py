@@ -4,7 +4,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from braces.views import LoginRequiredMixin
 from icommons_common.models import CourseInstance, SiteMap
-import re
 
 # from braces.views import CsrfExemptMixin
 # from django.http import HttpResponse
@@ -33,7 +32,7 @@ class CourseIndexView(DetailView):
         user_groups = self.request.session.get('USER_GROUPS', [])
         return staff_group in user_groups
 
-    def get_existing_lms_urls_from_course_instance_id(self, selected_course):
+    def get_urls_from_course_instance_id(self, course_instance_id):
         '''
         check to see if there are any 'official' isites sites already setup for
         the given course instance id. There can be multiple official isites for a given course instance. 
@@ -41,35 +40,32 @@ class CourseIndexView(DetailView):
         in the database in the external_id column of the course_site table. iSite keywords are also stored 
         in the same column of the same table. 
         '''
+
+        # init a list to store the urls
         url_list = list()
-        # try to select site_map records that correspond to the course_instance_id of the selected course
+
+        # try to select site_map records that correspond to the course_instance_id
+        # of the selected course
         site_map = SiteMap.objects.filter(
-            course_instance__course_instance_id=selected_course.course_instance_id,
+            course_instance__course_instance_id=course_instance_id,
             map_type__map_type_id='official')
 
         if not site_map:
             return None
         else:
             for rec in site_map:
-                # try to match an isite keyword ex: k680 or k123456
-                # if there is a match, append the keyword to the isites url
-                # and append the url to the url_list
-                match_isite = re.match(r'(k\d{3,})', rec.course_site.external_id, re.M | re.I)
-                if match_isite:
+                # the site_type_id is 'isite' we need to build the url and append the keyword
+                # if not, then we have a whole url for the external site so we can add it directly
+                # to the list
+                if rec.course_site.site_type_id == 'isite':
                     url_list.append(settings.COURSE_WIZARD.get(
-                        'OLD_LMS_URL', None) + match_isite.group(1))
-
-                # try to match a canvas course url, if there is a match append the url to the url_list
-                match_canvas = re.match(
-                    r'(https\:\/\/canvas\.harvard\.edu\/courses\/\d{3,})', rec.course_site.external_id, re.M | re.I)
-                if match_canvas:
-                    url_list.append(match_canvas.group(1))
+                        'OLD_LMS_URL', None) + rec.course_site.external_id)
+                else:
+                    url_list.append(rec.course_site.external_id)
 
             # return the url_list with data
             return url_list
 
-        # if there were no items returned from the query return none
-        return None
 
     def get_context_data(self, **kwargs):
 
@@ -78,8 +74,8 @@ class CourseIndexView(DetailView):
         selected_course = self.object
 
         # check for existing isites or canvas courses, they will both be returned in the same list
-        context['lms_course_urls'] = self.get_existing_lms_urls_from_course_instance_id(
-            selected_course)
+        context['lms_course_urls'] = self.get_urls_from_course_instance_id(
+            selected_course.course_instance_id)
 
         # User can create a course if a canvas course does not already exist and
         # if the user is a  member of the teaching staff

@@ -25,12 +25,9 @@
 
         <br />
         <ul>
-        {% for url in isite_course_url %}
+        {% for url in lms_course_urls %}
             <li>{{ url }}</li>
         {% endfor %}
-        {% if canvas_course_url %}
-            <li>{{canvas_course_url}}</li>
-        {% endif %}
         </ul>
 
     </div>
