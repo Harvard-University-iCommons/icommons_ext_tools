@@ -11,6 +11,7 @@ class Custom404Mixin(object):
     to render.  Subclasses can override this method and supply some default values for
     template if a 404 template was not already provided.
     """
+
     def get_404_template_names(self):
         if self.template_name_404 is None:
             raise ImproperlyConfigured(
