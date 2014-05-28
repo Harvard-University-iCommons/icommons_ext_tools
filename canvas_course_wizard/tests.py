@@ -1,12 +1,11 @@
 import unittest
 import mock
 from .views import CourseWizardIndexView, CourseIndexView
-from django.core.urlresolvers import reverse, resolve
+from django.core.urlresolvers import resolve
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
 from braces.views import LoginRequiredMixin
 from django.test import RequestFactory
-from django.core.urlresolvers import NoReverseMatch
 from icommons_common.models import CourseInstance
 from django.shortcuts import render
 
@@ -16,15 +15,18 @@ class CourseWizardIndexViewTest(unittest.TestCase):
 
     def test_resolve_route_to_view(self):
         match = resolve('/', 'canvas_course_wizard.urls')
-        self.assertEqual(match.view_name, 'wizard-index', "named-url for wizard index didn't match expected result")
+        self.assertEqual(match.view_name, 'wizard-index',
+                         "named-url for wizard index didn't match expected result")
         self.assertEqual('CourseWizardIndexView', match.func.__name__)
         self.assertEqual(len(match.args), 0, 'Should be no args for course wizard index view')
         self.assertEqual(len(match.kwargs), 0, 'Should be no kwargs for course wizard index view')
 
     def test_view_instance_setup(self):
         view = CourseWizardIndexView()
-        self.assertIsInstance(view, TemplateView, 'Wizard index view should be a subclass of TemplateView')
-        self.assertIsInstance(view, LoginRequiredMixin, 'Wizard index view should implement the LoginRequiredMixin')
+        self.assertIsInstance(view, TemplateView,
+                              'Wizard index view should be a subclass of TemplateView')
+        self.assertIsInstance(view, LoginRequiredMixin,
+                              'Wizard index view should implement the LoginRequiredMixin')
         self.assertEquals(view.template_name, 'canvas_course_wizard/index.html')
 
     def test_template_render(self):
@@ -32,7 +34,7 @@ class CourseWizardIndexViewTest(unittest.TestCase):
         template_name = 'canvas_course_wizard/index.html'
         result = render(request, template_name)
         self.assertEquals(result.status_code, 200, 'Wizard index view should render successfully')
-            
+
 
 class CourseIndexViewTest(unittest.TestCase):
     longMessage = True
@@ -42,23 +44,28 @@ class CourseIndexViewTest(unittest.TestCase):
 
     def test_resolve_route_to_view(self):
         match = resolve('/courses/123/', 'canvas_course_wizard.urls')
-        self.assertEqual(match.view_name, 'course-index', "named-url for course index didn't match expected result")
+        self.assertEqual(match.view_name, 'course-index',
+                         "named-url for course index didn't match expected result")
         self.assertEqual('CourseIndexView', match.func.__name__)
         self.assertEqual(len(match.args), 0, 'Should be no args for course wizard index view')
         self.assertEqual(len(match.kwargs), 1, 'Should be one keyword argument for course index')
-        self.assertEqual(match.kwargs['pk'], '123', 'Keyword argument \'pk\' should match end of url')
+        self.assertEqual(match.kwargs['pk'], '123',
+                         'Keyword argument \'pk\' should match end of url')
 
     def test_view_instance_setup(self):
         view = CourseIndexView()
-        self.assertIsInstance(view, DetailView, 'Wizard index view expected to be a subclass of DetailView')
+        self.assertIsInstance(view, DetailView,
+                              'Wizard index view expected to be a subclass of DetailView')
         self.assertEquals(view.template_name, 'canvas_course_wizard/course.html')
         self.assertIs(view.model, CourseInstance, 'Model lookup type should be CourseInstance')
-        self.assertEqual(view.context_object_name, 'course', "context should reference the course instance as 'course'")
+        self.assertEqual(view.context_object_name, 'course',
+                         "context should reference the course instance as 'course'")
 
     '''
     Expectation entering the get_context_data is that the object has been found... a 404 error would have been
     raised before getting to this method, so we'll do the minimal setup required
     '''
+
     def test_get_context_data_for_non_canvas_course_as_teaching_staff(self):
 
         # Make sure user is considered a staff member
@@ -78,11 +85,12 @@ class CourseIndexViewTest(unittest.TestCase):
             context = view.get_context_data()
 
         mock_is_staffer.assert_called_once_with(mock_ci.course_instance_id)
-        self.assertTrue(context['show_create'], 'A teaching staffer for a non-canvas course should be able to create')
+        self.assertTrue(context['show_create'],
+                        'A teaching staffer for a non-canvas course should be able to create')
 
     # def test_get_context_data_for_non_existing_course(self):
-    #     # For this method, self.object is expected to be an attribute so it's being defaulted to None here.  In
-    #     # Django 1.7 branch the assumption is now conditionalized.
+    # For this method, self.object is expected to be an attribute so it's being defaulted to None here.  In
+    # Django 1.7 branch the assumption is now conditionalized.
     #     view = CourseCatalogIndexView()
     #     view.request = self.request
     #     view.kwargs = {'school': 'ext', 'registrar_code': '21197', 'year': 2014, 'term': 'Fall'}
