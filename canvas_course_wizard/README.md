@@ -50,3 +50,16 @@ $vagrant ssh
 Now that the environment is setup you can try running the server:
 
 9) python manage.py runserver 0.0.0.0:8000
+
+### Custom 404 exception handling:
+
+Django will catch 404 exceptions by default and handle them by displaying a project-level 404 page.  They provide a mechanism to customize that page per application.  If you want to handle 404s on a per-view basis though, use the Custom404Mixin class:
+
+```
+from canvas_course_wizard.mixins import Custom404Mixin
+
+class SchoolListView(Custom404Mixin, generic.ListView):
+    template_name_404 = 'path/to/template.html'
+```
+
+The *template_name_404* parameter is required and an ImproperlyConfigured exception will be raised if the template is not defined.  Note, however, that the exception will only be raised at the point where a 404 exception is caught, so you'll want to make sure you verify that parameter is present during the testing phase for your application.

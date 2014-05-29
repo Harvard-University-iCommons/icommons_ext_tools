@@ -1,22 +1,22 @@
-import unittest
-import mock
-from mock import patch, ANY
-from .views import CourseWizardIndexView, CourseIndexView
-from django.core.urlresolvers import reverse, resolve
-from django.core.exceptions import ObjectDoesNotExist
-from django.views.generic import TemplateView
-from django.views.generic.detail import DetailView
-from braces.views import LoginRequiredMixin
-from django.test import RequestFactory
-from django.core.urlresolvers import NoReverseMatch
-from icommons_common.models import CourseInstance, SiteMap, CourseSite
-from django.shortcuts import render
-import sys
+
 
 '''
 For some of the tests below, I am setting the __doc__ attribute for each method to be the message that is appended 
 to the assertion in the event the assertion failed. This takes the form self.method.__doc__
 '''
+
+
+import unittest
+import mock
+from mock import patch
+from .views import CourseWizardIndexView, CourseIndexView
+from django.core.urlresolvers import resolve
+from django.views.generic import TemplateView
+from django.views.generic.detail import DetailView
+from braces.views import LoginRequiredMixin
+from django.test import RequestFactory
+from icommons_common.models import CourseInstance, CourseSite
+from django.shortcuts import render
 
 
 class CourseWizardIndexViewTest(unittest.TestCase):
@@ -32,10 +32,10 @@ class CourseWizardIndexViewTest(unittest.TestCase):
 
     def test_view_instance_setup(self):
         view = CourseWizardIndexView()
-        self.assertIsInstance(
-            view, TemplateView, 'Wizard index view should be a subclass of TemplateView')
-        self.assertIsInstance(
-            view, LoginRequiredMixin, 'Wizard index view should implement the LoginRequiredMixin')
+        self.assertIsInstance(view, TemplateView,
+                              'Wizard index view should be a subclass of TemplateView')
+        self.assertIsInstance(view, LoginRequiredMixin,
+                              'Wizard index view should implement the LoginRequiredMixin')
         self.assertEquals(view.template_name, 'canvas_course_wizard/index.html')
 
     def test_template_render(self):
@@ -58,13 +58,13 @@ class CourseIndexViewTest(unittest.TestCase):
         self.assertEqual('CourseIndexView', match.func.__name__)
         self.assertEqual(len(match.args), 0, 'Should be no args for course wizard index view')
         self.assertEqual(len(match.kwargs), 1, 'Should be one keyword argument for course index')
-        self.assertEqual(
-            match.kwargs['pk'], '123', 'Keyword argument \'pk\' should match end of url')
+        self.assertEqual(match.kwargs['pk'], '123',
+                         'Keyword argument \'pk\' should match end of url')
 
     def test_view_instance_setup(self):
         view = CourseIndexView()
-        self.assertIsInstance(
-            view, DetailView, 'Wizard index view expected to be a subclass of DetailView')
+        self.assertIsInstance(view, DetailView,
+                              'Wizard index view expected to be a subclass of DetailView')
         self.assertEquals(view.template_name, 'canvas_course_wizard/course.html')
         self.assertIs(view.model, CourseInstance, 'Model lookup type should be CourseInstance')
         self.assertEqual(view.context_object_name, 'course',
@@ -74,6 +74,31 @@ class CourseIndexViewTest(unittest.TestCase):
     Expectation entering the get_context_data is that the object has been found... a 404 error would have been
     raised before getting to this method, so we'll do the minimal setup required
     '''
+
+    @patch("canvas_course_wizard.views.SiteMap.objects.filter")
+    @patch("canvas_course_wizard.views.super", create=True)
+    def test_get_context_data_for_non_canvas_course_as_teaching_staff(self, mock_super, mock_sitemap):
+
+        # Make sure user is considered a staff member
+        mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
+        # Course instance to use for test
+        mock_ci = CourseInstance(course_instance_id=9999)
+
+        view = CourseIndexView()
+        view.request = self.request
+        view.object = mock_ci
+        view.is_current_user_member_of_course_staff = mock_is_staffer
+
+        with mock.patch('canvas_course_wizard.views.super', create=True) as mock_super:
+            # Set up the patch mocks
+            mock_super.return_value.get_context_data.return_value = {}
+            # Make the call
+            context = view.get_context_data()
+
+        mock_is_staffer.assert_called_once_with(mock_ci.course_instance_id)
+        self.assertTrue(context['show_create'],
+                        'A teaching staffer for a non-canvas course should be able to create')
+
 
     def setup_view(self):
         '''
@@ -119,8 +144,6 @@ class CourseIndexViewTest(unittest.TestCase):
         '''
         mock_list = mock.MagicMock(name='mock_list')
         mock_item_one = mock.Mock(name='mock_item_one')
-        mock_item_two = mock.Mock(name='mock_item_two')
-        mock_item_three = mock.Mock(name='mock_item_three')
         mock_item_one.course_site.external_id = 'k12345'
         mock_item_one.course_site.site_type_id = 'isite'
         mock_list.__iter__.return_value = [mock_item_one]
@@ -147,26 +170,6 @@ class CourseIndexViewTest(unittest.TestCase):
         mock_list.__iter__.return_value = []
 
         return mock_list
-
-    @patch("canvas_course_wizard.views.SiteMap.objects.filter")
-    @patch("canvas_course_wizard.views.super", create=True)
-    def test_get_context_data_for_non_canvas_course_as_teaching_staff(self, mock_super, mock_sitemap):
-        '''
-        A teaching staffer for a non-canvas course should be able to create
-        '''
-        # Make sure user is considered a staff member
-        mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
-        #mock_ci = CourseInstance(course_instance_id=9999)
-        view = self.setup_view_with_staffer(mock_is_staffer)
-        mock_ci = view.object
-        mock_super.return_value.get_context_data.return_value = {}
-        # Make the call
-        context = view.get_context_data()
-        mock_is_staffer.assert_called_once_with(mock_ci.course_instance_id)
-
-        self.assertTrue(
-            context['show_create'],
-            self.test_get_context_data_for_non_canvas_course_as_teaching_staff.__doc__)
 
     @patch("canvas_course_wizard.views.SiteMap.objects.filter")
     @patch("canvas_course_wizard.views.super", create=True)
@@ -247,3 +250,4 @@ class CourseIndexViewTest(unittest.TestCase):
         self.assertEquals(
             data, [],
             self.test_get_urls_from_course_instance_id_empty.__doc__)
+
