@@ -113,7 +113,6 @@ class CourseIndexViewTest(unittest.TestCase):
 
         return mock_list
 
-
     def create_mock_list_single_isite(self):
         '''
         Create and populate a mock list with isite data
@@ -149,7 +148,6 @@ class CourseIndexViewTest(unittest.TestCase):
 
         return mock_list
 
-
     @patch("canvas_course_wizard.views.SiteMap.objects.filter")
     @patch("canvas_course_wizard.views.super", create=True)
     def test_get_context_data_for_non_canvas_course_as_teaching_staff(self, mock_super, mock_sitemap):
@@ -172,31 +170,6 @@ class CourseIndexViewTest(unittest.TestCase):
 
     @patch("canvas_course_wizard.views.SiteMap.objects.filter")
     @patch("canvas_course_wizard.views.super", create=True)
-    def test_case_where_one_isite_returned(self, mock_super, mock_sitemap):
-        '''
-        Given a course instance_id that has an isite setup, the url to the isite 
-        should be constructed and returned in the context
-        '''
-
-        # Make sure user is considered a staff member
-        mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
-        #mock_ci = CourseInstance(course_instance_id=9999)
-        view = self.setup_view_with_staffer(mock_is_staffer)
-
-        # set the return value for the mock_sitemap to be the list we just created
-        mock_sitemap.return_value = self.create_mock_list_single_isite()
-        mock_super.return_value.get_context_data.return_value = {}
-
-        # Make the call to get_context_date
-        context = view.get_context_data()
-
-        # test that the lists match
-        self.assertEquals(
-            context['lms_course_urls'], ['http://isites.harvard.edu/k12345'],
-            self.test_case_where_one_isite_returned.__doc__)
-
-    @patch("canvas_course_wizard.views.SiteMap.objects.filter")
-    @patch("canvas_course_wizard.views.super", create=True)
     def test_case_where_there_are_multiple_isites_returned(self, mock_super, mock_sitemap):
         '''
         Given a course instance_id that has an isite setup, the url to the isite should be 
@@ -212,16 +185,13 @@ class CourseIndexViewTest(unittest.TestCase):
         mock_sitemap.return_value = self.create_mock_list_multi()
         mock_super.return_value.get_context_data.return_value = {}
 
+        view.get_urls_from_course_instance_id = mock.Mock()
+
         # Make the call to get_context_date
         context = view.get_context_data()
 
-        # test that the lists match
-        self.assertEquals(
-            context['lms_course_urls'], [
-                'http://isites.harvard.edu/k12345',
-                'http://isites.harvard.edu/k12346',
-                'https://canvas.harvard.edu/courses/456'],
-            self.test_case_where_there_are_multiple_isites_returned.__doc__)
+        # test to see if the mock was called once with the data 9999
+        view.get_urls_from_course_instance_id.assert_called_once_with(9999)
 
     @patch("canvas_course_wizard.views.SiteMap.objects.filter")
     @patch("canvas_course_wizard.views.super", create=True)
@@ -256,7 +226,7 @@ class CourseIndexViewTest(unittest.TestCase):
         data = view.get_urls_from_course_instance_id(0)
 
         test_data = ['http://isites.harvard.edu/k12345',
-                     'http://isites.harvard.edu/k12346', 
+                     'http://isites.harvard.edu/k12346',
                      'https://canvas.harvard.edu/courses/456']
 
         self.assertEquals(
@@ -269,7 +239,7 @@ class CourseIndexViewTest(unittest.TestCase):
         test the method get_urls_from_course_instance_id by setting the mock_sitemap query to return an empty list
         '''
         #mock_ci = CourseInstance(course_instance_id=0)
-        mock_list = mock.MagicMock(name='mock_list')
+        #mock_list = mock.MagicMock(name='mock_list')
         view = self.setup_view()
         mock_sitemap.return_value = self.create_mock_list_empty()
         data = view.get_urls_from_course_instance_id(0)
@@ -277,5 +247,3 @@ class CourseIndexViewTest(unittest.TestCase):
         self.assertEquals(
             data, [],
             self.test_get_urls_from_course_instance_id_empty.__doc__)
-
-    
