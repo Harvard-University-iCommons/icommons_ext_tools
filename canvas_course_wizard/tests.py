@@ -11,7 +11,7 @@ from django.test import RequestFactory
 from django.core.urlresolvers import NoReverseMatch
 from icommons_common.models import CourseInstance, SiteMap, CourseSite
 from django.shortcuts import render
-
+import sys
 
 '''
 For some of the tests below, I am setting the __doc__ attribute for each method to be the message that is appended 
@@ -75,24 +75,23 @@ class CourseIndexViewTest(unittest.TestCase):
     raised before getting to this method, so we'll do the minimal setup required
     '''
 
-    def setup_view(self, mock_is_staffer, mock_ci):
+    def setup_view(self):
         '''
         Help method used to setup the view for tests
         '''
+        mock_ci = CourseInstance(course_instance_id=9999)
         view = CourseIndexView()
         view.request = self.request
         view.object = mock_ci
-        view.is_current_user_member_of_course_staff = mock_is_staffer
 
         return view
 
-    def setup_view_without_staffer(self, mock_ci):
+    def setup_view_with_staffer(self, mock_is_staffer):
         '''
         Help method used to setup the view for tests
         '''
-        view = CourseIndexView()
-        view.request = self.request
-        view.object = mock_ci
+        view = self.setup_view()
+        view.is_current_user_member_of_course_staff = mock_is_staffer
 
         return view
 
@@ -159,8 +158,9 @@ class CourseIndexViewTest(unittest.TestCase):
         '''
         # Make sure user is considered a staff member
         mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
-        mock_ci = CourseInstance(course_instance_id=9999)
-        view = self.setup_view(mock_is_staffer, mock_ci)
+        #mock_ci = CourseInstance(course_instance_id=9999)
+        view = self.setup_view_with_staffer(mock_is_staffer)
+        mock_ci = view.object
         mock_super.return_value.get_context_data.return_value = {}
         # Make the call
         context = view.get_context_data()
@@ -180,8 +180,8 @@ class CourseIndexViewTest(unittest.TestCase):
 
         # Make sure user is considered a staff member
         mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
-        mock_ci = CourseInstance(course_instance_id=9999)
-        view = self.setup_view(mock_is_staffer, mock_ci)
+        #mock_ci = CourseInstance(course_instance_id=9999)
+        view = self.setup_view_with_staffer(mock_is_staffer)
 
         # set the return value for the mock_sitemap to be the list we just created
         mock_sitemap.return_value = self.create_mock_list_single_isite()
@@ -207,8 +207,8 @@ class CourseIndexViewTest(unittest.TestCase):
         mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
 
         # Course instance to use for test
-        mock_ci = CourseInstance(course_instance_id=9999)
-        view = self.setup_view(mock_is_staffer, mock_ci)
+        #mock_ci = CourseInstance(course_instance_id=9999)
+        view = self.setup_view_with_staffer(mock_is_staffer)
         mock_sitemap.return_value = self.create_mock_list_multi()
         mock_super.return_value.get_context_data.return_value = {}
 
@@ -232,8 +232,8 @@ class CourseIndexViewTest(unittest.TestCase):
         '''
 
         mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
-        mock_ci = CourseInstance(course_instance_id=9999)
-        view = self.setup_view(mock_is_staffer, mock_ci)
+        #mock_ci = CourseInstance(course_instance_id=9999)
+        view = self.setup_view_with_staffer(mock_is_staffer)
         mock_sitemap.return_value = self.create_mock_list_empty()
         mock_super.return_value.get_context_data.return_value = {}
 
@@ -250,8 +250,8 @@ class CourseIndexViewTest(unittest.TestCase):
         '''
         test the method get_urls_from_course_instance_id by setting the mock_sitemap query to return a list of data
         '''
-        mock_ci = CourseInstance(course_instance_id=0)
-        view = self.setup_view_without_staffer(mock_ci)
+        #mock_ci = CourseInstance(course_instance_id=0)
+        view = self.setup_view()
         mock_sitemap.return_value = self.create_mock_list_multi()
         data = view.get_urls_from_course_instance_id(0)
 
@@ -268,9 +268,9 @@ class CourseIndexViewTest(unittest.TestCase):
         '''
         test the method get_urls_from_course_instance_id by setting the mock_sitemap query to return an empty list
         '''
-        mock_ci = CourseInstance(course_instance_id=0)
+        #mock_ci = CourseInstance(course_instance_id=0)
         mock_list = mock.MagicMock(name='mock_list')
-        view = self.setup_view_without_staffer(mock_ci)
+        view = self.setup_view()
         mock_sitemap.return_value = self.create_mock_list_empty()
         data = view.get_urls_from_course_instance_id(0)
 
