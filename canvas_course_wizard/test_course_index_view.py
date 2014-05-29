@@ -1,5 +1,3 @@
-
-
 '''
 For some of the tests below, I am setting the __doc__ attribute for each method to be the message that is appended 
 to the assertion in the event the assertion failed. This takes the form self.method.__doc__
@@ -183,87 +181,60 @@ class CourseIndexViewTest(unittest.TestCase):
             data, [],
             self.test_get_urls_from_course_instance_id_empty.__doc__)
 
-    '''
-    Expectation entering the get_context_data is that the object has been found... a 404 error would have been
-    raised before getting to this method, so we'll do the minimal setup required
-    '''
+    @patch.object(CourseIndexView, 'get_urls_from_course_instance_id')
+    @patch.object(CourseIndexView, 'is_current_user_member_of_course_staff')
+    @patch("canvas_course_wizard.views.super", create=True)
+    def test_get_context_data_calls_helper_methods(self, mock_super, mock_staffer, mock_course_urls):
+        course_object = self.view.object
 
-    # @patch("canvas_course_wizard.views.SiteMap.objects.filter")
-    # @patch("canvas_course_wizard.views.super", create=True)
-    # def test_get_context_data_for_non_canvas_course_as_teaching_staff(self, mock_super, mock_sitemap):
+        self.view.get_context_data()
 
-    #     # Make sure user is considered a staff member
-    #     mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
-    #     # Course instance to use for test
-    #     mock_ci = CourseInstance(course_instance_id=9999)
+        mock_super.assert_called_any()
+        mock_staffer.assert_called_once_with(course_object.course_instance_id)
+        mock_course_urls.assert_called_once_with(course_object.course_instance_id)
 
-    #     view = CourseIndexView()
-    #     view.request = self.request
-    #     view.object = mock_ci
-    #     view.is_current_user_member_of_course_staff = mock_is_staffer
+    @patch.object(CourseIndexView, 'get_urls_from_course_instance_id')
+    @patch.object(CourseIndexView, 'is_current_user_member_of_course_staff')
+    @patch("canvas_course_wizard.views.super", create=True)
+    def test_get_context_data_returns_course_site_urls_context(self, mock_super, mock_staffer, mock_course_urls):
+        mock_super.return_value.get_context_data.return_value = {}
+        context = self.view.get_context_data()
 
-    #     with mock.patch('canvas_course_wizard.views.super', create=True) as mock_super:
-    #         # Set up the patch mocks
-    #         mock_super.return_value.get_context_data.return_value = {}
-    #         # Make the call
-    #         context = view.get_context_data()
+        self.assertEquals(context['lms_course_urls'], mock_course_urls.return_value,
+                          "Value of course_site_url context variable should be return value of call to get_urls_from_course_instance_id")
 
-    #     mock_is_staffer.assert_called_once_with(mock_ci.course_instance_id)
-    #     self.assertTrue(context['show_create'],
-    #                     'A teaching staffer for a non-canvas course should be able to create')
+    @patch.object(CourseIndexView, 'get_urls_from_course_instance_id', return_value=None)
+    @patch.object(CourseIndexView, 'is_current_user_member_of_course_staff', return_value=False)
+    @patch("canvas_course_wizard.views.super", create=True)
+    def test_get_context_data_course_creation_as_non_staff_with_no_course_sites(self, mock_super, mock_staffer, mock_course_urls):
+        mock_super.return_value.get_context_data.return_value = {}
+        context = self.view.get_context_data()
+        self.assertEquals(context['user_can_create_course'], False,
+                          'User should not be able to create course if they are not a staff member')
 
-    # def setup_view_with_staffer(self, mock_is_staffer):
-    #     '''
-    #     Help method used to setup the view for tests
-    #     '''
-    #     view = self.setup_view()
-    #     view.is_current_user_member_of_course_staff = mock_is_staffer
+    @patch.object(CourseIndexView, 'get_urls_from_course_instance_id', return_value=['site_url'])
+    @patch.object(CourseIndexView, 'is_current_user_member_of_course_staff', return_value=False)
+    @patch("canvas_course_wizard.views.super", create=True)
+    def test_get_context_data_course_creation_as_non_staff_with_course_sites(self, mock_super, mock_staffer, mock_course_urls):
+        mock_super.return_value.get_context_data.return_value = {}
+        context = self.view.get_context_data()
+        self.assertEquals(context['user_can_create_course'], False,
+                          'User should not be able to create course if they are not a staff member')
 
-    #     return view
+    @patch.object(CourseIndexView, 'get_urls_from_course_instance_id', return_value=['site_url'])
+    @patch.object(CourseIndexView, 'is_current_user_member_of_course_staff', return_value=True)
+    @patch("canvas_course_wizard.views.super", create=True)
+    def test_get_context_data_course_creation_as_staff_with_course_sites(self, mock_super, mock_staffer, mock_course_urls):
+        mock_super.return_value.get_context_data.return_value = {}
+        context = self.view.get_context_data()
+        self.assertEquals(context['user_can_create_course'], False,
+                          'User should not be able to create course if there are offical course sites')
 
-    # @patch("canvas_course_wizard.views.SiteMap.objects.filter")
-    # @patch("canvas_course_wizard.views.super", create=True)
-    # def test_case_where_there_are_multiple_isites_returned(self, mock_super, mock_sitemap):
-    #     '''
-    #     Given a course instance_id that has an isite setup, the url to the isite should be 
-    #     constructed and returned in the context
-    #     '''
-
-    #     # Make sure user is considered a staff member
-    #     mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
-
-    #     # Course instance to use for test
-    #     #mock_ci = CourseInstance(course_instance_id=9999)
-    #     view = self.setup_view_with_staffer(mock_is_staffer)
-    #     mock_sitemap.return_value = self.create_mock_list_multi()
-    #     mock_super.return_value.get_context_data.return_value = {}
-
-    #     view.get_urls_from_course_instance_id = mock.Mock()
-
-    #     # Make the call to get_context_date
-    #     context = view.get_context_data()
-
-    #     # test to see if the mock was called once with the data 9999
-    #     view.get_urls_from_course_instance_id.assert_called_once_with(9999)
-
-    # @patch("canvas_course_wizard.views.SiteMap.objects.filter")
-    # @patch("canvas_course_wizard.views.super", create=True)
-    # def test_case_where_the_list_is_empty(self, mock_super, mock_sitemap):
-    #     '''
-    #     Given a course instance_id that does not have any isites, isite_course_url
-    #     should be an empty list
-    #     '''
-
-    #     mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
-    #     #mock_ci = CourseInstance(course_instance_id=9999)
-    #     view = self.setup_view_with_staffer(mock_is_staffer)
-    #     mock_sitemap.return_value = self.create_mock_list_empty()
-    #     mock_super.return_value.get_context_data.return_value = {}
-
-    #     # Make the call to get_context_date
-    #     context = view.get_context_data()
-
-    #     # test that the lists match
-    #     self.assertEquals(
-    #         context['lms_course_urls'], [],
-    #         self.test_case_where_the_list_is_empty.__doc__)
+    @patch.object(CourseIndexView, 'get_urls_from_course_instance_id', return_value=None)
+    @patch.object(CourseIndexView, 'is_current_user_member_of_course_staff', return_value=True)
+    @patch("canvas_course_wizard.views.super", create=True)
+    def test_get_context_data_course_creation_as_staff_with_no_course_sites(self, mock_super, mock_staffer, mock_course_urls):
+        mock_super.return_value.get_context_data.return_value = {}
+        context = self.view.get_context_data()
+        self.assertEquals(context['user_can_create_course'], True,
+                          'User should be able to create course if they are staff and no course sites already exist')

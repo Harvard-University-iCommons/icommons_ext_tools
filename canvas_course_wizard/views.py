@@ -70,12 +70,13 @@ class CourseIndexView(LoginRequiredMixin, DetailView):
 
         selected_course = self.object
         # check for existing isites or canvas courses, they will both be returned in the same list
-        course_site_urls = self.get_urls_from_course_instance_id(selected_course.course_instance_id)
+        official_course_site_urls = self.get_urls_from_course_instance_id(selected_course.course_instance_id)
+        user_is_course_staff = self.is_current_user_member_of_course_staff(selected_course.course_instance_id)
+        # User can create a course if an official course site does not exist and if the user is a
+        # member of the teaching staff
+        user_can_create_course = user_is_course_staff and not official_course_site_urls
 
-        # User can create a course if an official course site does not exist and
-        # if the user is a member of the teaching staff
-        context['user_can_create_course'] = len(course_site_urls) == 0 and self.is_current_user_member_of_course_staff(selected_course.course_instance_id)
-
-        context['lms_course_urls'] = course_site_urls
+        context['user_can_create_course'] = user_can_create_course
+        context['lms_course_urls'] = official_course_site_urls
 
         return context
