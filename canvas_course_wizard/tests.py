@@ -1,12 +1,21 @@
+
+
+'''
+For some of the tests below, I am setting the __doc__ attribute for each method to be the message that is appended 
+to the assertion in the event the assertion failed. This takes the form self.method.__doc__
+'''
+
+
 import unittest
 import mock
+from mock import patch
 from .views import CourseWizardIndexView, CourseIndexView
 from django.core.urlresolvers import resolve
 from django.views.generic import TemplateView
 from django.views.generic.detail import DetailView
 from braces.views import LoginRequiredMixin
 from django.test import RequestFactory
-from icommons_common.models import CourseInstance
+from icommons_common.models import CourseInstance, CourseSite
 from django.shortcuts import render
 
 
@@ -66,7 +75,9 @@ class CourseIndexViewTest(unittest.TestCase):
     raised before getting to this method, so we'll do the minimal setup required
     '''
 
-    def test_get_context_data_for_non_canvas_course_as_teaching_staff(self):
+    @patch("canvas_course_wizard.views.SiteMap.objects.filter")
+    @patch("canvas_course_wizard.views.super", create=True)
+    def test_get_context_data_for_non_canvas_course_as_teaching_staff(self, mock_super, mock_sitemap):
 
         # Make sure user is considered a staff member
         mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
@@ -88,35 +99,155 @@ class CourseIndexViewTest(unittest.TestCase):
         self.assertTrue(context['show_create'],
                         'A teaching staffer for a non-canvas course should be able to create')
 
-    # def test_get_context_data_for_non_existing_course(self):
-    # For this method, self.object is expected to be an attribute so it's being defaulted to None here.  In
-    # Django 1.7 branch the assumption is now conditionalized.
-    #     view = CourseCatalogIndexView()
-    #     view.request = self.request
-    #     view.kwargs = {'school': 'ext', 'registrar_code': '21197', 'year': 2014, 'term': 'Fall'}
 
-    #     with mock.patch('canvas_course_wizard.views.CourseInstance.objects.get') as mock_db_course_get:
-    #         with mock.patch('canvas_course_wizard.views.super', create=True) as mock_super:
+    def setup_view(self):
+        '''
+        Help method used to setup the view for tests
+        '''
+        mock_ci = CourseInstance(course_instance_id=9999)
+        view = CourseIndexView()
+        view.request = self.request
+        view.object = mock_ci
 
-    #             mock_db_course_get.side_effect = CourseInstance.DoesNotExist
-    #             mock_super.return_value.get_context_data.return_value = {}
-    #             context = view.get_context_data()
+        return view
 
-    #     self.assertEquals(len(context), 0)
-    #     mock_db_course_get.assert_called_once_with(
-    #         course__registrar_code='21197',
-    #         term__school_id='ext',
-    #         term__academic_year=2014,
-    #         term__term_code__term_name__startswith='Fall'
-    #     )
-    #     self.assertEquals(view.template_name, 'canvas_course_wizard/course_not_found.html')
+    def setup_view_with_staffer(self, mock_is_staffer):
+        '''
+        Help method used to setup the view for tests
+        '''
+        view = self.setup_view()
+        view.is_current_user_member_of_course_staff = mock_is_staffer
 
-    # def test_render_catalog_template(self):
-    #     template_name = 'canvas_course_wizard/course_catalog.html'
-    #     result = render(self.request, template_name)
-    #     self.assertEquals(result.status_code, 200)
+        return view
 
-    # def test_render_course_not_found_template(self):
-    #     template_name = 'canvas_course_wizard/course_not_found.html'
-    #     result = render(self.request, template_name)
-    #     self.assertEquals(result.status_code, 200)
+    def create_mock_list_multi(self):
+        '''
+        Create and populate a mock list with isite and canvas data
+        '''
+        mock_list = mock.MagicMock(name='mock_list')
+        mock_item_one = mock.Mock(name='mock_item_one')
+        mock_item_two = mock.Mock(name='mock_item_two')
+        mock_item_three = mock.Mock(name='mock_item_three')
+        mock_item_one.course_site.external_id = 'k12345'
+        mock_item_one.course_site.site_type_id = 'isite'
+        mock_item_two.course_site.external_id = 'k12346'
+        mock_item_two.course_site.site_type_id = 'isite'
+        mock_item_three.course_site.external_id = 'https://canvas.harvard.edu/courses/456'
+        mock_item_three.course_site.site_type_id = 'external'
+        mock_list.__iter__.return_value = [mock_item_one, mock_item_two, mock_item_three]
+
+        return mock_list
+
+    def create_mock_list_single_isite(self):
+        '''
+        Create and populate a mock list with isite data
+        '''
+        mock_list = mock.MagicMock(name='mock_list')
+        mock_item_one = mock.Mock(name='mock_item_one')
+        mock_item_one.course_site.external_id = 'k12345'
+        mock_item_one.course_site.site_type_id = 'isite'
+        mock_list.__iter__.return_value = [mock_item_one]
+
+        return mock_list
+
+    def create_mock_list_single_canvas(self):
+        '''
+        Create and populate a mock list with isite and canvas data
+        '''
+        mock_list = mock.MagicMock(name='mock_list')
+        mock_item_one = mock.Mock(name='mock_item_one')
+        mock_item_one.course_site.external_id = 'https://canvas.harvard.edu/courses/456'
+        mock_item_one.course_site.site_type_id = 'external'
+        mock_list.__iter__.return_value = [mock_item_one]
+
+        return mock_list
+
+    def create_mock_list_empty(self):
+        '''
+        Create and init an empty mock list
+        '''
+        mock_list = mock.MagicMock(name='mock_list')
+        mock_list.__iter__.return_value = []
+
+        return mock_list
+
+    @patch("canvas_course_wizard.views.SiteMap.objects.filter")
+    @patch("canvas_course_wizard.views.super", create=True)
+    def test_case_where_there_are_multiple_isites_returned(self, mock_super, mock_sitemap):
+        '''
+        Given a course instance_id that has an isite setup, the url to the isite should be 
+        constructed and returned in the context
+        '''
+
+        # Make sure user is considered a staff member
+        mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
+
+        # Course instance to use for test
+        #mock_ci = CourseInstance(course_instance_id=9999)
+        view = self.setup_view_with_staffer(mock_is_staffer)
+        mock_sitemap.return_value = self.create_mock_list_multi()
+        mock_super.return_value.get_context_data.return_value = {}
+
+        view.get_urls_from_course_instance_id = mock.Mock()
+
+        # Make the call to get_context_date
+        context = view.get_context_data()
+
+        # test to see if the mock was called once with the data 9999
+        view.get_urls_from_course_instance_id.assert_called_once_with(9999)
+
+    @patch("canvas_course_wizard.views.SiteMap.objects.filter")
+    @patch("canvas_course_wizard.views.super", create=True)
+    def test_case_where_the_list_is_empty(self, mock_super, mock_sitemap):
+        '''
+        Given a course instance_id that does not have any isites, isite_course_url 
+        should be an empty list
+        '''
+
+        mock_is_staffer = mock.Mock(name='is_staffer', return_value=True)
+        #mock_ci = CourseInstance(course_instance_id=9999)
+        view = self.setup_view_with_staffer(mock_is_staffer)
+        mock_sitemap.return_value = self.create_mock_list_empty()
+        mock_super.return_value.get_context_data.return_value = {}
+
+        # Make the call to get_context_date
+        context = view.get_context_data()
+
+        # test that the lists match
+        self.assertEquals(
+            context['lms_course_urls'], [],
+            self.test_case_where_the_list_is_empty.__doc__)
+
+    @patch("canvas_course_wizard.views.SiteMap.objects.filter")
+    def test_get_urls_from_course_instance_id_multiple(self, mock_sitemap):
+        '''
+        test the method get_urls_from_course_instance_id by setting the mock_sitemap query to return a list of data
+        '''
+        #mock_ci = CourseInstance(course_instance_id=0)
+        view = self.setup_view()
+        mock_sitemap.return_value = self.create_mock_list_multi()
+        data = view.get_urls_from_course_instance_id(0)
+
+        test_data = ['http://isites.harvard.edu/k12345',
+                     'http://isites.harvard.edu/k12346',
+                     'https://canvas.harvard.edu/courses/456']
+
+        self.assertEquals(
+            data, test_data,
+            self.test_get_urls_from_course_instance_id_multiple.__doc__)
+
+    @patch("canvas_course_wizard.views.SiteMap.objects.filter")
+    def test_get_urls_from_course_instance_id_empty(self, mock_sitemap):
+        '''
+        test the method get_urls_from_course_instance_id by setting the mock_sitemap query to return an empty list
+        '''
+        #mock_ci = CourseInstance(course_instance_id=0)
+        #mock_list = mock.MagicMock(name='mock_list')
+        view = self.setup_view()
+        mock_sitemap.return_value = self.create_mock_list_empty()
+        data = view.get_urls_from_course_instance_id(0)
+
+        self.assertEquals(
+            data, [],
+            self.test_get_urls_from_course_instance_id_empty.__doc__)
+

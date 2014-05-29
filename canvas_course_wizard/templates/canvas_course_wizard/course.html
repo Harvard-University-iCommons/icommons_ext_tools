@@ -22,5 +22,13 @@
         <div id="notes">
             {{course.notes|safe}}
         </div>
+
+        <br />
+        <ul>
+        {% for url in lms_course_urls %}
+            <li>{{ url }}</li>
+        {% endfor %}
+        </ul>
+
     </div>
 {% endblock content %}
