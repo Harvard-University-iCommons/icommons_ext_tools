@@ -1,6 +1,5 @@
 from django.views.generic.base import TemplateView
 from django.views.generic.detail import DetailView
-from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from braces.views import LoginRequiredMixin
 from icommons_common.models import CourseInstance, SiteMap
@@ -22,7 +21,7 @@ class CourseWizardIndexView(LoginRequiredMixin, TemplateView):
     template_name = "canvas_course_wizard/index.html"
 
 
-class CourseIndexView(DetailView):
+class CourseIndexView(LoginRequiredMixin, DetailView):
     template_name = 'canvas_course_wizard/course.html'
     context_object_name = 'course'
     model = CourseInstance
@@ -66,22 +65,18 @@ class CourseIndexView(DetailView):
             # return the url_list with data
             return url_list
 
-
     def get_context_data(self, **kwargs):
-
         context = super(CourseIndexView, self).get_context_data(**kwargs)
 
         selected_course = self.object
-
         # check for existing isites or canvas courses, they will both be returned in the same list
-        context['lms_course_urls'] = self.get_urls_from_course_instance_id(
-            selected_course.course_instance_id)
+        official_course_site_urls = self.get_urls_from_course_instance_id(selected_course.course_instance_id)
+        user_is_course_staff = self.is_current_user_member_of_course_staff(selected_course.course_instance_id)
+        # User can create a course if an official course site does not exist and if the user is a
+        # member of the teaching staff
+        user_can_create_course = user_is_course_staff and not official_course_site_urls
 
-        # User can create a course if a canvas course does not already exist and
-        # if the user is a  member of the teaching staff
-        if not selected_course.canvas_course_id and self.is_current_user_member_of_course_staff(selected_course.course_instance_id):
-            context['show_create'] = True
-        else:
-            context['show_create'] = False
+        context['user_can_create_course'] = user_can_create_course
+        context['lms_course_urls'] = official_course_site_urls
 
         return context
