@@ -1,7 +1,17 @@
 {% extends "icommons_ui/base_ext.html" %}
 {% block content %}
  <article>
+
+{% if user_can_create_course %}
+
     <div class="col-md-6 col-md-offset-1 col-sm-8 col-sm-offset-0">
+ 
+{% else %}
+
+    <div class="col-md-6 col-md-offset-3">
+
+{% endif %}
+
         <h1>Course Information</h1>
 
         <h3>Course:</h3>
@@ -33,9 +43,6 @@
         {% endif %}
 
 
-        
-
-
         <h3>School:</h3>
         <p>Harvard College/GSAS 2019</p>
 
@@ -63,6 +70,8 @@
     </div>
 </article>
 
+
+{% if user_can_create_course %}
 <aside>
     <div class="rightColumn col-md-4 col-sm-4">
         <div class="ext-aside">
@@ -72,6 +81,8 @@
         </div>
     </div>
 </aside>
+{% endif %}
+
 {% endblock content %}
 
 
