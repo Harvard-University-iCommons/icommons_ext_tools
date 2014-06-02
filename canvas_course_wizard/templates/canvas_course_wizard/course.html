@@ -1,34 +1,79 @@
-{% extends "icommons_ui/base.html" %}
+{% extends "icommons_ui/base_ext.html" %}
 {% block content %}
-    <div class="well well-lg">
+ <article>
+    <div class="col-md-6 col-md-offset-1 col-sm-8 col-sm-offset-0">
+        <h1>Course Information</h1>
 
-        <h1>{{course.title|safe}}</h1>
-        <h3>{{course.short_title|safe}} {{course.sub_title|safe}}</h3>
+        <h3>Course:</h3>
 
-        <div id="description">
-            {{course.description|safe}}
-        </div>
-        <br />
-        <div id="location">
-            {{course.meeting_time}}<br />
-            {{course.location}} <br />
-            {{course.term}}
-        </div>
-        <br />
-        <div id="instructor">
-            {{course.instructors_display|safe}}
-        </div>
-        <br />
-        <div id="notes">
-            {{course.notes|safe}}
-        </div>
-
-        <br />
+        {% if lms_course_urls|length == 0 %}
         <ul>
+        
+            <li>{{course.title|safe}} - {{course.sub_title|safe}}</li>
+    
+        {% elif lms_course_urls|length == 1 %}
+ 
         {% for url in lms_course_urls %}
-            <li>{{ url }}</li>
+            <li><a href="{{ url }}">{{course.title|safe}} - {{course.sub_title|safe}}</a></li>
         {% endfor %}
+
+        {% else %}
+
+        
+            <li>{{course.title|safe}} - {{course.sub_title|safe}}
+                <ul>
+
+                {% for url in lms_course_urls %}
+                    <li><a href="{{ url }}">{{url}}</a></li>
+                {% endfor %}
+                </ul>
+            </li>
         </ul>
+        
+        {% endif %}
+
+
+        
+
+
+        <h3>School:</h3>
+        <p>Harvard College/GSAS 2019</p>
+
+        <h3>Instructor:</h3>
+        <p>{{course.instructors_display|safe}}</p>
+
+        <h3>Term:</h3>
+        <p>{{course.term}}</p>
+
+        <h3>Meeting Time:</h3>
+        <p>{{course.meeting_time}}</p>
+
+        <h3>Location:</h3>
+        <p>{{course.location}}</p>
+
+        <h3>Exam Group:</h3>
+        <p>13,14</p>
+
+        <h3>Description:</h3>
+        <p>{{course.description|safe}}</p>
+
+        <h3>Notes:</h3>
+        <p>{{course.notes|safe}}</p>
 
     </div>
+</article>
+
+<aside>
+    <div class="rightColumn col-md-4 col-sm-4">
+        <div class="ext-aside">
+            <h2>Teaching Staff</h2>
+            <p>Click below to start building your Canvas course web site</p>
+            <button class="btn">Create your course</button>
+        </div>
+    </div>
+</aside>
 {% endblock content %}
+
+
+
+ 
