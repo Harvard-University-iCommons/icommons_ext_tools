@@ -149,6 +149,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'canvas_course_wizard': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
         'huey.consumer': {
             'handlers': ['logfile'],
             'level': 'INFO',
