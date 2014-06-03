@@ -82,7 +82,7 @@ STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
 # URL prefix for static files.
 # Example: "http://media.lawrence.com/static/"
-STATIC_URL = '/tools/static/'
+STATIC_URL = '/ext_tools/static/'
 
 # Additional locations of static files
 STATICFILES_DIRS = (

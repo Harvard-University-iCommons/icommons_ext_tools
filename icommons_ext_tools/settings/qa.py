@@ -5,10 +5,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['termtool-qa.icommons.harvard.edu']
 
-
-
 ICOMMONS_COMMON = {
-    'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
+    'ICOMMONS_API_HOST': 'https://qa.isites.harvard.edu/services/',
     'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user', None),
     'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass', None),
 }
