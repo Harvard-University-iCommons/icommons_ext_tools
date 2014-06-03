@@ -15,57 +15,65 @@
         <h1>Course Information</h1>
 
         <h3>Course:</h3>
-
-        {% if lms_course_urls|length == 0 %}
         <ul>
-        
+        {% if lms_course_urls|length == 0 %}
             <li>{{course.title|safe}} - {{course.sub_title|safe}}</li>
-    
         {% elif lms_course_urls|length == 1 %}
- 
-        {% for url in lms_course_urls %}
-            <li><a href="{{ url }}">{{course.title|safe}} - {{course.sub_title|safe}}</a></li>
-        {% endfor %}
-
+            {% for url in lms_course_urls %}
+                <li>
+                <a href="{{ url }}">{{course.title|safe}} - {{course.sub_title|safe}}</a>
+                </li>
+            {% endfor %}
         {% else %}
-
-        
             <li>{{course.title|safe}} - {{course.sub_title|safe}}
                 <ul>
-
                 {% for url in lms_course_urls %}
                     <li><a href="{{ url }}">{{url}}</a></li>
                 {% endfor %}
                 </ul>
             </li>
+        {% endif %}
         </ul>
+
+        {% if course.course.school %}
+            <h3>School:</h3>
+            <p>{{course.course.school}}</p>
+        {% endif %}
         
+        {% if course.instructors_display %}
+            <h3>Instructor:</h3>
+            <p>{{course.instructors_display|safe}}</p>
         {% endif %}
 
+        {% if course.term %}
+            <h3>Term:</h3>
+            <p>{{course.term}}</p>
+        {% endif %}
 
-        <h3>School:</h3>
-        <p>Harvard College/GSAS 2019</p>
+        {% if course.meeting_time %}
+            <h3>Meeting Time:</h3>
+            <p>{{course.meeting_time}}</p>
+        {% endif %}
 
-        <h3>Instructor:</h3>
-        <p>{{course.instructors_display|safe}}</p>
+        {% if course.location %}
+            <h3>Location:</h3>
+            <p>{{course.location}}</p>
+        {% endif %}
 
-        <h3>Term:</h3>
-        <p>{{course.term}}</p>
+        {% if course.exam_group %}
+            <h3>Exam Group:</h3>
+            <p>{{course.exam_group|safe}}</p>
+        {% endif %}
 
-        <h3>Meeting Time:</h3>
-        <p>{{course.meeting_time}}</p>
+        {% if course.description %}
+            <h3>Description:</h3>
+            <p>{{course.description|safe}}</p>
+        {% endif %}
 
-        <h3>Location:</h3>
-        <p>{{course.location}}</p>
-
-        <h3>Exam Group:</h3>
-        <p>13,14</p>
-
-        <h3>Description:</h3>
-        <p>{{course.description|safe}}</p>
-
-        <h3>Notes:</h3>
-        <p>{{course.notes|safe}}</p>
+        {% if course.notes %}
+            <h3>Notes:</h3>
+            <p>{{course.notes|safe}}</p>
+        {% endif %}
 
     </div>
 </article>
