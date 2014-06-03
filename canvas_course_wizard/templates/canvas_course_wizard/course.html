@@ -15,7 +15,7 @@
         <h1>Course Information</h1>
 
         <h3>Course:</h3>
-        <ul>
+        <ul class="list-unstyled">
         {% if lms_course_urls|length == 0 %}
             <li>{{course.title|safe}} - {{course.sub_title|safe}}</li>
         {% elif lms_course_urls|length == 1 %}
@@ -26,7 +26,7 @@
             {% endfor %}
         {% else %}
             <li>{{course.title|safe}} - {{course.sub_title|safe}}
-                <ul>
+                <ul class="multipleCourses">
                 {% for url in lms_course_urls %}
                     <li><a href="{{ url }}">{{url}}</a></li>
                 {% endfor %}
