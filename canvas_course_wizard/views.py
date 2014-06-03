@@ -3,6 +3,7 @@ from django.views.generic.detail import DetailView
 from django.conf import settings
 from braces.views import LoginRequiredMixin
 from icommons_common.models import CourseInstance, SiteMap
+from .mixins import Custom404Mixin
 
 # from braces.views import CsrfExemptMixin
 # from django.http import HttpResponse
@@ -21,8 +22,9 @@ class CourseWizardIndexView(LoginRequiredMixin, TemplateView):
     template_name = "canvas_course_wizard/index.html"
 
 
-class CourseIndexView(LoginRequiredMixin, DetailView):
+class CourseIndexView(LoginRequiredMixin, Custom404Mixin, DetailView):
     template_name = 'canvas_course_wizard/course.html'
+    template_name_404 = 'canvas_course_wizard/course_not_found.html'
     context_object_name = 'course'
     model = CourseInstance
 
