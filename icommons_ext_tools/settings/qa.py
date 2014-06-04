@@ -15,6 +15,10 @@ CANVAS_WIZARD = {
     'TOKEN' : SECURE_SETTINGS.get('TOKEN', 'changeme'),
 }
 
+COURSE_WIZARD = {
+    'OLD_LMS_URL' : SECURE_SETTINGS.get('OLD_LMS_URL', None),
+}
+
 QUALTRICS_LINK = {
     'AGREEMENT_ID' : SECURE_SETTINGS.get('qualtrics_agreement_id', None),
     'QUALTRICS_APP_KEY' : SECURE_SETTINGS.get('qualtrics_app_key', None),
