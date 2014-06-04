@@ -219,17 +219,12 @@ exec {'create-virtualenv':
     creates => '/home/vagrant/.virtualenvs/icommons_ext_tools',
 }
 
-# change into the project directory upon login
+# change into the project directory and activate the virtual env upon login
 file {'/home/vagrant/.bash_profile':
     owner => 'vagrant',
-    content => 'echo "Changing directory to \"icommons_ext_tools\""; cd icommons_ext_tools',
+    content => 'cd icommons_ext_tools; workon icommons_ext_tools',
     require => Exec['create-virtualenv'],
 }
 
-# Active this virtualenv upon login
-file {'/home/vagrant/.bash_profile':
-    owner => 'vagrant',
-    content => 'echo "Activating python virtual environment \"icommons_ext_tools\""; workon icommons_ext_tools',
-    require => Exec['create-virtualenv'],
-}
+
 

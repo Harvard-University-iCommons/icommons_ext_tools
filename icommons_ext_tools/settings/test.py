@@ -15,7 +15,10 @@ ICOMMONS_COMMON = {
 
 CANVAS_WIZARD = {
     'TOKEN' : SECURE_SETTINGS.get('TOKEN', 'changeme'),
-    'CANVAS_SERVER_BASE_URL' : SECURE_SETTINGS.get('CANVAS_SERVER_BASE_URL', 'changeme'),
+}
+
+COURSE_WIZARD = {
+    'OLD_LMS_URL' : SECURE_SETTINGS.get('OLD_LMS_URL', None),
 }
 
 QUALTRICS_LINK = {
@@ -38,11 +41,11 @@ DATABASE_APPS_MAPPING = {
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'isitedev',
+        'NAME': 'isiteqa',
         'USER': SECURE_SETTINGS.get('django_db_user', None),
         'PASSWORD': SECURE_SETTINGS.get('django_db_pass', None),
         'HOST': 'icd3.isites.harvard.edu',
-        'PORT': '8103',
+        'PORT': '8003',
         'OPTIONS': {
             'threaded': True,
         },
@@ -51,14 +54,14 @@ DATABASES = {
 }
 
 # make tests faster
-SOUTH_TESTS_MIGRATE = False
-DATABASES = {
-   'default': {
-       'ENGINE': 'django.db.backends.sqlite3',
-       'NAME': os.path.join(os.path.dirname(__file__), 'test.db'),
-       'TEST_NAME': os.path.join(os.path.dirname(__file__), 'test.db'),
-   },
-}
+# SOUTH_TESTS_MIGRATE = False
+# DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': os.path.join(os.path.dirname(__file__), 'test.db'),
+#        'TEST_NAME': os.path.join(os.path.dirname(__file__), 'test.db'),
+#    },
+# }
 
 # need to override the NLS_DATE_FORMAT that is set by oraclepool
 '''
@@ -142,6 +145,11 @@ LOGGING = {
             'propagate': True,
         },
         'oraclepool': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'canvas_course_wizard': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,

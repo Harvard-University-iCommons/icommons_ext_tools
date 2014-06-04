@@ -1,4 +1,3 @@
-
 from .base import *
 from .secure import SECURE_SETTINGS
 DEBUG = True
@@ -15,7 +14,10 @@ ICOMMONS_COMMON = {
 
 CANVAS_WIZARD = {
     'TOKEN' : SECURE_SETTINGS['TOKEN'],
-    'CANVAS_SERVER_BASE_URL' : SECURE_SETTINGS['CANVAS_SERVER_BASE_URL'],
+}
+
+COURSE_WIZARD = {
+    'OLD_LMS_URL' : SECURE_SETTINGS['OLD_LMS_URL'],
 }
 
 QUALTRICS_LINK = {
@@ -31,9 +33,6 @@ QUALTRICS_LINK = {
     'USER_ACCEPTED_TERMS_URL' : 'ql:internal', # only in QA
 }
 
-CANVAS_WIZARD = {
-    
-}
 
 DATABASE_ROUTERS = ['icommons_ext_tools.routers.DatabaseAppsRouter', ]
 

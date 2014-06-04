@@ -1,4 +1,5 @@
-{% extends "icommons_ui/base.html" %}
-{% block content %}
-    <h1>Sorry, no course found!</h1>
-{% endblock content %}
+{% extends "icommons_ui/base_error.html" %}
+{% block error_code %}404{% endblock error_code %}
+{% block error_msg %}
+We're sorry, but we couldn't find a course associated with that URL.
+{% endblock error_msg %}
