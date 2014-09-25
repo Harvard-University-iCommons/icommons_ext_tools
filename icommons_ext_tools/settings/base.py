@@ -166,19 +166,8 @@ INSTALLED_APPS = (
     'icommons_common.monitor',
     'icommons_ui',
     'qualtrics_link',
-    'canvas_wizard',
-    #'icommons_common.monitor',
-    #'term_tool',
-    #'qualtrics_taker_auth',
-    #'canvas_shopping',
-    #'qualtrics_whitelist',
-    #'gunicorn',
     'crispy_forms',
-    #'isites_export_tool',
-    #'huey.djhuey',
-    #'rest_framework',
-    #'djsupervisor',
-    'canvas_course_wizard',
+    'canvas_course_creation'
 )
 
 # session cookie lasts for 7 hours (in seconds)
