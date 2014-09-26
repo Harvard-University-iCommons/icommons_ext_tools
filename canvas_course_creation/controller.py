@@ -15,9 +15,7 @@ logger = logging.getLogger(__name__)
 #This method creates a canvas course for the  sis_course_id provided.
 def create_canvas_course(sis_course_id):
 
-	logger.debug("sis id=%s" %sis_course_id)
 	result = None
-
 	try:
 		#1. fetch the course instance info 
 				#Currently using  CourseInstance model: to be replaced by the Proxy model
@@ -50,7 +48,6 @@ def create_canvas_course(sis_course_id):
 		         		#course_section_sis_section_id=sis_course_id
 		         		)
 			logger.debug("\n created section")
-
 		else:
 			logger.error('No course record  found for %s sis_course_id!' %(sis_course_id) )
 	except Exception as e:
