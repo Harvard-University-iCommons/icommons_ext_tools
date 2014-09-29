@@ -27,6 +27,13 @@ QUALTRICS_LINK = {
     'USER_ACCEPTED_TERMS_URL' : 'ql:launch', 
 }
 
+CANVAS_SDK_SETTINGS = {
+    'auth_token': SECURE_SETTINGS.get('canvas_token', None),
+    'base_api_url': 'https://canvas.icommons.harvard.edu/api',
+    'max_retries': 3,
+    'per_page': 40,
+}
+
 DATABASE_ROUTERS = ['icommons_ext_tools.routers.DatabaseAppsRouter', ]
 
 DATABASE_APPS_MAPPING = {
