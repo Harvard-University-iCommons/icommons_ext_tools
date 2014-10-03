@@ -1,4 +1,4 @@
-from .test import *
+from .base import *
 
 # make tests faster
 SOUTH_TESTS_MIGRATE = False
