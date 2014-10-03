@@ -3,7 +3,7 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 admin.autodiscover()
 
-from canvas_course_creation import urls as course_creation_urls
+from canvas_course_creation import urls as canvas_course_site_wizard_urls
 
 urlpatterns = patterns('',
     # Examples:
@@ -22,5 +22,5 @@ urlpatterns = patterns('',
 
     url(r'^ext_tools/course_wizard/', include('canvas_course_wizard.urls', namespace="crs-wiz")),
 
-    url(r'^ext_tools/canvas_course_creation/', include(course_creation_urls)),
+    url(r'^ext_tools/canvas-course-site-wizard/', include(canvas_course_site_wizard_urls)),
 )
