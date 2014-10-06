@@ -11,9 +11,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 @require_http_methods(['GET'])
-def index(request):
-	course=create_canvas_course(305841)
-	return render(request, 'index.html',{'course' : course})
+def index(request, cid):
+    print(" within index, invoked course_instance_id =%s" %(cid))
+    course=create_canvas_course(cid)
+    return render(request, 'index.html',{'course' : course})
+
 
 
 class CourseView(View):
