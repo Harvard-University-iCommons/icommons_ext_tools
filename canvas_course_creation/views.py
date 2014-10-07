@@ -2,7 +2,8 @@ from .models_api import get_course_data
 from .controller import create_canvas_course
 from django.views.generic.base import TemplateView
 from django.views.decorators.http import require_http_methods
-from django.shortcuts import render
+from django.shortcuts import render, redirect
+from django.core.urlresolvers import reverse
 from django.http import Http404
 from django.utils.translation import ugettext as _
 from django.core.exceptions import ObjectDoesNotExist
@@ -15,8 +16,9 @@ logger = logging.getLogger(__name__)
 
 
 @require_http_methods(['GET'])
-def index(request):
-    course = create_canvas_course(305841)
+def index(request, cid):
+    print(" within index, invoked course_instance_id =%s" % (cid))
+    course = create_canvas_course(cid)
     return render(request, 'index.html', {'course': course})
 
 
@@ -53,8 +55,10 @@ class CanvasCourseSiteCreateView(CourseDataMixin, TemplateView):
     template_name = "canvas_course_creation/canvas_wizard.html"
 
     def post(self, request, *args, **kwargs):
-        print self.course_data
+        course = create_canvas_course(self.course_data.pk)
+        return redirect('ccsw-status', course['id'])
+        print "course is %s" % course
 
 
 class CanvasCourseSiteStatusView(TemplateView):
-    pass
+    template_name = "canvas_course_creation/status.html"
