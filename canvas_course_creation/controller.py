@@ -21,8 +21,8 @@ def create_canvas_course(sis_course_id):
 		#1. fetch the course instance info 
 		course_data = get_course_data(sis_course_id)
 
-		logger.info("obtained  course info for ci=%s, acct_id=%s, course_name=%s, code=%s, term=%s\n\n"
-		 %(course_data,course_data.sis_account_id, course_data.course_name, course_data.course_code, course_data.sis_term_id, ))
+		logger.info("\n obtained  course info for ci=%s, acct_id=%s, course_name=%s, code=%s, term=%s, section_name=%s\n"
+		 %(course_data,course_data.sis_account_id, course_data.course_name, course_data.course_code, course_data.sis_term_id,course_data.primary_section_name() ))
 	except ObjectDoesNotExist as e:
 		logger.error('ObjectDoesNotExist  exception in  create course:  %s, exception=%s' % (sis_course_id, e))
 		raise Http404
@@ -40,7 +40,7 @@ def create_canvas_course(sis_course_id):
 	section = create_course_section(
 				SDK_CONTEXT, 
 				course_id = new_course['id'],
-         		course_section_name = course_data.primary_section_name,
+         		course_section_name = course_data.primary_section_name(),
          		course_section_sis_section_id = sis_course_id
          		)
 	logger.info("created section= %s" %(section.json()))
