@@ -24,3 +24,14 @@ class CourseDataMixin(SingleObjectMixin):
             raise Http404(_("No %s found for the given key %s" % ('course_data', pk)))
 
         return course_data
+
+
+class CourseSiteCreationAllowedMixin(CourseDataMixin):
+    """
+    Processes permission checks required for initiating course creation.  Being a mixin allows for a
+    view to implement multiple mixins that override dispatch.
+    """
+    def dispatch(self, request, *args, **kwargs):
+        # Retrieve the course data object and determine if user can go ahead with creation
+        self.object = self.get_object()
+        return super(CourseSiteCreationAllowedMixin, self).dispatch(request, *args, **kwargs)
