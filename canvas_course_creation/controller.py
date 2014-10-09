@@ -32,7 +32,7 @@ def create_canvas_course(sis_course_id):
 			account_id = 'sis_account_id:' + course_data.sis_account_id,
 			course_name = course_data.course_name,
 			course_course_code = course_data.course_code,
-			course_term_id = course_data.sis_term_id,
+			course_term_id = 'sis_term_id:' + course_data.sis_term_id,
 			course_sis_course_id= sis_course_id).json()
 	logger.info("created  course object, ret=%s" % (new_course))
 

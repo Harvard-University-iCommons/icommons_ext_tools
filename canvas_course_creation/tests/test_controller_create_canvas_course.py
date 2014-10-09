@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
     get_course_data = DEFAULT, create_course_section = DEFAULT, create_new_course = DEFAULT)
 
 
-class CreateCanvasCouresTest(TestCase):
+class CreateCanvasCourseTest(TestCase):
     longMessage = True
 
     def setUp(self):
