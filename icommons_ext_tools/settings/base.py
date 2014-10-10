@@ -167,7 +167,7 @@ INSTALLED_APPS = (
     'icommons_ui',
     'qualtrics_link',
     'crispy_forms',
-    'canvas_course_creation'
+    'canvas_course_site_wizard',
 )
 
 # session cookie lasts for 7 hours (in seconds)

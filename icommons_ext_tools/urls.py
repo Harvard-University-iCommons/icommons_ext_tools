@@ -3,14 +3,10 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 admin.autodiscover()
 
-from canvas_course_creation import urls as canvas_course_site_wizard_urls
+from canvas_course_site_wizard import urls as ccsw_urls
 
-urlpatterns = patterns('',
-    # Examples:
-    # url(r'^$', 'icommons_ext_tools.views.home', name='home'),
-    # url(r'^blog/', include('blog.urls')),
-
-    #url(r'^admin/', include(admin.site.urls)),
+urlpatterns = patterns(
+    '',
 
     url(r'^ext_tools/qualtrics_link/', include('qualtrics_link.urls', namespace="ql")),
 
@@ -22,5 +18,5 @@ urlpatterns = patterns('',
 
     url(r'^ext_tools/course_wizard/', include('canvas_course_wizard.urls', namespace="crs-wiz")),
 
-    url(r'^ext_tools/canvas-course-site-wizard/', include(canvas_course_site_wizard_urls)),
+    url(r'^ext_tools/canvas-course-site-wizard/', include(ccsw_urls)),
 )
