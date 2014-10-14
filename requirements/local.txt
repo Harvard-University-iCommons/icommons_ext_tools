@@ -9,14 +9,14 @@ django-debug-toolbar==1.0.1
 
 git+https://github.com/inducer/pudb.git#egg=pudb
 
-# Local repos
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@develop#egg=django-icommons-common
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@develop#egg=django-icommons-ui
-git+ssh://git@github.com/penzance/canvas_python_sdk.git@develop#egg=canvas-python-sdk
-git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@develop#egg=django-canvas-course-site-wizard
-
 # uncomment below (and comment out corresponding repo above) for local development
 # -e /django-canvas-course-site-wizard
 # -e /django-icommons-common
 # -e /canvas-python-sdk
 # -e /django-icommons-ui
+
+# Local repos
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@develop#egg=django-icommons-common
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@develop#egg=django-icommons-ui
+git+ssh://git@github.com/penzance/canvas_python_sdk.git@develop#egg=canvas-python-sdk
+git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@develop#egg=django-canvas-course-site-wizard

@@ -8,9 +8,9 @@ newrelic==2.8.0.7
 
 gunicorn
 
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v1.2.4#egg=django-icommons-common
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v0.4#egg=django-icommons-ui
 # TODO: update to point to a version of the SDK
 git+ssh://git@github.com/penzance/canvas_python_sdk.git@develop#egg=canvas-python-sdk
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v1.2.4#egg=django-icommons-common
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v0.4#egg=django-icommons-ui
 # TODO: create versions in github and update below to pull from a version number
 git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@master#egg=django-canvas-course-site-wizard
