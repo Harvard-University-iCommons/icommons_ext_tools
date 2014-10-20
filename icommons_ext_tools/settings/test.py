@@ -39,12 +39,6 @@ CANVAS_SDK_SETTINGS = {
     'per_page': 40,
 }
 
-DATABASE_ROUTERS = ['icommons_ext_tools.routers.DatabaseAppsRouter', ]
-
-DATABASE_APPS_MAPPING = {
-    'qualtrics_link': 'default',
-}
-
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
