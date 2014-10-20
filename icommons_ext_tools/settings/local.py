@@ -36,7 +36,7 @@ QUALTRICS_LINK = {
 }
 
 CANVAS_SDK_SETTINGS = {
-    'auth_token': SECURE_SETTINGS.get('TOKEN', None),
+    'auth_token': SECURE_SETTINGS.get('canvas_token', None),
     'base_api_url': 'https://canvas.icommons.harvard.edu/api',
     'max_retries': 3,
     'per_page': 40,
