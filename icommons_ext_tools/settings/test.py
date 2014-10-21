@@ -17,6 +17,8 @@ CANVAS_WIZARD = {
     'TOKEN' : SECURE_SETTINGS.get('TOKEN', 'changeme'),
 }
 
+ISITES_LMS_URL = 'http://qa.isites.harvard.edu/'
+
 COURSE_WIZARD = {
     'OLD_LMS_URL' : SECURE_SETTINGS.get('OLD_LMS_URL', None),
 }
@@ -37,12 +39,6 @@ CANVAS_SDK_SETTINGS = {
     'base_api_url': 'https://canvas.icommons.harvard.edu/api',
     'max_retries': 3,
     'per_page': 40,
-}
-
-DATABASE_ROUTERS = ['icommons_ext_tools.routers.DatabaseAppsRouter', ]
-
-DATABASE_APPS_MAPPING = {
-    'qualtrics_link': 'default',
 }
 
 DATABASES = {

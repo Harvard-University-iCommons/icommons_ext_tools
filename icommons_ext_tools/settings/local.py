@@ -12,6 +12,8 @@ ICOMMONS_COMMON = {
     'ICOMMONS_API_PASS': SECURE_SETTINGS['icommons_api_pass'],
 }
 
+ISITES_LMS_URL = 'http://isites.harvard.edu/'
+
 CANVAS_WIZARD = {
     'TOKEN' : SECURE_SETTINGS['TOKEN'],
 }
@@ -40,15 +42,8 @@ CANVAS_SDK_SETTINGS = {
     'per_page': 40,
 }
 
-DATABASE_ROUTERS = ['icommons_ext_tools.routers.DatabaseAppsRouter', ]
-
-DATABASE_APPS_MAPPING = {
-    'qualtrics_link': 'default',
-    'canvas_wizard' : 'default',
-}
-
 DATABASES = {
-
+    # Dev
     'default': {
         'ENGINE': 'django.db.backends.oracle',
         'NAME': 'isitedev',
@@ -61,6 +56,19 @@ DATABASES = {
         },
         'CONN_MAX_AGE': 0,
     }
+    # QA
+    # 'default': {
+    #     'ENGINE': 'django.db.backends.oracle',
+    #     'NAME': 'isiteqa',
+    #     'USER': SECURE_SETTINGS['django_db_user'],
+    #     'PASSWORD': SECURE_SETTINGS['django_db_pass'],
+    #     'HOST': 'icd3.isites.harvard.edu',
+    #     'PORT': '8003',
+    #     'OPTIONS': {
+    #         'threaded': True,
+    #     },
+    #     'CONN_MAX_AGE': 0,
+    # }
 }
 
 # need to override the NLS_DATE_FORMAT that is set by oraclepool
@@ -141,7 +149,7 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
-        'canvas_course_creation': {
+        'canvas_course_site_wizard': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
