@@ -10,6 +10,8 @@ DATABASES = {
     },
 }
 
+ISITES_LMS_URL = ''
+
 ICOMMONS_COMMON = {
 
     'ICOMMONS_API_HOST': 'https://qa.isites.harvard.edu/services/',
