@@ -17,6 +17,8 @@ CANVAS_WIZARD = {
     'TOKEN' : SECURE_SETTINGS.get('TOKEN', 'changeme'),
 }
 
+ISITES_LMS_URL = 'http://qa.isites.harvard.edu/'
+
 COURSE_WIZARD = {
     'OLD_LMS_URL' : SECURE_SETTINGS.get('OLD_LMS_URL', None),
 }
