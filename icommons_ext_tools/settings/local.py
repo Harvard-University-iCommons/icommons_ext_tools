@@ -35,9 +35,13 @@ QUALTRICS_LINK = {
     'USER_ACCEPTED_TERMS_URL' : 'ql:internal', # only in QA
 }
 
+CANVAS_SITE_SETTINGS = {
+    'base_url': 'https://canvas.icommons.harvard.edu/',
+}
+
 CANVAS_SDK_SETTINGS = {
     'auth_token': SECURE_SETTINGS.get('canvas_token', None),
-    'base_api_url': 'https://canvas.icommons.harvard.edu/api',
+    'base_api_url': CANVAS_SITE_SETTINGS['base_url'] + 'api',
     'max_retries': 3,
     'per_page': 40,
 }
