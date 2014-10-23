@@ -28,7 +28,7 @@ QUALTRICS_LINK = {
 }
 
 CANVAS_SITE_SETTINGS = {
-    'base_url': 'https://canvas.icommons.harvard.edu/',
+    'base_url': 'https://canvas.harvard.edu/',
 }
 
 CANVAS_SDK_SETTINGS = {
