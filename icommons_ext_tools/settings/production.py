@@ -31,6 +31,15 @@ CANVAS_SITE_SETTINGS = {
     'base_url': 'https://canvas.harvard.edu/',
 }
 
+CANVAS_EMAIL_NOTIFICATION = {
+    'from_email_address'    : 'icommons-bounces@harvard.edu',
+    'support_email_address' :   'icommons_support@harvard.edu',
+    'success_subject'      : 'Test success from canvaz wizard : PLEASE IGNORE',
+    'success_body'      : 'Test success body',
+    'failure_subject'      : 'Test failure from canvaz wizard : PLEASE IGNORE ', 
+    'failure_body'      : 'Test failure body'   
+}
+
 CANVAS_SDK_SETTINGS = {
     'auth_token': SECURE_SETTINGS.get('canvas_token', None),
     'base_api_url': CANVAS_SITE_SETTINGS['base_url'] + 'api',

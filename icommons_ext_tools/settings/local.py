@@ -37,6 +37,17 @@ QUALTRICS_LINK = {
 
 CANVAS_SITE_SETTINGS = {
     'base_url': 'https://canvas.icommons.harvard.edu/',
+   
+}
+
+CANVAS_EMAIL_NOTIFICATION = {
+    'from_email_address'    : 'icommons-bounces@harvard.edu',
+    'support_email_address' :   'icommons_support@harvard.edu',
+    'success_subject'      : 'Test success from canvaz wizard : PLEASE IGNORE',
+    'success_body'      : 'Test success body',
+    'failure_subject'      : 'Test failure from canvaz wizard : PLEASE IGNORE ', 
+    'failure_body'      : 'Test failure body'   
+
 }
 
 CANVAS_SDK_SETTINGS = {
@@ -47,33 +58,45 @@ CANVAS_SDK_SETTINGS = {
 }
 
 DATABASES = {
-    # Dev
+
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'isitedev',
+
+       # DEV 
+       # 'NAME': 'isitedev',
+       # 'USER': SECURE_SETTINGS['django_db_user'],
+       # 'PASSWORD': SECURE_SETTINGS['django_db_pass'],
+       # 'HOST': 'icd3.isites.harvard.edu',
+       # 'PORT': '8103',
+        'NAME': 'isiteqa',
         'USER': SECURE_SETTINGS['django_db_user'],
-        'PASSWORD': SECURE_SETTINGS['django_db_pass'],
+        'PASSWORD': SECURE_SETTINGS['django_db_pass_qa'],
         'HOST': 'icd3.isites.harvard.edu',
-        'PORT': '8103',
-        'OPTIONS': {
-            'threaded': True,
-        },
-        'CONN_MAX_AGE': 0,
-    }
-    # QA
-    # 'default': {
-    #     'ENGINE': 'django.db.backends.oracle',
-    #     'NAME': 'isiteqa',
-    #     'USER': SECURE_SETTINGS['django_db_user'],
-    #     'PASSWORD': SECURE_SETTINGS['django_db_pass'],
-    #     'HOST': 'icd3.isites.harvard.edu',
-    #     'PORT': '8003',
-    #     'OPTIONS': {
-    #         'threaded': True,
-    #     },
-    #     'CONN_MAX_AGE': 0,
-    # }
-}
+
+        'PORT': '8003',
+         'OPTIONS': {
+             'threaded': True,
+         },
+
+         'CONN_MAX_AGE': 0,
+
+        # QA
+        # 'default': {
+        #     'ENGINE': 'django.db.backends.oracle',
+        #     'NAME': 'isiteqa',
+        #     'USER': SECURE_SETTINGS['django_db_user'],
+        #     'PASSWORD': SECURE_SETTINGS['django_db_pass'],
+        #     'HOST': 'icd3.isites.harvard.edu',
+        #     'PORT': '8003',
+        #     'OPTIONS': {
+        #         'threaded': True,
+        #     },
+        #     'CONN_MAX_AGE': 0,
+        # }
+
+     }
+ }
+
 
 # need to override the NLS_DATE_FORMAT that is set by oraclepool
 '''
