@@ -38,11 +38,18 @@ CANVAS_SITE_SETTINGS = {
 
 CANVAS_EMAIL_NOTIFICATION = {
     'from_email_address'    : 'icommons-bounces@harvard.edu',
-    'support_email_address' :   'icommons_support@harvard.edu',
-    'success_subject'      : 'Test success from canvaz wizard : PLEASE IGNORE',
-    'success_body'      : 'Test success body',
-    'failure_subject'      : 'Test failure from canvaz wizard : PLEASE IGNORE ', 
-    'failure_body'      : 'Test failure body'   
+    'support_email_address' : 'icommons_support@harvard.edu',
+    'course_migration_success_subject'  : 'Course site is ready : (TEST, PLEASE IGNORE)',
+    'course_migration_success_body'     : 'Your new Canvas course site has been created and is ready for you at\n'+
+            ' {0} \n\n Resources for getting started with your site: http://tlt.harvard.edu/getting-started',
+
+    'course_migration_failure_subject'  : 'Course site not created (TEST, PLEASE IGNORE) ', 
+    'course_migration_failure_body'     : 'There was a problem creating your course site in Canvas.\n'+
+            'Your local academic support staff has been notified and will be in touch with you.\n\n'+
+            'If you have questions please contact them at:\n'+
+            ' FAS: atg@fas.harvard.edu\n'+
+            ' DCE: academictechnology@dce.harvard.edu\n'+
+            ' (Let them know that course site creation failed for sis_course_id: '
 }
 
 CANVAS_SDK_SETTINGS = {
