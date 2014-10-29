@@ -49,7 +49,7 @@ CANVAS_EMAIL_NOTIFICATION = {
             'If you have questions please contact them at:\n'+
             ' FAS: atg@fas.harvard.edu\n'+
             ' DCE: academictechnology@dce.harvard.edu\n'+
-            ' (Let them know that course site creation failed for sis_course_id: '
+            ' (Let them know that course site creation failed for sis_course_id: {0} '
 }
 
 CANVAS_SDK_SETTINGS = {
