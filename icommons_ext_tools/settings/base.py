@@ -27,16 +27,16 @@ path.append(SITE_ROOT)
 ### End path stuff
 
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
-#ADMINS = SECURE_SETTINGS.get('admins')
+ADMINS = SECURE_SETTINGS.get('admins')
 
 # This is the address that emails will be sent "from"
 SERVER_EMAIL = 'iCommons Tools <icommons-bounces@harvard.edu>'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mailhost.harvard.edu'
-EMAIL_USE_TLS = True
+#EMAIL_USE_TLS = True
 
-#MANAGERS = ADMINS
+MANAGERS = ADMINS
 
 # DATABASES are defined in individual environment settings
 
@@ -112,6 +112,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
+    'django.middleware.common.BrokenLinkEmailsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -123,7 +124,19 @@ MIDDLEWARE_CLASSES = (
 
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+
 )
+
+# I've added in this block and commented it out.
+# we may decide we want to add some patterns in here
+# if we start getting to much email from non-critical sources.
+# import re
+# IGNORABLE_404_URLS = (
+#     re.compile(r'^/apple-touch-icon.*\.png$'),
+#     re.compile(r'^/favicon\.ico$'),
+#     re.compile(r'^/robots\.txt$'),
+# )
+
 
 AUTHENTICATION_BACKENDS = (
     'icommons_common.auth.backends.PINAuthBackend',
@@ -149,6 +162,7 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
+    SITE_ROOT + '/templates/',
 )
 
 INSTALLED_APPS = (
@@ -167,7 +181,7 @@ INSTALLED_APPS = (
     'icommons_ui',
     'qualtrics_link',
     'crispy_forms',
-    'canvas_course_creation'
+    'canvas_course_site_wizard',
 )
 
 # session cookie lasts for 7 hours (in seconds)

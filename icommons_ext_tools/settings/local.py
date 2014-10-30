@@ -12,6 +12,8 @@ ICOMMONS_COMMON = {
     'ICOMMONS_API_PASS': SECURE_SETTINGS['icommons_api_pass'],
 }
 
+ISITES_LMS_URL = 'http://isites.harvard.edu/'
+
 CANVAS_WIZARD = {
     'TOKEN' : SECURE_SETTINGS['TOKEN'],
 }
@@ -33,35 +35,75 @@ QUALTRICS_LINK = {
     'USER_ACCEPTED_TERMS_URL' : 'ql:internal', # only in QA
 }
 
-CANVAS_SDK_SETTINGS = {
-    'auth_token': SECURE_SETTINGS.get('canvas_token', None),
-    'base_api_url': 'https://canvas.icommons.harvard.edu/api',
-    'max_retries': 3,
-    'per_page': 40,
+CANVAS_SITE_SETTINGS = {
+    'base_url': 'https://canvas.icommons.harvard.edu/',
+   
 }
 
-DATABASE_ROUTERS = ['icommons_ext_tools.routers.DatabaseAppsRouter', ]
+CANVAS_EMAIL_NOTIFICATION = {
+    'from_email_address'    : 'icommons-bounces@harvard.edu',
+    'support_email_address' : 'icommons_support@harvard.edu',
+    'course_migration_success_subject'  : 'Course site is ready : (TEST, PLEASE IGNORE)',
+    'course_migration_success_body'     : 'Success! \nYour new Canvas course site has been created and is ready for you at\n'+
+            ' {0} \n\n Here are some resources for getting started with your site: http://tlt.harvard.edu/getting-started#teachingstaff',
 
-DATABASE_APPS_MAPPING = {
-    'qualtrics_link': 'default',
-    'canvas_wizard' : 'default',
+    'course_migration_failure_subject'  : 'Course site not created (TEST, PLEASE IGNORE) ', 
+    'course_migration_failure_body'     : 'There was a problem creating your course site in Canvas.\n'+
+            'Your local academic support staff has been notified and will be in touch with you.\n\n'+
+            'If you have questions please contact them at:\n'+
+            ' FAS: atg@fas.harvard.edu\n'+
+            ' DCE: academictechnology@dce.harvard.edu\n'+
+            ' (Let them know that course site creation failed for sis_course_id: {0}) '
+
+}
+
+CANVAS_SDK_SETTINGS = {
+    'auth_token': SECURE_SETTINGS.get('canvas_token', None),
+    'base_api_url': CANVAS_SITE_SETTINGS['base_url'] + 'api',
+    'max_retries': 3,
+    'per_page': 40,
 }
 
 DATABASES = {
 
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': 'isitedev',
+
+       # DEV 
+       # 'NAME': 'isitedev',
+       # 'USER': SECURE_SETTINGS['django_db_user'],
+       # 'PASSWORD': SECURE_SETTINGS['django_db_pass'],
+       # 'HOST': 'icd3.isites.harvard.edu',
+       # 'PORT': '8103',
+        'NAME': 'isiteqa',
         'USER': SECURE_SETTINGS['django_db_user'],
-        'PASSWORD': SECURE_SETTINGS['django_db_pass'],
+        'PASSWORD': SECURE_SETTINGS['django_db_pass_qa'],
         'HOST': 'icd3.isites.harvard.edu',
-        'PORT': '8103',
-        'OPTIONS': {
-            'threaded': True,
-        },
-        'CONN_MAX_AGE': 0,
-    }
-}
+
+        'PORT': '8003',
+         'OPTIONS': {
+             'threaded': True,
+         },
+
+         'CONN_MAX_AGE': 0,
+
+        # QA
+        # 'default': {
+        #     'ENGINE': 'django.db.backends.oracle',
+        #     'NAME': 'isiteqa',
+        #     'USER': SECURE_SETTINGS['django_db_user'],
+        #     'PASSWORD': SECURE_SETTINGS['django_db_pass'],
+        #     'HOST': 'icd3.isites.harvard.edu',
+        #     'PORT': '8003',
+        #     'OPTIONS': {
+        #         'threaded': True,
+        #     },
+        #     'CONN_MAX_AGE': 0,
+        # }
+
+     }
+ }
+
 
 # need to override the NLS_DATE_FORMAT that is set by oraclepool
 '''
@@ -141,7 +183,7 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
-        'canvas_course_creation': {
+        'canvas_course_site_wizard': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,

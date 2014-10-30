@@ -12,3 +12,12 @@ secure*.py*
 !secure.py.example
 jwplayer/
 data/
+requirements/*.txt
+!requirements/base.txt
+!requirements/local.txt
+!requirements/qa.txt
+!requirements/test.txt
+!requirements/production.txt
+
+# PyCharm IDE metadata
+.idea/

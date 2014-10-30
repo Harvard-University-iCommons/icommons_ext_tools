@@ -27,18 +27,34 @@ QUALTRICS_LINK = {
     'USER_ACCEPTED_TERMS_URL' : 'ql:launch', 
 }
 
+CANVAS_SITE_SETTINGS = {
+    'base_url': 'https://canvas.harvard.edu/',
+}
+
+CANVAS_EMAIL_NOTIFICATION = {
+    'from_email_address'    : 'icommons-bounces@harvard.edu',
+    'support_email_address' : 'icommons_support@harvard.edu',
+    'course_migration_success_subject'  : 'Course site is ready',
+    'course_migration_success_body'     : 'Success! \nYour new Canvas course site has been created and is ready for you at\n'+
+            ' {0} \n\n Here are some resources for getting started with your site: http://tlt.harvard.edu/getting-started#teachingstaff',
+
+    'course_migration_failure_subject'  : 'Course site not created', 
+    'course_migration_failure_body'     : 'There was a problem creating your course site in Canvas.\n'+
+            'Your local academic support staff has been notified and will be in touch with you.\n\n'+
+            'If you have questions please contact them at:\n'+
+            ' FAS: atg@fas.harvard.edu\n'+
+            ' DCE: academictechnology@dce.harvard.edu\n'+
+            ' (Let them know that course site creation failed for sis_course_id: {0} '
+}
+
 CANVAS_SDK_SETTINGS = {
     'auth_token': SECURE_SETTINGS.get('canvas_token', None),
-    'base_api_url': 'https://canvas.icommons.harvard.edu/api',
+    'base_api_url': CANVAS_SITE_SETTINGS['base_url'] + 'api',
     'max_retries': 3,
     'per_page': 40,
 }
 
-DATABASE_ROUTERS = ['icommons_ext_tools.routers.DatabaseAppsRouter', ]
-
-DATABASE_APPS_MAPPING = {
-    'qualtrics_link': 'default',
-}
+ISITES_LMS_URL = 'http://isites.harvard.edu/'
 
 DATABASES = {
     'default': {
@@ -70,6 +86,11 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
     }
 }
+
+EMAIL_HOST = SECURE_SETTINGS.get('EMAIL_HOST')
+EMAIL_HOST_USER = SECURE_SETTINGS.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = SECURE_SETTINGS.get('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = True
 
 #CACHES = {
 #    'default': {

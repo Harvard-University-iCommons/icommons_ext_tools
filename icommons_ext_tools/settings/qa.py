@@ -15,6 +15,8 @@ CANVAS_WIZARD = {
     'TOKEN' : SECURE_SETTINGS.get('TOKEN', 'changeme'),
 }
 
+ISITES_LMS_URL = 'http://qa.isites.harvard.edu/'
+
 COURSE_WIZARD = {
     'OLD_LMS_URL' : SECURE_SETTINGS.get('OLD_LMS_URL', None),
 }
@@ -30,17 +32,31 @@ QUALTRICS_LINK = {
     'USER_ACCEPTED_TERMS_URL' : 'ql:internal', # only in QA
 }
 
-CANVAS_SDK_SETTINGS = {
-    'auth_token': SECURE_SETTINGS.get('canvas_token', None),
-    'base_api_url': 'https://canvas.icommons.harvard.edu/api',
-    'max_retries': 3,
-    'per_page': 40,
+CANVAS_SITE_SETTINGS = {
+    'base_url': 'https://canvas.icommons.harvard.edu/',
 }
 
-DATABASE_ROUTERS = ['icommons_ext_tools.routers.DatabaseAppsRouter', ]
+CANVAS_EMAIL_NOTIFICATION = {
+    'from_email_address'    : 'icommons-bounces@harvard.edu',
+    'support_email_address' : 'icommons_support@harvard.edu',
+    'course_migration_success_subject'  : 'Course site is ready : (TEST, PLEASE IGNORE)',
+    'course_migration_success_body'     : 'Success! \nYour new Canvas course site has been created and is ready for you at\n'+
+            ' {0} \n\n Here are some resources for getting started with your site: http://tlt.harvard.edu/getting-started#teachingstaff',
 
-DATABASE_APPS_MAPPING = {
-    'qualtrics_link': 'default',
+    'course_migration_failure_subject'  : 'Course site not created (TEST, PLEASE IGNORE) ', 
+    'course_migration_failure_body'     : 'There was a problem creating your course site in Canvas.\n'+
+            'Your local academic support staff has been notified and will be in touch with you.\n\n'+
+            'If you have questions please contact them at:\n'+
+            ' FAS: atg@fas.harvard.edu\n'+
+            ' DCE: academictechnology@dce.harvard.edu\n'+
+            ' (Let them know that course site creation failed for sis_course_id: {0} '
+}
+
+CANVAS_SDK_SETTINGS = {
+    'auth_token': SECURE_SETTINGS.get('canvas_token', None),
+    'base_api_url': CANVAS_SITE_SETTINGS['base_url'] + 'api',
+    'max_retries': 3,
+    'per_page': 40,
 }
 
 DATABASES = {
@@ -73,6 +89,12 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
     }
 }
+
+EMAIL_HOST = SECURE_SETTINGS.get('EMAIL_HOST')
+EMAIL_HOST_USER = SECURE_SETTINGS.get('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = SECURE_SETTINGS.get('EMAIL_HOST_PASSWORD')
+EMAIL_USE_TLS = True
+
 
 #CACHES = {
 #    'default': {
@@ -125,7 +147,7 @@ LOGGING = {
     },
     'loggers': {
         'django.request': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['mail_admins', 'console', 'logfile'],
             'level': 'ERROR',
             'propagate': True,
         },
@@ -141,6 +163,11 @@ LOGGING = {
         },
         'icommons_common': {
             'handlers': ['mail_admins', 'console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'canvas_course_site_wizard': {
+            'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },

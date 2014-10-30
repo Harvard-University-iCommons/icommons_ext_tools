@@ -44,6 +44,14 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   # argument is a set of non-required options.
   # config.vm.synced_folder "../data", "/vagrant_data"
 
+  # NOTE: uncomment any of the following folders to be able to include local
+  # projects as editable resources.  Adjust the first part of the synced_folder
+  # command to pull the directory from the proper location
+  config.vm.synced_folder "../canvas_python_sdk", "/canvas_python_sdk", create: true
+  config.vm.synced_folder "../django-icommons-common", "/django-icommons-common", create: true
+  config.vm.synced_folder "../django-icommons-ui", "/django-icommons-ui", create: true
+  config.vm.synced_folder "../django-canvas-course-site-wizard", "/django-canvas-course-site-wizard", create: true
+
   # Provider-specific configuration so you can fine-tune various
   # backing providers for Vagrant. These expose provider-specific options.
   # Example for VirtualBox:
