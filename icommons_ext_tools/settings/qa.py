@@ -34,7 +34,7 @@ QUALTRICS_LINK = {
 
 CANVAS_SITE_SETTINGS = {
     #'base_url' : 'https://canvas.icommons.harvard.edu/',
-    'base_url' : 'https://harvard.beta.instructure.com',
+    'base_url' : 'https://harvard.beta.instructure.com/',
 }
 
 CANVAS_EMAIL_NOTIFICATION = {
