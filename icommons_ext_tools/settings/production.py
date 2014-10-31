@@ -54,6 +54,11 @@ CANVAS_SDK_SETTINGS = {
     'per_page': 40,
 }
 
+CANVAS_WIZARD = {
+    'TOKEN' : SECURE_SETTINGS.get('TOKEN', 'changeme'),
+}
+
+
 ISITES_LMS_URL = 'http://isites.harvard.edu/'
 
 DATABASES = {
