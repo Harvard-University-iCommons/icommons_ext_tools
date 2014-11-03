@@ -34,7 +34,7 @@ SERVER_EMAIL = 'iCommons Tools <icommons-bounces@harvard.edu>'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mailhost.harvard.edu'
-#EMAIL_USE_TLS = True
+EMAIL_USE_TLS = True
 
 MANAGERS = ADMINS
 
@@ -112,7 +112,7 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    'django.middleware.common.BrokenLinkEmailsMiddleware',
+    #'django.middleware.common.BrokenLinkEmailsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -126,17 +126,6 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
 )
-
-# I've added in this block and commented it out.
-# we may decide we want to add some patterns in here
-# if we start getting to much email from non-critical sources.
-# import re
-# IGNORABLE_404_URLS = (
-#     re.compile(r'^/apple-touch-icon.*\.png$'),
-#     re.compile(r'^/favicon\.ico$'),
-#     re.compile(r'^/robots\.txt$'),
-# )
-
 
 AUTHENTICATION_BACKENDS = (
     'icommons_common.auth.backends.PINAuthBackend',

@@ -158,7 +158,7 @@ LOGGING = {
             'propagate': True,
         },
         'qualtrics_link': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['mail_admins', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },
@@ -168,7 +168,7 @@ LOGGING = {
             'propagate': True,
         },
         'canvas_course_site_wizard': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['mail_admins', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },
