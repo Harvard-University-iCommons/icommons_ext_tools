@@ -38,7 +38,7 @@ CANVAS_SITE_SETTINGS = {
 }
 
 CANVAS_EMAIL_NOTIFICATION = {
-    'from_email_address'    : 'colin_murtaugh@harvard.edu',
+    'from_email_address'    : 'icommons-bounces@harvard.edu',
     'support_email_address' : 'icommons_support@harvard.edu',
     'course_migration_success_subject'  : 'Course site is ready : (TEST, PLEASE IGNORE)',
     'course_migration_success_body'     : 'Success! \nYour new Canvas course site has been created and is ready for you at:\n'+
