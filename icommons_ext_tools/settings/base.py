@@ -34,7 +34,7 @@ SERVER_EMAIL = 'iCommons Tools <icommons-bounces@harvard.edu>'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mailhost.harvard.edu'
-EMAIL_USE_TLS = True
+EMAIL_USE_TLS = False
 
 MANAGERS = ADMINS
 
