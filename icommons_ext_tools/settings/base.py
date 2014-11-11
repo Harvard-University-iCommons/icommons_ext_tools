@@ -197,4 +197,20 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 LOGIN_URL = reverse_lazy('pin:login')
 
+# TLT-426: COURSE_WIZARD_CUSTOM_ERRORS settings tell the custom error framework in django-icommons-ui
+# which template to use when showing RenderableExceptions to the end user, and define user-facing error
+# messages for custom RenderableExceptions in the Canvas Course Wizard.
+COURSE_WIZARD_CUSTOM_ERROR_TEMPLATE = '500.html'
 
+COURSE_WIZARD_CUSTOM_ERRORS = {
+    'copy_sis_enrollments': 'An error occurred while attempting to copy SIS enrollments to the new Canvas course.',
+    'enroll_creator': 'An error occurred while attempting to enroll course creator in new Canvas course.',
+    'mark_official': 'An error occurred while attempting to mark the new Canvas course as official.',
+    'canvas_course_create': 'An error occurred while attempting to create a new course with SIS ID {0} in Canvas.',
+    'canvas_section_create': 'An error occurred while attempting to create a new section with SIS ID {0} in Canvas.',
+    'sis_course_info': 'There was an error retrieving information for course instance ID {0}.',
+    'sis_course_does_not_exist': 'The course with course instance ID {0} was not found in SIS.',
+    # TODO: TLT-426 - the following errors are not yet displayed to the user (they depend on TLT-422, TLT-423)
+    'canvas_section_already_exists': 'A section with SIS ID {0} already exists in Canvas.',
+    'canvas_course_already_exists': 'A course with SIS ID {0} already exists in Canvas.',
+}

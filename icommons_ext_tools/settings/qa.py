@@ -167,6 +167,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'icommons_ui': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
         'canvas_course_site_wizard': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',

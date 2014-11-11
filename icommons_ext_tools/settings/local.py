@@ -1,9 +1,12 @@
 from .base import *
 from .secure import SECURE_SETTINGS
+
+# To allow local development server to load static files with DEBUG=False, run:
+#   manage.py runserver --insecure
+# Note: this should never be done for anything but protected local development purposes.
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 CRISPY_FAIL_SILENTLY = not DEBUG
-
 
 ICOMMONS_COMMON = {
 
@@ -193,6 +196,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'icommons_ui': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
         'oraclepool': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
@@ -201,11 +209,6 @@ LOGGING = {
         'huey.consumer': {
             'handlers': ['logfile'],
             'level': 'INFO',
-            'propagate': True,
-        },
-        'icommons_common.auth.views': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
             'propagate': True,
         },
         'rest_framework': {

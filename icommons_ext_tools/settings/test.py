@@ -166,6 +166,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'icommons_ui': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
         'oraclepool': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
