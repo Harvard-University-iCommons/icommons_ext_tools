@@ -35,8 +35,8 @@ CANVAS_EMAIL_NOTIFICATION = {
     'from_email_address'    : 'icommons-bounces@harvard.edu',
     'support_email_address' : 'icommons_support@harvard.edu',
     'course_migration_success_subject'  : 'Course site is ready',
-    'course_migration_success_body'     : 'Success! \nYour new Canvas course site has been created and is ready for you at\n'+
-            ' {0} \n\n Here are some resources for getting started with your site: http://tlt.harvard.edu/getting-started#teachingstaff',
+    'course_migration_success_body'     : 'Success! \nYour new Canvas course site has been created and is ready for you at:\n'+
+            ' {0} \n\n Here are some resources for getting started with your site:\n http://tlt.harvard.edu/getting-started#teachingstaff',
 
     'course_migration_failure_subject'  : 'Course site not created', 
     'course_migration_failure_body'     : 'There was a problem creating your course site in Canvas.\n'+
@@ -155,12 +155,12 @@ LOGGING = {
             'propagate': True,
         },
         'qualtrics_link': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['mail_admins', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },
         'icommons_common': {
-            'handlers': ['mail_admins', 'console', 'logfile'],
+            'handlers': ['mail_admins', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },
@@ -170,7 +170,7 @@ LOGGING = {
             'propagate': True,
         },
         'canvas_course_site_wizard': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['mail_admins', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },
