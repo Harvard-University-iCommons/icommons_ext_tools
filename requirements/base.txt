@@ -23,3 +23,5 @@ hiredis==0.1.2
 django-redis-sessions==0.4.0
 
 django-cached-authentication-middleware>=0.2.0
+
+dj-static

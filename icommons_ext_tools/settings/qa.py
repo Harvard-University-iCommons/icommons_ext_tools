@@ -6,7 +6,7 @@ DEBUG = False
 ALLOWED_HOSTS = ['termtool-qa.icommons.harvard.edu']
 
 ICOMMONS_COMMON = {
-    'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
+    'ICOMMONS_API_HOST': 'https://10.35.201.5/services/',
     'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user', None),
     'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass', None),
 }
@@ -139,7 +139,7 @@ LOGGING = {
         # Log to a text file that can be rotated by logrotate
         'logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': join(SITE_ROOT, 'logs/icommons_ext_tools.log'),
+            'filename': join(SITE_ROOT, '/var/opt/tlt/logs/icommons_ext_tools.log'),
             'formatter': 'verbose'
         },
         'console': {

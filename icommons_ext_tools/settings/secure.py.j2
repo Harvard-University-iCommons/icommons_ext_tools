@@ -1,0 +1,34 @@
+SECURE_SETTINGS = {
+   'ICOMMONS_API_USER': '{{ secure_settings.icommons_api_user }}',
+   'ICOMMONS_API_PASS': '{{ secure_settings.icommons_api_pass }}',
+
+   'DJANGO_DB_USER': '{{ secure_settings.django_db_user }}',
+   'DJANGO_DB_PASS': '{{ secure_settings.django_db_pass }}',
+
+   'BITLY_ACCESS_TOKEN': '{{ secure_settings.bitly_access_token }}',
+
+   'QUALTRICS_API_KEY': '{{ secure_settings.qualtrics_api_key }}',
+
+   'CANVAS_TOKEN': '{{ secure_settings.canvas_token }}',
+
+   'DJANGO_SECRET_KEY': '{{ secure_settings.django_secret_key }}',
+
+   # used? - not in j2 template
+   'qualtrics_auth_group' : '...',
+   'qualtrics_api_url' : '...',
+   'qualtrics_api_user' : '...',
+   'qualtrics_api_token' : '...',
+   'admins': (
+       ('...', '...'),
+   ),
+
+   # not used? - not in j2 template
+   'qualtrics_agreement_id' : '...',
+   'cipher_key' : '...',
+
+   # used in canvas_wizard - not in j2 template
+   'TOKEN' : '...',
+
+   # used in canvas_course_wizard - not in j2 template
+   'OLD_LMS_URL' : '...',
+}
