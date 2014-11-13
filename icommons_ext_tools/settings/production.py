@@ -134,7 +134,7 @@ LOGGING = {
         # Log to a text file that can be rotated by logrotate
         'logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': join(SITE_ROOT, '/logs/icommons_ext_tools/icommons_ext_tools.log'),
+            'filename': '/var/opt/tlt/logs/icommons_ext_tools.log',
             'formatter': 'verbose'
         },
         'console': {
@@ -160,7 +160,7 @@ LOGGING = {
             'propagate': True,
         },
         'icommons_common': {
-            'handlers': ['mail_admins', 'logfile'],
+            'handlers': ['console', 'mail_admins', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
         },
@@ -177,11 +177,6 @@ LOGGING = {
         'huey.consumer': {
             'handlers': ['logfile'],
             'level': 'INFO',
-            'propagate': True,
-        },
-        'icommons_common.auth.views': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
             'propagate': True,
         },
         'rest_framework': {

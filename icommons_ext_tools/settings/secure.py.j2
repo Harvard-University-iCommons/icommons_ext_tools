@@ -1,34 +1,36 @@
 SECURE_SETTINGS = {
-   'ICOMMONS_API_USER': '{{ secure_settings.icommons_api_user }}',
-   'ICOMMONS_API_PASS': '{{ secure_settings.icommons_api_pass }}',
+   'django_db_user': '{{ secure_settings.django_db_user }}',
+   'django_db_pass': '{{ secure_settings.django_db_pass }}',
+   'django_secret_key': '{{ secure_settings.django_secret_key }}',
 
-   'DJANGO_DB_USER': '{{ secure_settings.django_db_user }}',
-   'DJANGO_DB_PASS': '{{ secure_settings.django_db_pass }}',
+   'icommons_api_user': '{{ secure_settings.icommons_api_user }}',
+   'icommons_api_pass': '{{ secure_settings.icommons_api_pass }}',
 
-   'BITLY_ACCESS_TOKEN': '{{ secure_settings.bitly_access_token }}',
+   'canvas_token': '{{ secure_settings.canvas_token }}',
 
-   'QUALTRICS_API_KEY': '{{ secure_settings.qualtrics_api_key }}',
-
-   'CANVAS_TOKEN': '{{ secure_settings.canvas_token }}',
-
-   'DJANGO_SECRET_KEY': '{{ secure_settings.django_secret_key }}',
-
-   # used? - not in j2 template
-   'qualtrics_auth_group' : '...',
-   'qualtrics_api_url' : '...',
-   'qualtrics_api_user' : '...',
-   'qualtrics_api_token' : '...',
+   'bitly_access_token': '{{ secure_settings.bitly_access_token }}',
+   'qualtrics_agreement_id': '{{ secure_settings.qualtrics_agreement_id }}',
+   'qualtrics_auth_group': '{{ secure_settings.qualtrics_auth_group }}',
+   'qualtrics_api_key': '{{ secure_settings.qualtrics_api_key }}',
+   'qualtrics_api_url': '{{ secure_settings.qualtrics_api_url }}',
+   'qualtrics_api_user': '{{ secure_settings.qualtrics_api_user }}',,
+   'qualtrics_api_token': '{{ secure_settings.qualtrics_api_token }}',,
    'admins': (
-       ('...', '...'),
+       {{ secure_settings.admins }}
    ),
 
-   # not used? - not in j2 template
-   'qualtrics_agreement_id' : '...',
-   'cipher_key' : '...',
+   # TODO: remove since not used anywhere
+   'cipher_key' : '{{ secure_settings.cipher_key }}',
 
-   # used in canvas_wizard - not in j2 template
-   'TOKEN' : '...',
+   ######
+   # TODO: remove these since used in canvas_wizard non-production app 
+   ######
+   # should match value from canvas_token above
+   'TOKEN': '{{ secure_settings.canvas_token }}',
+   'CANVAS_SERVER_BASE_URL': '{{ secure_settings.canvas_server_base_url }}'
 
-   # used in canvas_course_wizard - not in j2 template
-   'OLD_LMS_URL' : '...',
+   ######
+   # TODO: remove these since used in canvas_wizard non-production app 
+   ######
+   'OLD_LMS_URL' : '{{ secure_settings.old_lms_url }}',
 }

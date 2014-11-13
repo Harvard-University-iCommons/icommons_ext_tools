@@ -203,11 +203,6 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
-        'icommons_common.auth.views': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
         'rest_framework': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
