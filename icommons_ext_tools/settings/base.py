@@ -185,5 +185,3 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 LOGIN_URL = reverse_lazy('pin:login')
-
-
