@@ -4,7 +4,7 @@
 <head>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <link href="{% static "favicon.ico" %}" rel="icon" type="image/x-icon"> 
+  <link href="{% static "favicon.ico" %}" rel="icon" type="image/x-icon">
   {% block stylesheet %}
     {% block fonts %}
       <link href='//fonts.googleapis.com/css?family=Open+Sans:400,700,300' rel='stylesheet' type='text/css'>
@@ -21,7 +21,7 @@
 
   <header role="banner"><!-- header (start) -->
     <div class="section"><!-- section (start) -->
-        <img src="{% static "images/harvardLogo.png" %}" title="Harvard University." alt="Harvard University." /> 
+        <img src="{% static "images/harvardLogo.png" %}" title="Harvard University." alt="Harvard University." />
           <ul id="userInfo">
             <li>{{ user.first_name }} {{ user.last_name }}</li>
             <li><a href="{{ PIN_LOGOUT_URL }}">Sign out</a></li>
@@ -30,7 +30,7 @@
   </header><!-- header (end) -->
 
   {% block navbar %}
-  
+
   {% endblock navbar %}
 
   {% block jumbotron %}{% endblock jumbotron %}
@@ -65,20 +65,22 @@
       <p>Sadly, there was a problem.</p>
 
       {% if renderable_error %}
-          <p>{{ renderable_error.display_text }}</p>
+        <p>Please notify your local academic support staff:</p>
+        <p>{{ renderable_error.display_text }}</p>
+      {% else %}
+        <p>Please notify your local academic support staff:</p>
       {% endif %}
 
-      <p>Please notify your local academic support staff:</p>
       <ul>
-        <li>DCE: <a href="mailto:AcademicTechnology@dce.harvard.edu">AcademicTechnology@dce.harvard.edu</a></li>
-        <li>FAS: <a href="mailto:atg@fas.harvard.edu">atg@fas.harvard.edu</a></li>
-        <li>GSD: <a href="mailto:klau@gsd.harvard.edu">klau@gsd.harvard.edu</a></li>
-        <li>GSE: <a href="mailto:it_onestop@gse.harvard.edu">it_onestop@gse.harvard.edu</a></li>
-        <li>HDS: <a href="mailto:coursesites@hds.harvard.edu">coursesites@hds.harvard.edu</a></li>
-        <li>HKS: <a href="mailto:helpdesk@hks.harvard.edu">helpdesk@hks.harvard.edu</a></li>
-        <li>HLS: <a href="mailto:ask@edtech.libanswers.com">ask@edtech.libanswers.com</a></li>
-        <li>HMS: <a href="mailto:mycourses_support@hms.harvard.edu">mycourses_support@hms.harvard.edu</a></li>
-        <li>HSPH: <a href="mailto:icf@hsph.harvard.edu">icf@hsph.harvard.edu</a></li>
+        <li>DCE: <a href="mailto:AcademicTechnology@dce.harvard.edu{% if renderable_error %}?subject={{ renderable_error.display_text }}{% endif %}">AcademicTechnology@dce.harvard.edu</a></li>
+        <li>FAS: <a href="mailto:atg@fas.harvard.edu{% if renderable_error %}?subject={{ renderable_error.display_text }}{% endif %}">atg@fas.harvard.edu</a></li>
+        <li>GSD: <a href="mailto:klau@gsd.harvard.edu{% if renderable_error %}?subject={{ renderable_error.display_text }}{% endif %}">klau@gsd.harvard.edu</a></li>
+        <li>GSE: <a href="mailto:it_onestop@gse.harvard.edu{% if renderable_error %}?subject={{ renderable_error.display_text }}{% endif %}">it_onestop@gse.harvard.edu</a></li>
+        <li>HDS: <a href="mailto:coursesites@hds.harvard.edu{% if renderable_error %}?subject={{ renderable_error.display_text }}{% endif %}">coursesites@hds.harvard.edu</a></li>
+        <li>HKS: <a href="mailto:helpdesk@hks.harvard.edu{% if renderable_error %}?subject={{ renderable_error.display_text }}{% endif %}">helpdesk@hks.harvard.edu</a></li>
+        <li>HLS: <a href="mailto:ask@edtech.libanswers.com{% if renderable_error %}?subject={{ renderable_error.display_text }}{% endif %}">ask@edtech.libanswers.com</a></li>
+        <li>HMS: <a href="mailto:mycourses_support@hms.harvard.edu{% if renderable_error %}?subject={{ renderable_error.display_text }}{% endif %}">mycourses_support@hms.harvard.edu</a></li>
+        <li>HSPH: <a href="mailto:icf@hsph.harvard.edu{% if renderable_error %}?subject={{ renderable_error.display_text }}{% endif %}">icf@hsph.harvard.edu</a></li>
       </ul>
     {% endif %}
 
@@ -89,13 +91,13 @@
         <div class="col-md-10 col-md-offset-2 copyright-text">
           <small>Copyright &copy; 2014 The President and Fellows of Harvard College</small>
         </div>
-        
+
       </footer>
     {% endblock footer %}
   </main>
 
 
-  
+
   {% block javascript %}
     {% if debug %}
       <script src="{% static "harvard-bootstrap/js/less-1.5.0.min.js" %}"></script>
