@@ -8,29 +8,31 @@ SECURE_SETTINGS = {
 
    'canvas_token': '{{ secure_settings.canvas_token }}',
 
-   'bitly_access_token': '{{ secure_settings.bitly_access_token }}',
    'qualtrics_agreement_id': '{{ secure_settings.qualtrics_agreement_id }}',
    'qualtrics_auth_group': '{{ secure_settings.qualtrics_auth_group }}',
    'qualtrics_api_key': '{{ secure_settings.qualtrics_api_key }}',
    'qualtrics_api_url': '{{ secure_settings.qualtrics_api_url }}',
-   'qualtrics_api_user': '{{ secure_settings.qualtrics_api_user }}',,
-   'qualtrics_api_token': '{{ secure_settings.qualtrics_api_token }}',,
+   'qualtrics_api_user': '{{ secure_settings.qualtrics_api_user }}',
+   'qualtrics_api_token': '{{ secure_settings.qualtrics_api_token }}',
    'admins': (
-       {{ secure_settings.admins }}
+       ('iCommons Tech', 'icommons-technical@g.harvard.edu')
    ),
+
+   'EMAIL_HOST': '{{ secure_settings.email_host }}',
+   'EMAIL_HOST_USER': '{{ secure_settings.email_host_user }}',
+   'EMAIL_HOST_PASSWORD': '{{ secure_settings.email_host_password }}',
 
    # TODO: remove since not used anywhere
    'cipher_key' : '{{ secure_settings.cipher_key }}',
 
    ######
-   # TODO: remove these since used in canvas_wizard non-production app 
+   # TODO: remove these since used in canvas_wizard non-production app
    ######
    # should match value from canvas_token above
    'TOKEN': '{{ secure_settings.canvas_token }}',
-   'CANVAS_SERVER_BASE_URL': '{{ secure_settings.canvas_server_base_url }}'
 
    ######
-   # TODO: remove these since used in canvas_wizard non-production app 
+   # TODO: remove these since used in canvas_wizard non-production app
    ######
    'OLD_LMS_URL' : '{{ secure_settings.old_lms_url }}',
 }
