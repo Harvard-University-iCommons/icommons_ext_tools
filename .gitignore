@@ -5,7 +5,6 @@ sqlnet.log
 *.pid
 *.pyc
 *.pot
-local_settings.py
 .vagrant
 *.sqlite3
 secure*.py*

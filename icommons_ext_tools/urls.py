@@ -20,3 +20,7 @@ urlpatterns = patterns(
 
     url(r'^ext_tools/canvas-course-site-wizard/', include(ccsw_urls)),
 )
+
+handler403 = 'icommons_ext_tools.views.handler403'
+handler404 = 'icommons_ext_tools.views.handler404'
+handler500 = 'icommons_ext_tools.views.handler500'
