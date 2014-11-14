@@ -29,9 +29,9 @@ QUALTRICS_LINK = {
 
     'AGREEMENT_ID' : SECURE_SETTINGS['qualtrics_agreement_id'],
     'QUALTRICS_APP_KEY' : SECURE_SETTINGS['qualtrics_app_key'],
-    'QUALTRICS_API_URL' : SECURE_SETTINGS['qualtrics_api_url'], 
-    'QUALTRICS_API_USER' : SECURE_SETTINGS['qualtrics_api_user'], 
-    'QUALTRICS_API_TOKEN' : SECURE_SETTINGS['qualtrics_api_token'], 
+    'QUALTRICS_API_URL' : SECURE_SETTINGS['qualtrics_api_url'],
+    'QUALTRICS_API_USER' : SECURE_SETTINGS['qualtrics_api_user'],
+    'QUALTRICS_API_TOKEN' : SECURE_SETTINGS['qualtrics_api_token'],
     'QUALTRICS_AUTH_GROUP' : SECURE_SETTINGS['qualtrics_auth_group'],
     #'USER_DECLINED_TERMS_URL' : 'http://surveytools.harvard.edu',
     'USER_DECLINED_TERMS_URL' : 'ql:internal', # only in QA
@@ -40,7 +40,7 @@ QUALTRICS_LINK = {
 
 CANVAS_SITE_SETTINGS = {
     'base_url': 'https://canvas.icommons.harvard.edu/',
-   
+
 }
 
 CANVAS_EMAIL_NOTIFICATION = {
@@ -50,7 +50,7 @@ CANVAS_EMAIL_NOTIFICATION = {
     'course_migration_success_body'     : 'Success! \nYour new Canvas course site has been created and is ready for you at:\n'+
             ' {0} \n\n Here are some resources for getting started with your site:\n http://tlt.harvard.edu/getting-started#teachingstaff',
 
-    'course_migration_failure_subject'  : 'Course site not created (TEST, PLEASE IGNORE) ', 
+    'course_migration_failure_subject'  : 'Course site not created (TEST, PLEASE IGNORE) ',
     'course_migration_failure_body'     : 'There was a problem creating your course site in Canvas.\n'+
             'Your local academic support staff has been notified and will be in touch with you.\n\n'+
             'If you have questions please contact them at:\n'+
@@ -72,7 +72,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
 
-       # DEV 
+       # DEV
        # 'NAME': 'isitedev',
        # 'USER': SECURE_SETTINGS['django_db_user'],
        # 'PASSWORD': SECURE_SETTINGS['django_db_pass'],
@@ -211,6 +211,11 @@ LOGGING = {
             'level': 'INFO',
             'propagate': True,
         },
+        'icommons_common.auth.views': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
         'rest_framework': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
@@ -249,7 +254,7 @@ HUEY = {
 SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 
 '''
-The dictionary below contains group id's and school names. 
+The dictionary below contains group id's and school names.
 These are the groups that are allowed to edit term informtion.
 The school must be the same as the school_id in the school model.
 '''

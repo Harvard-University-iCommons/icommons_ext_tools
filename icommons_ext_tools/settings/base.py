@@ -185,7 +185,3 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 LOGIN_URL = reverse_lazy('pin:login')
-
-# TLT-426: tell the custom error framework in django-icommons-ui which template to use 
-# when showing RenderableExceptions to the end user
-COURSE_WIZARD_CUSTOM_ERROR_TEMPLATE = '500.html'
