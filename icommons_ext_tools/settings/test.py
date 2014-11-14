@@ -5,7 +5,7 @@ DEBUG = True
 #TEMPLATE_DEBUG = DEBUG
 #CRISPY_FAIL_SILENTLY = not DEBUG
 
-ALLOWED_HOSTS = ['termtool-test.icommons.harvard.edu']
+ALLOWED_HOSTS = ['*']
 
 ICOMMONS_COMMON = {
     'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
@@ -26,9 +26,9 @@ COURSE_WIZARD = {
 QUALTRICS_LINK = {
     'AGREEMENT_ID' : SECURE_SETTINGS.get('qualtrics_agreement_id', None),
     'QUALTRICS_APP_KEY' : SECURE_SETTINGS.get('qualtrics_app_key', None),
-    'QUALTRICS_API_URL' : SECURE_SETTINGS.get('qualtrics_api_url', None), 
-    'QUALTRICS_API_USER' : SECURE_SETTINGS.get('qualtrics_api_user', None), 
-    'QUALTRICS_API_TOKEN' : SECURE_SETTINGS.get('qualtrics_api_token', None), 
+    'QUALTRICS_API_URL' : SECURE_SETTINGS.get('qualtrics_api_url', None),
+    'QUALTRICS_API_USER' : SECURE_SETTINGS.get('qualtrics_api_user', None),
+    'QUALTRICS_API_TOKEN' : SECURE_SETTINGS.get('qualtrics_api_token', None),
     'QUALTRICS_AUTH_GROUP' : SECURE_SETTINGS.get('qualtrics_auth_group', None),
     'USER_DECLINED_TERMS_URL' : 'ql:internal', # only in QA
     'USER_ACCEPTED_TERMS_URL' : 'ql:internal', # only in QA
@@ -44,7 +44,7 @@ CANVAS_EMAIL_NOTIFICATION = {
     'course_migration_success_subject'  : 'Course site is ready : (TEST, PLEASE IGNORE)',
     'course_migration_success_body'     : 'Success! \nYour new Canvas course site has been created and is ready for you at:\n'+
             ' {0} \n\n Here are some resources for getting started with your site:\n http://tlt.harvard.edu/getting-started#teachingstaff',
-    'course_migration_failure_subject'  : 'Course site not created (TEST, PLEASE IGNORE) ', 
+    'course_migration_failure_subject'  : 'Course site not created (TEST, PLEASE IGNORE) ',
     'course_migration_failure_body'     : 'There was a problem creating your course site in Canvas.\n'+
             'Your local academic support staff has been notified and will be in touch with you.\n\n'+
             'If you have questions please contact them at:\n'+
@@ -225,7 +225,7 @@ HUEY = {
 SESSION_ENGINE = 'django.contrib.sessions.backends.file'
 '''
 '''
-The dictionary below contains group id's and school names. 
+The dictionary below contains group id's and school names.
 These are the groups that are allowed to edit term informtion.
 The school must be the same as the school_id in the school model.
 '''
