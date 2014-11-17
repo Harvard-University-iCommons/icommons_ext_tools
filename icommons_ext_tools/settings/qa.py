@@ -3,10 +3,10 @@ from .base import *
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['termtool-qa.icommons.harvard.edu']
+ALLOWED_HOSTS = ['*']
 
 ICOMMONS_COMMON = {
-    'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
+    'ICOMMONS_API_HOST': 'https://10.35.201.5/services/',
     'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user', None),
     'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass', None),
 }
@@ -24,9 +24,9 @@ COURSE_WIZARD = {
 QUALTRICS_LINK = {
     'AGREEMENT_ID' : SECURE_SETTINGS.get('qualtrics_agreement_id', None),
     'QUALTRICS_APP_KEY' : SECURE_SETTINGS.get('qualtrics_app_key', None),
-    'QUALTRICS_API_URL' : SECURE_SETTINGS.get('qualtrics_api_url', None), 
-    'QUALTRICS_API_USER' : SECURE_SETTINGS.get('qualtrics_api_user', None), 
-    'QUALTRICS_API_TOKEN' : SECURE_SETTINGS.get('qualtrics_api_token', None), 
+    'QUALTRICS_API_URL' : SECURE_SETTINGS.get('qualtrics_api_url', None),
+    'QUALTRICS_API_USER' : SECURE_SETTINGS.get('qualtrics_api_user', None),
+    'QUALTRICS_API_TOKEN' : SECURE_SETTINGS.get('qualtrics_api_token', None),
     'QUALTRICS_AUTH_GROUP' : SECURE_SETTINGS.get('qualtrics_auth_group', None),
     'USER_DECLINED_TERMS_URL' : 'ql:internal', # only in QA
     'USER_ACCEPTED_TERMS_URL' : 'ql:internal', # only in QA
@@ -44,7 +44,7 @@ CANVAS_EMAIL_NOTIFICATION = {
     'course_migration_success_body'     : 'Success! \nYour new Canvas course site has been created and is ready for you at:\n'+
             ' {0} \n\n Here are some resources for getting started with your site:\n http://tlt.harvard.edu/getting-started#teachingstaff',
 
-    'course_migration_failure_subject'  : 'Course site not created (TEST, PLEASE IGNORE) ', 
+    'course_migration_failure_subject'  : 'Course site not created (TEST, PLEASE IGNORE) ',
     'course_migration_failure_body'     : 'There was a problem creating your course site in Canvas.\n'+
             'Your local academic support staff has been notified and will be in touch with you.\n\n'+
             'If you have questions please contact them at:\n'+
@@ -139,7 +139,7 @@ LOGGING = {
         # Log to a text file that can be rotated by logrotate
         'logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': join(SITE_ROOT, 'logs/icommons_ext_tools.log'),
+            'filename': '/var/opt/tlt/logs/icommons_ext_tools.log',
             'formatter': 'verbose'
         },
         'console': {
@@ -169,6 +169,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        'icommons_ui': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
         'canvas_course_site_wizard': {
             'handlers': ['mail_admins', 'logfile'],
             'level': 'DEBUG',
@@ -182,11 +187,6 @@ LOGGING = {
         'huey.consumer': {
             'handlers': ['logfile'],
             'level': 'INFO',
-            'propagate': True,
-        },
-        'icommons_common.auth.views': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
             'propagate': True,
         },
         'rest_framework': {

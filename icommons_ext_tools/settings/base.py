@@ -34,7 +34,7 @@ SERVER_EMAIL = 'iCommons Tools <icommons-bounces@harvard.edu>'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mailhost.harvard.edu'
-EMAIL_USE_TLS = True
+EMAIL_USE_TLS = False
 
 MANAGERS = ADMINS
 
@@ -185,5 +185,3 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTOCOL', 'https')
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 LOGIN_URL = reverse_lazy('pin:login')
-
-

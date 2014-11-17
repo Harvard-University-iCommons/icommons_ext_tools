@@ -5,19 +5,19 @@ sqlnet.log
 *.pid
 *.pyc
 *.pot
-local_settings.py
 .vagrant
 *.sqlite3
 secure*.py*
 !secure.py.example
+!secure.py.j2
 jwplayer/
 data/
-requirements/*.txt
-!requirements/base.txt
-!requirements/local.txt
-!requirements/qa.txt
-!requirements/test.txt
-!requirements/production.txt
+icommons_ext_tools/requirements/*.txt
+!icommons_ext_tools/requirements/base.txt
+!icommons_ext_tools/requirements/local.txt
+!icommons_ext_tools/requirements/qa.txt
+!icommons_ext_tools/requirements/test.txt
+!icommons_ext_tools/requirements/production.txt
 
 # PyCharm IDE metadata
 .idea/

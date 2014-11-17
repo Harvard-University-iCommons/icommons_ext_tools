@@ -9,13 +9,17 @@ django-debug-toolbar==1.0.1
 
 git+https://github.com/inducer/pudb.git#egg=pudb
 
-# uncomment below (and comment out corresponding repo above) for local development
+# To use local code changes instead of remote repos,
+# uncomment the project or app in the 'Local development code' section
+# and comment out the corresponding line in the 'Remote repositories' section
+
+# Local development code
 # -e /django-canvas-course-site-wizard
 # -e /django-icommons-common
 # -e /canvas-python-sdk
 # -e /django-icommons-ui
 
-# Local repos
+# Remote repositories
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@develop#egg=django-icommons-common
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@develop#egg=django-icommons-ui
 git+ssh://git@github.com/penzance/canvas_python_sdk.git@develop#egg=canvas-python-sdk
