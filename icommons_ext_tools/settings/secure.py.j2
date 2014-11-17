@@ -1,0 +1,38 @@
+SECURE_SETTINGS = {
+   'django_db_user': '{{ secure_settings.django_db_user }}',
+   'django_db_pass': '{{ secure_settings.django_db_pass }}',
+   'django_secret_key': '{{ secure_settings.django_secret_key }}',
+
+   'icommons_api_user': '{{ secure_settings.icommons_api_user }}',
+   'icommons_api_pass': '{{ secure_settings.icommons_api_pass }}',
+
+   'canvas_token': '{{ secure_settings.canvas_token }}',
+
+   'qualtrics_agreement_id': '{{ secure_settings.qualtrics_agreement_id }}',
+   'qualtrics_auth_group': '{{ secure_settings.qualtrics_auth_group }}',
+   'qualtrics_api_key': '{{ secure_settings.qualtrics_api_key }}',
+   'qualtrics_api_url': '{{ secure_settings.qualtrics_api_url }}',
+   'qualtrics_api_user': '{{ secure_settings.qualtrics_api_user }}',
+   'qualtrics_api_token': '{{ secure_settings.qualtrics_api_token }}',
+   'admins': (
+       ('iCommons Tech', 'icommons-technical@g.harvard.edu')
+   ),
+
+   'EMAIL_HOST': '{{ secure_settings.email_host }}',
+   'EMAIL_HOST_USER': '{{ secure_settings.email_host_user }}',
+   'EMAIL_HOST_PASSWORD': '{{ secure_settings.email_host_password }}',
+
+   # TODO: remove since not used anywhere
+   'cipher_key' : '{{ secure_settings.cipher_key }}',
+
+   ######
+   # TODO: remove these since used in canvas_wizard non-production app
+   ######
+   # should match value from canvas_token above
+   'TOKEN': '{{ secure_settings.canvas_token }}',
+
+   ######
+   # TODO: remove these since used in canvas_wizard non-production app
+   ######
+   'OLD_LMS_URL' : '{{ secure_settings.old_lms_url }}',
+}

@@ -7,31 +7,17 @@ sqlnet.log
 *.pot
 .vagrant
 *.sqlite3
-jwplayer/
-data/
-
-# settings: ignore everything but specified settings files
-icommons_ext_tools/settings/*.py
-!icommons_ext_tools/settings/__init__.py
-!icommons_ext_tools/settings/base.py
-!icommons_ext_tools/settings/local.py
-!icommons_ext_tools/settings/qa.py
-!icommons_ext_tools/settings/test.py
-!icommons_ext_tools/settings/production.py
-# TODO: remove this? once it's determined it is safe to do so (i.e. file no longer exists on any dev setups)
-local_settings.py
-
-# allow secure.py.example as a template, but disallow any actual secure settings
 secure*.py*
 !secure.py.example
-
-# requirements: ignore everything but specified requirements files
-requirements/*.txt
-!requirements/base.txt
-!requirements/local.txt
-!requirements/qa.txt
-!requirements/test.txt
-!requirements/production.txt
+!secure.py.j2
+jwplayer/
+data/
+icommons_ext_tools/requirements/*.txt
+!icommons_ext_tools/requirements/base.txt
+!icommons_ext_tools/requirements/local.txt
+!icommons_ext_tools/requirements/qa.txt
+!icommons_ext_tools/requirements/test.txt
+!icommons_ext_tools/requirements/production.txt
 
 # PyCharm IDE metadata
 .idea/
