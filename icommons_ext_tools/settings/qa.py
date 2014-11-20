@@ -5,6 +5,9 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
+# This is the address that admin emails (in the ADMINS list) will be sent "from"
+SERVER_EMAIL = 'iCommons Ext Tools (QA/ACP) <icommons-bounces@harvard.edu>'
+
 ICOMMONS_COMMON = {
     'ICOMMONS_API_HOST': 'https://10.35.201.5/services/',
     'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user', None),
@@ -90,8 +93,6 @@ CACHES = {
         'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
     }
 }
-
-SERVER_EMAIL = 'Colin Murtaugh <colin_murtaugh@harvard.edu>'
 
 EMAIL_HOST = SECURE_SETTINGS.get('EMAIL_HOST')
 EMAIL_HOST_USER = SECURE_SETTINGS.get('EMAIL_HOST_USER')

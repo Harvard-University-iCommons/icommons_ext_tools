@@ -29,7 +29,7 @@ path.append(SITE_ROOT)
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
 ADMINS = SECURE_SETTINGS.get('admins')
 
-# This is the address that emails will be sent "from"
+# This is the address that admin emails (in the ADMINS list) will be sent "from"
 SERVER_EMAIL = 'iCommons Tools <icommons-bounces@harvard.edu>'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

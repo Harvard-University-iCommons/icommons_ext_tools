@@ -7,6 +7,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+# This is the address that admin emails (in the ADMINS list) will be sent "from"
+SERVER_EMAIL = 'iCommons Ext Tools (TEST) <icommons-bounces@harvard.edu>'
+
 ICOMMONS_COMMON = {
     'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
     'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user', None),
@@ -198,6 +201,11 @@ LOGGING = {
         },
         'canvas_shopping': {
             'handlers': ['mail_admins', 'console', 'logfile', ],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'python-gnupg': {
+            'handlers': ['logfile', ],
             'level': 'DEBUG',
             'propagate': True,
         },

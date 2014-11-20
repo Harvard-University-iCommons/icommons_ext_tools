@@ -8,6 +8,9 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 CRISPY_FAIL_SILENTLY = not DEBUG
 
+# This is the address that admin emails (in the ADMINS list) will be sent "from"
+SERVER_EMAIL = 'iCommons Ext Tools (LOCAL development) <icommons-bounces@harvard.edu>'
+
 ICOMMONS_COMMON = {
 
     'ICOMMONS_API_HOST': 'https://qa.isites.harvard.edu/services/',
@@ -223,6 +226,11 @@ LOGGING = {
         },
         'canvas_shopping': {
             'handlers': ['mail_admins', 'console', 'logfile', ],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'gnupg': {
+            'handlers': ['logfile', ],
             'level': 'DEBUG',
             'propagate': True,
         },

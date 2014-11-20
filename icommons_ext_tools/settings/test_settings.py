@@ -1,5 +1,8 @@
 from .base import *
 
+# This is the address that admin emails (in the ADMINS list) will be sent "from"
+SERVER_EMAIL = 'iCommons Ext Tools (DEV Local unit testing) <icommons-bounces@harvard.edu>'
+
 # make tests faster
 SOUTH_TESTS_MIGRATE = False
 DATABASES = {
@@ -38,9 +41,9 @@ COURSE_WIZARD = {
 QUALTRICS_LINK = {
     'AGREEMENT_ID' : SECURE_SETTINGS.get('qualtrics_agreement_id', None),
     'QUALTRICS_APP_KEY' : SECURE_SETTINGS.get('qualtrics_app_key', None),
-    'QUALTRICS_API_URL' : SECURE_SETTINGS.get('qualtrics_api_url', None), 
-    'QUALTRICS_API_USER' : SECURE_SETTINGS.get('qualtrics_api_user', None), 
-    'QUALTRICS_API_TOKEN' : SECURE_SETTINGS.get('qualtrics_api_token', None), 
+    'QUALTRICS_API_URL' : SECURE_SETTINGS.get('qualtrics_api_url', None),
+    'QUALTRICS_API_USER' : SECURE_SETTINGS.get('qualtrics_api_user', None),
+    'QUALTRICS_API_TOKEN' : SECURE_SETTINGS.get('qualtrics_api_token', None),
     'QUALTRICS_AUTH_GROUP' : SECURE_SETTINGS.get('qualtrics_auth_group', None),
     'USER_DECLINED_TERMS_URL' : 'ql:internal', # only in QA
     'USER_ACCEPTED_TERMS_URL' : 'ql:internal', # only in QA
