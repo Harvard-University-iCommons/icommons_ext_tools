@@ -30,7 +30,7 @@ path.append(SITE_ROOT)
 ADMINS = SECURE_SETTINGS.get('admins')
 
 # This is the address that admin emails (in the ADMINS list) will be sent "from"
-SERVER_EMAIL = 'iCommons Tools <icommons-bounces@harvard.edu>'
+SERVER_EMAIL = 'iCommons Ext Tools <icommons-bounces@harvard.edu>'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mailhost.harvard.edu'
