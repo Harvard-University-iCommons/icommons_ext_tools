@@ -204,11 +204,6 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
-        'python-gnupg': {
-            'handlers': ['logfile', ],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
 
     }
 }

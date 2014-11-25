@@ -12,7 +12,6 @@ CRISPY_FAIL_SILENTLY = not DEBUG
 # TODO: need to propagate to other settings files
 SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (PROJECT_NAME, get_settings_file_name(__file__))
 SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
-# EMAIL_SUBJECT_PREFIX = '[%s] ' % SERVER_EMAIL_DISPLAY_NAME
 
 ICOMMONS_COMMON = {
 
@@ -157,7 +156,7 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
-            'class': 'icommons_ext_tools.custom_logging.AdminEmailHandler'
+            'class': 'django.utils.log.AdminEmailHandler'
         },
         # Log to a text file that can be rotated by logrotate
         'logfile': {
