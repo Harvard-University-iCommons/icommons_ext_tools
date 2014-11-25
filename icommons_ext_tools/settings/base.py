@@ -20,6 +20,9 @@ SITE_ROOT = dirname(DJANGO_PROJECT_CONFIG)
 # Site name:
 SITE_NAME = basename(SITE_ROOT)
 
+# Name of project (which settings apply to)
+PROJECT_NAME = basename(DJANGO_PROJECT_CONFIG)
+
 # Add our project to our pythonpath, this way we don't need to type our project
 # name in our dotted import paths:
 path.append(SITE_ROOT)
@@ -29,8 +32,15 @@ path.append(SITE_ROOT)
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
 ADMINS = SECURE_SETTINGS.get('admins')
 
-# This is the address that admin emails (in the ADMINS list) will be sent "from"
-SERVER_EMAIL = 'iCommons Ext Tools <icommons-bounces@harvard.edu>'
+# This is the address that admin emails (in the ADMINS list) will be sent 'from'.
+# It can be overridden in specific settings files to indicate what environment
+# is producing admin emails (e.g. 'app env <email>').
+# TODO: __file__ doesn't work
+SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (DJANGO_PROJECT_CONFIG, __file__)
+SERVER_EMAIL_EMAIL_ADDR = 'icommons-bounces@harvard.edu'
+SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
+EMAIL_SUBJECT_PREFIX = ''
+# EMAIL_SUBJECT_PREFIX = '[%s] ' % SERVER_EMAIL_DISPLAY_NAME
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mailhost.harvard.edu'
@@ -112,19 +122,13 @@ TEMPLATE_LOADERS = (
 )
 
 MIDDLEWARE_CLASSES = (
-    #'django.middleware.common.BrokenLinkEmailsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-
-    #'django.contrib.auth.middleware.AuthenticationMiddleware',
     'cached_auth.Middleware',
-
     'django.contrib.messages.middleware.MessageMiddleware',
-
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
 )
 
 AUTHENTICATION_BACKENDS = (
@@ -185,3 +189,8 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 LOGIN_URL = reverse_lazy('pin:login')
+
+
+# TODO: needs documentation
+def get_settings_file_name(settings_file):
+    return os.path.splitext(os.path.basename(settings_file))[0]

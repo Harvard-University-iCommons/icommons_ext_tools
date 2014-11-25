@@ -8,8 +8,11 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 CRISPY_FAIL_SILENTLY = not DEBUG
 
-# This is the address that admin emails (in the ADMINS list) will be sent "from"
-SERVER_EMAIL = 'iCommons Ext Tools (LOCAL development) <icommons-bounces@harvard.edu>'
+# TODO: needs documentation
+# TODO: need to propagate to other settings files
+SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (PROJECT_NAME, get_settings_file_name(__file__))
+SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
+# EMAIL_SUBJECT_PREFIX = '[%s] ' % SERVER_EMAIL_DISPLAY_NAME
 
 ICOMMONS_COMMON = {
 
@@ -154,7 +157,7 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
+            'class': 'icommons_ext_tools.custom_logging.AdminEmailHandler'
         },
         # Log to a text file that can be rotated by logrotate
         'logfile': {
@@ -203,6 +206,13 @@ LOGGING = {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
             'propagate': True,
+        },
+        # TODO: needs documentation
+        # TODO: need to propagate to other settings files
+        'tech_mail': {
+            'handlers': ['mail_admins', 'console', 'logfile'],
+            'level': 'ERROR',
+            'propagate': False,
         },
         'oraclepool': {
             'handlers': ['console', 'logfile'],
