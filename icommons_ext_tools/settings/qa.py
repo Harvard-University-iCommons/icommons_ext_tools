@@ -5,8 +5,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
-# This is the address that admin emails (in the ADMINS list) will be sent "from"
-SERVER_EMAIL = 'iCommons Ext Tools (QA/ACP) <icommons-bounces@harvard.edu>'
+SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (PROJECT_NAME, get_settings_file_name(__file__))
+SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
 
 ICOMMONS_COMMON = {
     'ICOMMONS_API_HOST': 'https://10.35.201.5/services/',
