@@ -10,11 +10,9 @@ django-debug-toolbar==1.0.1
 
 git+https://github.com/inducer/pudb.git#egg=pudb
 
-# TODO: set django-icommons-ui back to @develop
 git+ssh://git@github.com/penzance/canvas_python_sdk.git@develop#egg=canvas-python-sdk
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@develop#egg=django-icommons-common
-#git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@develop#egg=django-icommons-ui
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@feature/TLT-458_admin_email_changes#egg=django-icommons-ui
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@develop#egg=django-icommons-ui
 git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@develop#egg=django-canvas-course-site-wizard
 
 gunicorn
