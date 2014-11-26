@@ -1,6 +1,5 @@
 
 from .base import *
-
 import os
 
 #os.environ['http_proxy'] = 'http://10.34.5.254:8080'
@@ -10,9 +9,9 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
-# This is the address that admin emails (in the ADMINS list) will be sent "from"
-SERVER_EMAIL = 'iCommons Ext Tools (PROD) <icommons-bounces@harvard.edu>'
-
+# sets 'from' email to show project and settings file name when sending emails to ADMINS
+SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (PROJECT_NAME, get_settings_file_name(__file__))
+SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
 
 ICOMMONS_COMMON = {
     'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
@@ -170,6 +169,12 @@ LOGGING = {
         },
         'icommons_ui': {
             'handlers': ['console', 'logfile'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        # Apps can log to tech_mail to selectively send ERROR emails to ADMINS
+        'tech_mail': {
+            'handlers': ['mail_admins', 'console', 'logfile'],
             'level': 'ERROR',
             'propagate': True,
         },

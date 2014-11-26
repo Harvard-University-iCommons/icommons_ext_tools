@@ -8,8 +8,7 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 CRISPY_FAIL_SILENTLY = not DEBUG
 
-# TODO: needs documentation
-# TODO: need to propagate to other settings files
+# sets 'from' email to show project and settings file name when sending emails to ADMINS
 SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (PROJECT_NAME, get_settings_file_name(__file__))
 SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
 
@@ -206,12 +205,11 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
-        # TODO: needs documentation
-        # TODO: need to propagate to other settings files
+        # Apps can log to tech_mail to selectively send ERROR emails to ADMINS
         'tech_mail': {
             'handlers': ['mail_admins', 'console', 'logfile'],
             'level': 'ERROR',
-            'propagate': False,
+            'propagate': True,
         },
         'oraclepool': {
             'handlers': ['console', 'logfile'],
@@ -235,11 +233,6 @@ LOGGING = {
         },
         'canvas_shopping': {
             'handlers': ['mail_admins', 'console', 'logfile', ],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'gnupg': {
-            'handlers': ['logfile', ],
             'level': 'DEBUG',
             'propagate': True,
         },

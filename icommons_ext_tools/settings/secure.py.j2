@@ -14,6 +14,10 @@ SECURE_SETTINGS = {
    'qualtrics_api_url': '{{ secure_settings.qualtrics_api_url }}',
    'qualtrics_api_user': '{{ secure_settings.qualtrics_api_user }}',
    'qualtrics_api_token': '{{ secure_settings.qualtrics_api_token }}',
+
+   # Note: If this list (technically a tuple) has only one element, that
+   #       element must be followed by a comma for it to be processed
+   #       (cf section 3.2 of https://docs.python.org/2/reference/datamodel.html)
    'admins': (
        ('iCommons Tech', 'icommons-technical@g.harvard.edu'),
    ),

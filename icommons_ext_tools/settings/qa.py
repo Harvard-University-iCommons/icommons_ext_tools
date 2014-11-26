@@ -5,9 +5,9 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
+# sets 'from' email to show project and settings file name when sending emails to ADMINS
 SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (PROJECT_NAME, get_settings_file_name(__file__))
-# SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
-SERVER_EMAIL = SERVER_EMAIL_EMAIL_ADDR
+SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
 
 ICOMMONS_COMMON = {
     'ICOMMONS_API_HOST': 'https://10.35.201.5/services/',
@@ -176,6 +176,7 @@ LOGGING = {
             'level': 'DEBUG',
             'propagate': True,
         },
+        # Apps can log to tech_mail to selectively send ERROR emails to ADMINS
         'tech_mail': {
             'handlers': ['mail_admins', 'console', 'logfile'],
             'level': 'ERROR',

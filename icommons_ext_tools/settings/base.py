@@ -1,6 +1,6 @@
 # Django settings for icommons_ext_tools project.
-import os
 
+from . import get_settings_file_name
 from .secure import SECURE_SETTINGS
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
@@ -32,14 +32,16 @@ path.append(SITE_ROOT)
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
 ADMINS = SECURE_SETTINGS.get('admins')
 
-# This is the address that admin emails (in the ADMINS list) will be sent 'from'.
+# This is the address that admin emails (sent to the addresses in the ADMINS list) will be sent 'from'.
 # It can be overridden in specific settings files to indicate what environment
 # is producing admin emails (e.g. 'app env <email>').
-# TODO: __file__ doesn't work
-SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (DJANGO_PROJECT_CONFIG, __file__)
+SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (DJANGO_PROJECT_CONFIG, get_settings_file_name(__file__))
 SERVER_EMAIL_EMAIL_ADDR = 'icommons-bounces@harvard.edu'
 SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
+
+# Email subject prefix is the admin email subject prefix
 EMAIL_SUBJECT_PREFIX = ''
+# Specific settings files can override, for example to show the settings file being used:
 # EMAIL_SUBJECT_PREFIX = '[%s] ' % SERVER_EMAIL_DISPLAY_NAME
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -194,8 +196,3 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 LOGIN_URL = reverse_lazy('pin:login')
-
-
-# TODO: needs documentation
-def get_settings_file_name(settings_file):
-    return os.path.splitext(os.path.basename(settings_file))[0]

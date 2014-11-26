@@ -8,8 +8,7 @@ newrelic==2.8.0.7
 
 gunicorn
 
-# TODO: set django-icommons-ui back to @develop
 git+ssh://git@github.com/penzance/canvas_python_sdk.git@master#egg=canvas-python-sdk
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@master#egg=django-icommons-common
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@feature/TLT-458_admin_email_changes#egg=django-icommons-ui
-git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@develop#egg=django-canvas-course-site-wizard
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@master#egg=django-icommons-ui
+git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@master#egg=django-canvas-course-site-wizard
