@@ -178,7 +178,7 @@ LOGGING = {
         'tech_mail': {
             'handlers': ['mail_admins', 'console', 'logfile'],
             'level': 'ERROR',
-            'propagate': False,
+            'propagate': True,
         },
         'canvas_course_site_wizard': {
             'handlers': ['mail_admins', 'logfile'],
