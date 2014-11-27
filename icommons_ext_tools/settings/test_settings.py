@@ -1,15 +1,20 @@
 from .base import *
 
-# This is the address that admin emails (in the ADMINS list) will be sent "from"
-SERVER_EMAIL = 'iCommons Ext Tools (DEV Local unit testing) <icommons-bounces@harvard.edu>'
+# sets 'from' email to show project and settings file name when sending emails to ADMINS
+SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (PROJECT_NAME, get_settings_file_name(__file__))
+SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
+
+# ensures mail won't be sent by unit tests
+ADMINS = ()
+MANAGERS = ADMINS
 
 # make tests faster
 SOUTH_TESTS_MIGRATE = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(os.path.dirname(__file__), 'test.db'),
-        'TEST_NAME': os.path.join(os.path.dirname(__file__), 'test.db'),
+        'NAME': join(dirname(__file__), 'test.db'),
+        'TEST_NAME': join(dirname(__file__), 'test.db'),
     },
 }
 
