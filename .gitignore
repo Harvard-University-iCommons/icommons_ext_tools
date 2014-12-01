@@ -14,6 +14,7 @@ jwplayer/
 data/
 icommons_ext_tools/requirements/*.txt
 !icommons_ext_tools/requirements/base.txt
+!icommons_ext_tools/requirements/demo.txt
 !icommons_ext_tools/requirements/local.txt
 !icommons_ext_tools/requirements/qa.txt
 !icommons_ext_tools/requirements/test.txt
