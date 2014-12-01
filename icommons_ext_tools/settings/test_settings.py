@@ -1,12 +1,20 @@
 from .base import *
 
+# sets 'from' email to show project and settings file name when sending emails to ADMINS
+SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (PROJECT_NAME, get_settings_file_name(__file__))
+SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
+
+# ensures mail won't be sent by unit tests
+ADMINS = ()
+MANAGERS = ADMINS
+
 # make tests faster
 SOUTH_TESTS_MIGRATE = False
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(os.path.dirname(__file__), 'test.db'),
-        'TEST_NAME': os.path.join(os.path.dirname(__file__), 'test.db'),
+        'NAME': join(dirname(__file__), 'test.db'),
+        'TEST_NAME': join(dirname(__file__), 'test.db'),
     },
 }
 
@@ -38,9 +46,9 @@ COURSE_WIZARD = {
 QUALTRICS_LINK = {
     'AGREEMENT_ID' : SECURE_SETTINGS.get('qualtrics_agreement_id', None),
     'QUALTRICS_APP_KEY' : SECURE_SETTINGS.get('qualtrics_app_key', None),
-    'QUALTRICS_API_URL' : SECURE_SETTINGS.get('qualtrics_api_url', None), 
-    'QUALTRICS_API_USER' : SECURE_SETTINGS.get('qualtrics_api_user', None), 
-    'QUALTRICS_API_TOKEN' : SECURE_SETTINGS.get('qualtrics_api_token', None), 
+    'QUALTRICS_API_URL' : SECURE_SETTINGS.get('qualtrics_api_url', None),
+    'QUALTRICS_API_USER' : SECURE_SETTINGS.get('qualtrics_api_user', None),
+    'QUALTRICS_API_TOKEN' : SECURE_SETTINGS.get('qualtrics_api_token', None),
     'QUALTRICS_AUTH_GROUP' : SECURE_SETTINGS.get('qualtrics_auth_group', None),
     'USER_DECLINED_TERMS_URL' : 'ql:internal', # only in QA
     'USER_ACCEPTED_TERMS_URL' : 'ql:internal', # only in QA
