@@ -62,14 +62,14 @@
       </p>
     {% else %}
       <h1>Oops!</h1>
-      <p>Sadly, there was a problem.</p>
+      <p>There was a problem creating your course website. <strong>The IT help desk has been notified and will be in touch with you.</strong>
+      </p>
 
       {% if renderable_error %}
-        <p>Please notify your local academic support staff and include the following information:</p>
-        <p>{{ renderable_error.display_text }}</p>
-      {% else %}
-        <p>Please notify your local academic support staff:</p>
+        <p>Error: {{ renderable_error.display_text }}</p>
       {% endif %}
+
+      <p>In the meantime if you have any questions please contact your local academic support staff:</p>
 
       <ul>
         <li>DCE: <a href="mailto:AcademicTechnology@dce.harvard.edu{% if renderable_error %}?subject={{ renderable_error.display_text }}{% endif %}">AcademicTechnology@dce.harvard.edu</a></li>
