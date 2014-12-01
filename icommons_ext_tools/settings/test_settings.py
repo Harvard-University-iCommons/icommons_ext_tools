@@ -73,6 +73,6 @@ CANVAS_EMAIL_NOTIFICATION = {
     'support_email_body_on_failure'     : 'There was a problem creating a course site in Canvas via the wizard.\n\n'+
             'Course site creation failed for sis_course_id: {0}\n'+
             'User: {1}\n'+
-            'Friendly error:{2}\n'+
+            '{2}\n'+
             'Environment: Test\n',
 }
