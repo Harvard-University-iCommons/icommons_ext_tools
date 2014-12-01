@@ -1,6 +1,6 @@
 # Django settings for icommons_ext_tools project.
-import os
 
+from . import get_settings_file_name
 from .secure import SECURE_SETTINGS
 from os.path import abspath, basename, dirname, join, normpath
 from sys import path
@@ -20,6 +20,9 @@ SITE_ROOT = dirname(DJANGO_PROJECT_CONFIG)
 # Site name:
 SITE_NAME = basename(SITE_ROOT)
 
+# Name of project (which settings apply to)
+PROJECT_NAME = basename(DJANGO_PROJECT_CONFIG)
+
 # Add our project to our pythonpath, this way we don't need to type our project
 # name in our dotted import paths:
 path.append(SITE_ROOT)
@@ -29,8 +32,21 @@ path.append(SITE_ROOT)
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
 ADMINS = SECURE_SETTINGS.get('admins')
 
-# This is the address that emails will be sent "from"
-SERVER_EMAIL = 'iCommons Tools <icommons-bounces@harvard.edu>'
+# This is the address that admin emails (sent to the addresses in the ADMINS list) will be sent 'from'.
+# It can be overridden in specific settings files to indicate what environment
+# is producing admin emails (e.g. 'app env <email>').
+SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (DJANGO_PROJECT_CONFIG, get_settings_file_name(__file__))
+SERVER_EMAIL_EMAIL_ADDR = 'icommons-bounces@harvard.edu'
+SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
+
+# Email subject prefix is what's shown at the beginning of the ADMINS email subject line
+# Django's default is "[Django] ", which isn't helpful and wastes space in the subject line
+# So this overrides the default and removes that unhelpful [Django] prefix.
+# Specific settings files can override, for example to show the settings file being used:
+# EMAIL_SUBJECT_PREFIX = '[%s] ' % SERVER_EMAIL_DISPLAY_NAME
+# TLT-458: currently the tech_logger inserts its own hostname prefix if available, so this
+#          is not being overridden in environment settings files at present.
+EMAIL_SUBJECT_PREFIX = ''
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mailhost.harvard.edu'
@@ -121,7 +137,6 @@ MIDDLEWARE_CLASSES = (
     'cached_auth.Middleware',
 
     'django.contrib.messages.middleware.MessageMiddleware',
-
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 
