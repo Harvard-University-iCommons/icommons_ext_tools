@@ -1,4 +1,5 @@
 # qa environment requirements
+# this may in future be called the ACP requirements (for acp server) or the /release branch requirements
 
 # includes the base.txt requirements needed in all environments
 -r base.txt   
@@ -8,8 +9,11 @@ newrelic==2.8.0.7
 
 gunicorn
 
-# TODO: update this line to point to master branch
+# Note: In the QA/ACP environment we use the /release branch to test before merging to master
+#       Projects without /release branches may need to have them created an this QA settings file updated to
+#       point to /release for that project (/release branches should be created from /master and anything
+#       that needs testing should be merged into /release from /develop so it is ready for acceptance testing)
 git+ssh://git@github.com/penzance/canvas_python_sdk.git@master#egg=canvas-python-sdk
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@master#egg=django-icommons-common
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@master#egg=django-icommons-ui
-git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@develop#egg=django-canvas-course-site-wizard
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@release#egg=django-icommons-ui
+git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@release#egg=django-canvas-course-site-wizard

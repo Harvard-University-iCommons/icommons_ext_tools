@@ -1,0 +1,15 @@
+# Demo environment requirements
+
+# includes the base.txt requirements needed in all environments
+-r base.txt   
+ 
+# below are requirements specific to the demo environment
+newrelic==2.8.0.7
+
+gunicorn
+
+# Note: In the demo environment we use the /master branch
+git+ssh://git@github.com/penzance/canvas_python_sdk.git@master#egg=canvas-python-sdk
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@master#egg=django-icommons-common
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@master#egg=django-icommons-ui
+git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@master#egg=django-canvas-course-site-wizard

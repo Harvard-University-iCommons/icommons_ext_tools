@@ -8,6 +8,10 @@ DEBUG = True
 TEMPLATE_DEBUG = DEBUG
 CRISPY_FAIL_SILENTLY = not DEBUG
 
+# sets 'from' email to show project and settings file name when sending emails to ADMINS
+SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (PROJECT_NAME, get_settings_file_name(__file__))
+SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
+
 ICOMMONS_COMMON = {
 
     'ICOMMONS_API_HOST': 'https://qa.isites.harvard.edu/services/',
@@ -45,7 +49,7 @@ CANVAS_SITE_SETTINGS = {
 
 CANVAS_EMAIL_NOTIFICATION = {
     'from_email_address'    : 'icommons-bounces@harvard.edu',
-    'support_email_address' : 'icommons_support@harvard.edu',
+    'support_email_address' : 'tlt_support@harvard.edu',
     'course_migration_success_subject'  : 'Course site is ready : (TEST, PLEASE IGNORE)',
     'course_migration_success_body'     : 'Success! \nYour new Canvas course site has been created and is ready for you at:\n'+
             ' {0} \n\n Here are some resources for getting started with your site:\n http://tlt.harvard.edu/getting-started#teachingstaff',
@@ -56,7 +60,14 @@ CANVAS_EMAIL_NOTIFICATION = {
             'If you have questions please contact them at:\n'+
             ' FAS: atg@fas.harvard.edu\n'+
             ' DCE: academictechnology@dce.harvard.edu\n'+
-            ' (Let them know that course site creation failed for sis_course_id: {0}) '
+            ' (Let them know that course site creation failed for sis_course_id: {0}) ',
+
+    'support_email_subject_on_failure'  : 'Course site not created (TEST, PLEASE IGNORE) ',
+    'support_email_body_on_failure'     : 'There was a problem creating a course site in Canvas via the wizard.\n\n'+
+            'Course site creation failed for sis_course_id: {0}\n'+
+            'User: {1}\n'+
+            '{2}\n'+
+            'Environment: local\n',
 
 }
 
@@ -199,6 +210,12 @@ LOGGING = {
         'icommons_ui': {
             'handlers': ['console', 'logfile'],
             'level': 'DEBUG',
+            'propagate': True,
+        },
+        # Apps can log to tech_mail to selectively send ERROR emails to ADMINS
+        'tech_mail': {
+            'handlers': ['mail_admins', 'console', 'logfile'],
+            'level': 'ERROR',
             'propagate': True,
         },
         'oraclepool': {
