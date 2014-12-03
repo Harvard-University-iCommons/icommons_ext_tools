@@ -61,6 +61,7 @@ EMAIL_FILE_PATH = None
 # EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mailhost.harvard.edu'
 EMAIL_USE_TLS = False
+EMAIL_PORT = 25
 
 MANAGERS = ADMINS
 
