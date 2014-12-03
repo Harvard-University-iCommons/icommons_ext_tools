@@ -107,6 +107,7 @@ CACHES = {
     }
 }
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = SECURE_SETTINGS.get('EMAIL_HOST')
 
 #CACHES = {
