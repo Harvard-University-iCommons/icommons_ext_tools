@@ -5,6 +5,11 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 
+# LOG_ROOT used for log file storage; EMAIL_FILE_PATH used for
+# email output if EMAIL_BACKEND is filebased.EmailBackend
+LOG_ROOT = '/var/opt/tlt/logs/'
+EMAIL_FILE_PATH = LOG_ROOT
+
 # sets 'from' email to show project and settings file name when sending emails to ADMINS
 SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (PROJECT_NAME, get_settings_file_name(__file__))
 SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
@@ -106,7 +111,9 @@ EMAIL_HOST = SECURE_SETTINGS.get('EMAIL_HOST')
 EMAIL_HOST_USER = SECURE_SETTINGS.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = SECURE_SETTINGS.get('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
-
+# EMAIL_PORT for use in AWS environment
+# (see http://docs.aws.amazon.com/ses/latest/DeveloperGuide/smtp-connect.html)
+EMAIL_PORT = 587
 
 #CACHES = {
 #    'default': {
@@ -148,7 +155,7 @@ LOGGING = {
         # Log to a text file that can be rotated by logrotate
         'logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': '/var/opt/tlt/logs/icommons_ext_tools.log',
+            'filename': join(LOG_ROOT, 'icommons_ext_tools.log'),
             'formatter': 'verbose'
         },
         'console': {
