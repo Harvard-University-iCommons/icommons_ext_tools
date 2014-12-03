@@ -107,13 +107,13 @@ CACHES = {
     }
 }
 
-# TODO: BACKEND and PORT are temporary overrides of base settings for troubleshooting smtp issues on AWS
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_PORT = 587
 EMAIL_HOST = SECURE_SETTINGS.get('EMAIL_HOST')
 EMAIL_HOST_USER = SECURE_SETTINGS.get('EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = SECURE_SETTINGS.get('EMAIL_HOST_PASSWORD')
 EMAIL_USE_TLS = True
+# EMAIL_PORT for use in AWS environment
+# (see http://docs.aws.amazon.com/ses/latest/DeveloperGuide/smtp-connect.html)
+EMAIL_PORT = 587
 
 #CACHES = {
 #    'default': {
