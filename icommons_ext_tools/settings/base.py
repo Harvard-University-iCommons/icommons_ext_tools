@@ -48,7 +48,17 @@ SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
 #          is not being overridden in environment settings files at present.
 EMAIL_SUBJECT_PREFIX = ''
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# Use filebased.EmailBackend with EMAIL_FILE_PATH for verifying email format
+# and submission without generating actual SMTP requests
+EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
+# Override EMAIL_FILE_PATH in individual environment settings files
+# to point to the environment-specific log directory
+# In the base settings, set explicitly to None: will throw an
+# Exception unless overridden in individual environment settings
+EMAIL_FILE_PATH = None
+# Use smtp.EmailBackend with EMAIL_HOST and EMAIL_USE_TLS
+# to send actual mail via SMTP
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'mailhost.harvard.edu'
 EMAIL_USE_TLS = False
 
