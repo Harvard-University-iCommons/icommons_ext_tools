@@ -201,7 +201,7 @@ CANVAS_EMAIL_NOTIFICATION = {
             'User: {1}\n'+
             '{2}\n'+
             'Environment: {3}\n',
-    'environment' : 'Production'
+    'environment' : 'Production',
 }
 
 INSTALLED_APPS = (
