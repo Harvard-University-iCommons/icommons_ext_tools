@@ -67,8 +67,7 @@ EMAIL_FILE_PATH = LOG_ROOT
 
 # Use smtp.EmailBackend with EMAIL_HOST and EMAIL_USE_TLS
 # to send actual mail via SMTP
-# Note that if DEBUG = True (because these are the integration test settings),
-# emails will not be sent by the ADMINS email handler
+# Note that if DEBUG = True, emails will not be sent by the ADMINS email handler
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = SECURE_SETTINGS.get('email_host', 'mailhost.harvard.edu')
 EMAIL_HOST_USER = SECURE_SETTINGS.get('email_host_user', '')
@@ -261,11 +260,11 @@ ICOMMONS_COMMON = {
 CANVAS_URL = SECURE_SETTINGS['canvas_url']
 
 COURSE_WIZARD = {
-    'OLD_LMS_URL' : SECURE_SETTINGS.get('old_lms_url', None),
+    'OLD_LMS_URL': SECURE_SETTINGS.get('old_lms_url', None),
 }
 
 CANVAS_WIZARD = {
-    'TOKEN' : SECURE_SETTINGS['canvas_token'],
+    'TOKEN': SECURE_SETTINGS['canvas_token'],  # Need a token
 }
 
 CANVAS_SITE_SETTINGS = {
