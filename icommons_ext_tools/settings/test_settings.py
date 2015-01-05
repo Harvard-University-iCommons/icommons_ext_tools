@@ -1,9 +1,5 @@
 from .base import *
 
-# sets 'from' email to show project and settings file name when sending emails to ADMINS
-SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (PROJECT_NAME, get_settings_file_name(__file__))
-SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
-
 # ensures mail won't be sent by unit tests
 ADMINS = ()
 MANAGERS = ADMINS
@@ -20,29 +16,6 @@ DATABASES = {
 
 ISITES_LMS_URL = ''
 
-ICOMMONS_COMMON = {
-
-    'ICOMMONS_API_HOST': 'https://qa.isites.harvard.edu/services/',
-    'ICOMMONS_API_USER': SECURE_SETTINGS['icommons_api_user'],
-    'ICOMMONS_API_PASS': SECURE_SETTINGS['icommons_api_pass'],
-    'HARVARD_ACCOUNT_ID':'1',
-}
-
-
-ICOMMONS_COMMON = {
-    'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
-    'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user', None),
-    'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass', None),
-}
-
-CANVAS_WIZARD = {
-    'TOKEN' : SECURE_SETTINGS.get('TOKEN', 'changeme'),
-}
-
-COURSE_WIZARD = {
-    'OLD_LMS_URL' : SECURE_SETTINGS.get('OLD_LMS_URL', None),
-}
-
 QUALTRICS_LINK = {
     'AGREEMENT_ID' : SECURE_SETTINGS.get('qualtrics_agreement_id', None),
     'QUALTRICS_APP_KEY' : SECURE_SETTINGS.get('qualtrics_app_key', None),
@@ -54,16 +27,6 @@ QUALTRICS_LINK = {
     'USER_ACCEPTED_TERMS_URL' : 'ql:internal', # only in QA
 }
 
-CANVAS_SITE_SETTINGS = {
-    'base_url': 'https://canvas.icommons.harvard.edu/',
-}
-
-CANVAS_SDK_SETTINGS = {
-    'auth_token': SECURE_SETTINGS.get('canvas_token', None),
-    'base_api_url': CANVAS_SITE_SETTINGS['base_url'] + 'api',
-    'max_retries': 3,
-    'per_page': 40,
-}
 CANVAS_EMAIL_NOTIFICATION = {
     'from_email_address'    : 'icommons-bounces@harvard.edu',
     'support_email_address' : 'tlt_support@harvard.edu',

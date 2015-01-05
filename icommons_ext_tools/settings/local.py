@@ -1,5 +1,4 @@
 from .base import *
-from .secure import SECURE_SETTINGS
 
 # To allow local development server to load static files with DEBUG=False, run:
 #   manage.py runserver --insecure
@@ -10,60 +9,14 @@ CRISPY_FAIL_SILENTLY = not DEBUG
 
 # LOG_ROOT used for log file storage; EMAIL_FILE_PATH used for
 # email output if EMAIL_BACKEND is filebased.EmailBackend
-LOG_ROOT = join(SITE_ROOT, 'logs/')
-EMAIL_FILE_PATH = LOG_ROOT
-
-# sets 'from' email to show project and settings file name when sending emails to ADMINS
-SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (PROJECT_NAME, get_settings_file_name(__file__))
-SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
-
-ICOMMONS_COMMON = {
-
-    'ICOMMONS_API_HOST': 'https://qa.isites.harvard.edu/services/',
-    'ICOMMONS_API_USER': SECURE_SETTINGS['icommons_api_user'],
-    'ICOMMONS_API_PASS': SECURE_SETTINGS['icommons_api_pass'],
-}
 
 ISITES_LMS_URL = 'http://isites.harvard.edu/'
 
-CANVAS_WIZARD = {
-    'TOKEN' : SECURE_SETTINGS['TOKEN'],
-}
-
-COURSE_WIZARD = {
-    'OLD_LMS_URL' : SECURE_SETTINGS['OLD_LMS_URL'],
-}
-
-QUALTRICS_LINK = {
-
-    'AGREEMENT_ID' : SECURE_SETTINGS['qualtrics_agreement_id'],
-    'QUALTRICS_APP_KEY' : SECURE_SETTINGS['qualtrics_app_key'],
-    'QUALTRICS_API_URL' : SECURE_SETTINGS['qualtrics_api_url'],
-    'QUALTRICS_API_USER' : SECURE_SETTINGS['qualtrics_api_user'],
-    'QUALTRICS_API_TOKEN' : SECURE_SETTINGS['qualtrics_api_token'],
-    'QUALTRICS_AUTH_GROUP' : SECURE_SETTINGS['qualtrics_auth_group'],
-    #'USER_DECLINED_TERMS_URL' : 'http://surveytools.harvard.edu',
-    'USER_DECLINED_TERMS_URL' : 'ql:internal', # only in QA
-    'USER_ACCEPTED_TERMS_URL' : 'ql:internal', # only in QA
-}
-
-CANVAS_SITE_SETTINGS = {
-    'base_url': 'https://canvas.icommons.harvard.edu/',
-
-}
 
 CANVAS_EMAIL_NOTIFICATION['course_migration_success_subject'] += ' (TEST, PLEASE IGNORE)'
 CANVAS_EMAIL_NOTIFICATION['course_migration_failure_subject'] += ' (TEST, PLEASE IGNORE)'
 CANVAS_EMAIL_NOTIFICATION['support_email_subject_on_failure'] += ' (TEST, PLEASE IGNORE)'
 CANVAS_EMAIL_NOTIFICATION['environment'] = 'Local'
-
-
-CANVAS_SDK_SETTINGS = {
-    'auth_token': SECURE_SETTINGS.get('canvas_token', None),
-    'base_api_url': CANVAS_SITE_SETTINGS['base_url'] + 'api',
-    'max_retries': 3,
-    'per_page': 40,
-}
 
 DATABASES = {
 
@@ -113,8 +66,6 @@ DATABASE_EXTRAS = {
     'threaded': True,
 }
 '''
-
-STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
 INSTALLED_APPS += (
     'debug_toolbar',

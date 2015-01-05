@@ -19,7 +19,7 @@ pp = pprint.PrettyPrinter(indent=4)
 
 AUTH_TOKEN = 'Bearer %s' % settings.CANVAS_WIZARD.get('TOKEN')
 HEADERS = {'Authorization ': AUTH_TOKEN}
-CANVAS_SERVER_BASE_URL = settings.CANVAS_WIZARD.get('CANVAS_SERVER_BASE_URL')
+CANVAS_SERVER_BASE_URL = settings.CANVAS_URL
 
 
 class Canvasapi(object):
