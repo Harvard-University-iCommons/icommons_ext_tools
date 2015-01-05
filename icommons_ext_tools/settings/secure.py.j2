@@ -1,5 +1,6 @@
 SECURE_SETTINGS = {
-   'env_name': '{{ secure_settings.env_name }}',
+   'env_name': '{{ secure_settings.env_name }}',  # Name of deploy environment
+   'log_root': '{{ secure_settings.log_root }}',  # Directory where logs are stored
 
    'django_db_user': '{{ secure_settings.django_db_user }}',
    'django_db_pass': '{{ secure_settings.django_db_pass }}',
@@ -8,8 +9,7 @@ SECURE_SETTINGS = {
    'icommons_api_host': '{{ secure_settings.icommons_api_host }}',
    'icommons_api_user': '{{ secure_settings.icommons_api_user }}',
    'icommons_api_pass': '{{ secure_settings.icommons_api_pass }}',
-
-   'canvas_url': '{{ secure_settings.canvas_url }}',
+   'canvas_url': '{{ secure_settings.canvas_url }}',  # Base url of Canvas instance
    'canvas_token': '{{ secure_settings.canvas_token }}',
 
    'qualtrics_agreement_id': '{{ secure_settings.qualtrics_agreement_id }}',
