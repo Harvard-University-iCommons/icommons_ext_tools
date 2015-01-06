@@ -30,14 +30,22 @@ path.append(SITE_ROOT)
 ### End path stuff
 
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
-ADMINS = SECURE_SETTINGS.get('admins')
+# Note: If this list (technically a tuple) has only one element, that
+#       element must be followed by a comma for it to be processed
+#       (cf section 3.2 of https://docs.python.org/2/reference/datamodel.html)
+ADMINS = (
+    ('iCommons Tech', 'icommons-technical@g.harvard.edu'),
+),
+
+# LOG_ROOT used for log file storage; EMAIL_FILE_PATH used for
+# email output if EMAIL_BACKEND is filebased.EmailBackend
+LOG_ROOT = SECURE_SETTINGS.get('log_root', 'logs/')
 
 # This is the address that admin emails (sent to the addresses in the ADMINS list) will be sent 'from'.
 # It can be overridden in specific settings files to indicate what environment
 # is producing admin emails (e.g. 'app env <email>').
-SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (DJANGO_PROJECT_CONFIG, get_settings_file_name(__file__))
-SERVER_EMAIL_EMAIL_ADDR = 'icommons-bounces@harvard.edu'
-SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
+SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (DJANGO_PROJECT_CONFIG, SECURE_SETTINGS.get('env_name', 'production'))
+SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, 'icommons-bounces@harvard.edu')
 
 # Email subject prefix is what's shown at the beginning of the ADMINS email subject line
 # Django's default is "[Django] ", which isn't helpful and wastes space in the subject line
@@ -55,13 +63,19 @@ EMAIL_SUBJECT_PREFIX = ''
 # environment settings files to point to the environment-specific log directory.
 # Here in the base settings it's set explicitly to None so it will throw an
 # Exception unless overridden in individual environment settings
-EMAIL_FILE_PATH = None
+EMAIL_FILE_PATH = LOG_ROOT
+
 # Use smtp.EmailBackend with EMAIL_HOST and EMAIL_USE_TLS
 # to send actual mail via SMTP
+# Note that if DEBUG = True, emails will not be sent by the ADMINS email handler
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'mailhost.harvard.edu'
-EMAIL_USE_TLS = False
-EMAIL_PORT = 25
+EMAIL_HOST = SECURE_SETTINGS.get('email_host', 'mailhost.harvard.edu')
+EMAIL_HOST_USER = SECURE_SETTINGS.get('email_host_user', '')
+EMAIL_HOST_PASSWORD = SECURE_SETTINGS.get('email_host_password', '')
+EMAIL_USE_TLS = SECURE_SETTINGS.get('email_use_tls', False)
+# EMAIL_PORT for use in AWS environment
+# (see http://docs.aws.amazon.com/ses/latest/DeveloperGuide/smtp-connect.html)
+EMAIL_PORT = SECURE_SETTINGS.get('email_port', 25)
 
 MANAGERS = ADMINS
 
@@ -235,3 +249,42 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 LOGIN_URL = reverse_lazy('pin:login')
+
+ICOMMONS_COMMON = {
+    'ICOMMONS_API_HOST': SECURE_SETTINGS.get('icommons_api_host', None),
+    'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user', None),
+    'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass', None),
+}
+
+# Important this be declared, so let it throw a key error if not found
+CANVAS_URL = SECURE_SETTINGS['canvas_url']
+
+COURSE_WIZARD = {
+    'OLD_LMS_URL': SECURE_SETTINGS.get('old_lms_url', None),
+}
+
+CANVAS_WIZARD = {
+    'TOKEN': SECURE_SETTINGS['canvas_token'],  # Need a token
+}
+
+CANVAS_SITE_SETTINGS = {
+    'base_url': CANVAS_URL + '/',
+}
+
+CANVAS_SDK_SETTINGS = {
+    'auth_token': SECURE_SETTINGS['canvas_token'],  # Need a token
+    'base_api_url': CANVAS_URL + '/api',
+    'max_retries': 3,
+    'per_page': 1000,
+}
+
+QUALTRICS_LINK = {
+    'AGREEMENT_ID' : SECURE_SETTINGS.get('qualtrics_agreement_id', None),
+    'QUALTRICS_APP_KEY' : SECURE_SETTINGS.get('qualtrics_app_key', None),
+    'QUALTRICS_API_URL' : SECURE_SETTINGS.get('qualtrics_api_url', None),
+    'QUALTRICS_API_USER' : SECURE_SETTINGS.get('qualtrics_api_user', None),
+    'QUALTRICS_API_TOKEN' : SECURE_SETTINGS.get('qualtrics_api_token', None),
+    'QUALTRICS_AUTH_GROUP' : SECURE_SETTINGS.get('qualtrics_auth_group', None),
+    'USER_DECLINED_TERMS_URL': 'ql:internal',
+    'USER_ACCEPTED_TERMS_URL': 'ql:internal',
+}
