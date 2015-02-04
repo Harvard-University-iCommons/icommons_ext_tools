@@ -35,7 +35,7 @@ path.append(SITE_ROOT)
 #       (cf section 3.2 of https://docs.python.org/2/reference/datamodel.html)
 ADMINS = (
     ('iCommons Tech', 'icommons-technical@g.harvard.edu'),
-),
+)
 
 # LOG_ROOT used for log file storage; EMAIL_FILE_PATH used for
 # email output if EMAIL_BACKEND is filebased.EmailBackend
@@ -191,41 +191,17 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    SITE_ROOT + '/templates/',
+    normpath(join(SITE_ROOT, 'templates')),
 )
-
-CANVAS_EMAIL_NOTIFICATION = {
-    'from_email_address'    : 'icommons-bounces@harvard.edu',
-    'support_email_address' : 'tlt_support@harvard.edu',
-    'course_migration_success_subject'  : 'Course site is ready',
-    'course_migration_success_body'     : 'Success! \nYour new Canvas course site has been created and is ready for you at:\n'+
-            ' {0} \n\n Here are some resources for getting started with your site:\n http://tlt.harvard.edu/getting-started#teachingstaff',
-
-    'course_migration_failure_subject'  : 'Course site not created',
-    'course_migration_failure_body'     : 'There was a problem creating your course site in Canvas.\n'+
-            'Your local academic support staff has been notified and will be in touch with you.\n\n'+
-            'If you have questions please contact them at:\n'+
-            ' FAS: atg@fas.harvard.edu\n'+
-            ' DCE: academictechnology@dce.harvard.edu\n'+
-            ' (Let them know that course site creation failed for sis_course_id: {0} ',
-
-    'support_email_subject_on_failure'  : 'Course site not created',
-    'support_email_body_on_failure'     : 'There was a problem creating a course site in Canvas via the wizard.\n\n'+
-            'Course site creation failed for sis_course_id: {0}\n'+
-            'User: {1}\n'+
-            '{2}\n'+
-            'Environment: {3}\n',
-    'environment' : 'Production',
-}
 
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
+    #'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.webdesign',
+    #'django.contrib.webdesign',
     # Uncomment the next line to enable the admin:
     #'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -251,20 +227,21 @@ CRISPY_TEMPLATE_PACK = 'bootstrap3'
 LOGIN_URL = reverse_lazy('pin:login')
 
 ICOMMONS_COMMON = {
-    'ICOMMONS_API_HOST': SECURE_SETTINGS.get('icommons_api_host', None),
-    'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user', None),
-    'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass', None),
+    'ICOMMONS_API_HOST': SECURE_SETTINGS.get('icommons_api_host'),
+    'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user'),
+    'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass'),
 }
 
-# Important this be declared, so let it throw a key error if not found
-CANVAS_URL = SECURE_SETTINGS['canvas_url']
+# Important this be declared, but we need to allow for unit tests to run in a Jenkins environment so
+# default to a bogus url.
+CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://changeme')
 
 COURSE_WIZARD = {
-    'OLD_LMS_URL': SECURE_SETTINGS.get('old_lms_url', None),
+    'OLD_LMS_URL': SECURE_SETTINGS.get('old_lms_url'),
 }
 
 CANVAS_WIZARD = {
-    'TOKEN': SECURE_SETTINGS['canvas_token'],  # Need a token
+    'TOKEN': SECURE_SETTINGS.get('canvas_token'),  # Need a token
 }
 
 CANVAS_SITE_SETTINGS = {
@@ -272,19 +249,43 @@ CANVAS_SITE_SETTINGS = {
 }
 
 CANVAS_SDK_SETTINGS = {
-    'auth_token': SECURE_SETTINGS['canvas_token'],  # Need a token
+    'auth_token': SECURE_SETTINGS.get('canvas_token'),  # Need a token
     'base_api_url': CANVAS_URL + '/api',
     'max_retries': 3,
     'per_page': 1000,
 }
 
+CANVAS_EMAIL_NOTIFICATION = {
+    'from_email_address': 'icommons-bounces@harvard.edu',
+    'support_email_address': 'tlt_support@harvard.edu',
+    'course_migration_success_subject': 'Course site is ready',
+    'course_migration_success_body': 'Success! \nYour new Canvas course site has been created and is ready for you at:\n'+
+            ' {0} \n\n Here are some resources for getting started with your site:\n http://tlt.harvard.edu/getting-started#teachingstaff',
+
+    'course_migration_failure_subject': 'Course site not created',
+    'course_migration_failure_body': 'There was a problem creating your course site in Canvas.\n'+
+            'Your local academic support staff has been notified and will be in touch with you.\n\n'+
+            'If you have questions please contact them at:\n'+
+            ' FAS: atg@fas.harvard.edu\n'+
+            ' DCE: academictechnology@dce.harvard.edu\n'+
+            ' (Let them know that course site creation failed for sis_course_id: {0} ',
+
+    'support_email_subject_on_failure': 'Course site not created',
+    'support_email_body_on_failure': 'There was a problem creating a course site in Canvas via the wizard.\n\n'+
+            'Course site creation failed for sis_course_id: {0}\n'+
+            'User: {1}\n'+
+            '{2}\n'+
+            'Environment: {3}\n',
+    'environment' : 'Production',
+}
+
 QUALTRICS_LINK = {
-    'AGREEMENT_ID' : SECURE_SETTINGS.get('qualtrics_agreement_id', None),
-    'QUALTRICS_APP_KEY' : SECURE_SETTINGS.get('qualtrics_app_key', None),
-    'QUALTRICS_API_URL' : SECURE_SETTINGS.get('qualtrics_api_url', None),
-    'QUALTRICS_API_USER' : SECURE_SETTINGS.get('qualtrics_api_user', None),
-    'QUALTRICS_API_TOKEN' : SECURE_SETTINGS.get('qualtrics_api_token', None),
-    'QUALTRICS_AUTH_GROUP' : SECURE_SETTINGS.get('qualtrics_auth_group', None),
+    'AGREEMENT_ID': SECURE_SETTINGS.get('qualtrics_agreement_id'),
+    'QUALTRICS_APP_KEY': SECURE_SETTINGS.get('qualtrics_app_key'),
+    'QUALTRICS_API_URL': SECURE_SETTINGS.get('qualtrics_api_url'),
+    'QUALTRICS_API_USER': SECURE_SETTINGS.get('qualtrics_api_user'),
+    'QUALTRICS_API_TOKEN': SECURE_SETTINGS.get('qualtrics_api_token'),
+    'QUALTRICS_AUTH_GROUP': SECURE_SETTINGS.get('qualtrics_auth_group'),
     'USER_DECLINED_TERMS_URL': 'ql:internal',
     'USER_ACCEPTED_TERMS_URL': 'ql:internal',
 }
