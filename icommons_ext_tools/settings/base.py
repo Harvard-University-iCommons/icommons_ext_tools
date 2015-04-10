@@ -267,7 +267,7 @@ CANVAS_EMAIL_NOTIFICATION = {
             'Your local academic support staff has been notified and will be in touch with you.\n\n'+
             'If you have questions please contact them at:\n'+
             ' FAS: atg@fas.harvard.edu\n'+
-            ' DCE: academictechnology@dce.harvard.edu\n'+
+            ' DCE/Summer: AcademicTechnology@dce.harvard.edu\n'+
             ' (Let them know that course site creation failed for sis_course_id: {0} ',
 
     'support_email_subject_on_failure': 'Course site not created',
