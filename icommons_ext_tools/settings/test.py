@@ -7,67 +7,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-# LOG_ROOT used for log file storage; EMAIL_FILE_PATH used for
-# email output if EMAIL_BACKEND is filebased.EmailBackend
-LOG_ROOT = '/var/opt/tlt/logs/'
-EMAIL_FILE_PATH = LOG_ROOT
-
-# sets 'from' email to show project and settings file name when sending emails to ADMINS
-SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (PROJECT_NAME, get_settings_file_name(__file__))
-SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
-
-# Note that if DEBUG = True (because these are the integration test settings),
-# emails will not be sent by the ADMINS email handler
-EMAIL_HOST = SECURE_SETTINGS.get('EMAIL_HOST')
-EMAIL_HOST_USER = SECURE_SETTINGS.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = SECURE_SETTINGS.get('EMAIL_HOST_PASSWORD')
-EMAIL_USE_TLS = True
-# EMAIL_PORT for use in AWS environment
-# (see http://docs.aws.amazon.com/ses/latest/DeveloperGuide/smtp-connect.html)
-EMAIL_PORT = 587
-
-ICOMMONS_COMMON = {
-    'ICOMMONS_API_HOST': 'https://isites.harvard.edu/services/',
-    'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user', None),
-    'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass', None),
-}
-
-CANVAS_WIZARD = {
-    'TOKEN' : SECURE_SETTINGS.get('TOKEN', 'changeme'),
-}
-
 ISITES_LMS_URL = 'http://qa.isites.harvard.edu/'
-
-COURSE_WIZARD = {
-    'OLD_LMS_URL' : SECURE_SETTINGS.get('OLD_LMS_URL', None),
-}
-
-QUALTRICS_LINK = {
-    'AGREEMENT_ID' : SECURE_SETTINGS.get('qualtrics_agreement_id', None),
-    'QUALTRICS_APP_KEY' : SECURE_SETTINGS.get('qualtrics_app_key', None),
-    'QUALTRICS_API_URL' : SECURE_SETTINGS.get('qualtrics_api_url', None),
-    'QUALTRICS_API_USER' : SECURE_SETTINGS.get('qualtrics_api_user', None),
-    'QUALTRICS_API_TOKEN' : SECURE_SETTINGS.get('qualtrics_api_token', None),
-    'QUALTRICS_AUTH_GROUP' : SECURE_SETTINGS.get('qualtrics_auth_group', None),
-    'USER_DECLINED_TERMS_URL' : 'ql:internal', # only in QA
-    'USER_ACCEPTED_TERMS_URL' : 'ql:internal', # only in QA
-}
-
-CANVAS_SITE_SETTINGS = {
-    'base_url': 'https://canvas.icommons.harvard.edu/',
-}
 
 CANVAS_EMAIL_NOTIFICATION['course_migration_success_subject'] += ' (TEST, PLEASE IGNORE)'
 CANVAS_EMAIL_NOTIFICATION['course_migration_failure_subject'] += ' (TEST, PLEASE IGNORE)'
 CANVAS_EMAIL_NOTIFICATION['support_email_subject_on_failure'] += ' (TEST, PLEASE IGNORE)'
 CANVAS_EMAIL_NOTIFICATION['environment'] = 'Test'
-
-CANVAS_SDK_SETTINGS = {
-    'auth_token': SECURE_SETTINGS.get('canvas_token', None),
-    'base_api_url': CANVAS_SITE_SETTINGS['base_url'] + 'api',
-    'max_retries': 3,
-    'per_page': 40,
-}
 
 DATABASES = {
     'default': {
@@ -101,8 +46,6 @@ DATABASE_EXTRAS = {
     'threaded': True,
 }
 '''
-
-STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
 
 INSTALLED_APPS += (
     #'debug_toolbar',
@@ -247,5 +190,3 @@ The school must be the same as the school_id in the school model.
 
 
 GUNICORN_CONFIG = 'gunicorn_test.py'
-
-

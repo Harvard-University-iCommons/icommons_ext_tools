@@ -30,14 +30,22 @@ path.append(SITE_ROOT)
 ### End path stuff
 
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
-ADMINS = SECURE_SETTINGS.get('admins')
+# Note: If this list (technically a tuple) has only one element, that
+#       element must be followed by a comma for it to be processed
+#       (cf section 3.2 of https://docs.python.org/2/reference/datamodel.html)
+ADMINS = (
+    ('iCommons Tech', 'icommons-technical@g.harvard.edu'),
+)
+
+# LOG_ROOT used for log file storage; EMAIL_FILE_PATH used for
+# email output if EMAIL_BACKEND is filebased.EmailBackend
+LOG_ROOT = SECURE_SETTINGS.get('log_root', 'logs/')
 
 # This is the address that admin emails (sent to the addresses in the ADMINS list) will be sent 'from'.
 # It can be overridden in specific settings files to indicate what environment
 # is producing admin emails (e.g. 'app env <email>').
-SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (DJANGO_PROJECT_CONFIG, get_settings_file_name(__file__))
-SERVER_EMAIL_EMAIL_ADDR = 'icommons-bounces@harvard.edu'
-SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, SERVER_EMAIL_EMAIL_ADDR)
+SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (DJANGO_PROJECT_CONFIG, SECURE_SETTINGS.get('env_name', 'production'))
+SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, 'icommons-bounces@harvard.edu')
 
 # Email subject prefix is what's shown at the beginning of the ADMINS email subject line
 # Django's default is "[Django] ", which isn't helpful and wastes space in the subject line
@@ -55,13 +63,19 @@ EMAIL_SUBJECT_PREFIX = ''
 # environment settings files to point to the environment-specific log directory.
 # Here in the base settings it's set explicitly to None so it will throw an
 # Exception unless overridden in individual environment settings
-EMAIL_FILE_PATH = None
+EMAIL_FILE_PATH = LOG_ROOT
+
 # Use smtp.EmailBackend with EMAIL_HOST and EMAIL_USE_TLS
 # to send actual mail via SMTP
+# Note that if DEBUG = True, emails will not be sent by the ADMINS email handler
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'mailhost.harvard.edu'
-EMAIL_USE_TLS = False
-EMAIL_PORT = 25
+EMAIL_HOST = SECURE_SETTINGS.get('email_host', 'mailhost.harvard.edu')
+EMAIL_HOST_USER = SECURE_SETTINGS.get('email_host_user', '')
+EMAIL_HOST_PASSWORD = SECURE_SETTINGS.get('email_host_password', '')
+EMAIL_USE_TLS = SECURE_SETTINGS.get('email_use_tls', False)
+# EMAIL_PORT for use in AWS environment
+# (see http://docs.aws.amazon.com/ses/latest/DeveloperGuide/smtp-connect.html)
+EMAIL_PORT = SECURE_SETTINGS.get('email_port', 25)
 
 MANAGERS = ADMINS
 
@@ -177,41 +191,17 @@ TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
     # Always use forward slashes, even on Windows.
     # Don't forget to use absolute paths, not relative paths.
-    SITE_ROOT + '/templates/',
+    normpath(join(SITE_ROOT, 'templates')),
 )
-
-CANVAS_EMAIL_NOTIFICATION = {
-    'from_email_address'    : 'icommons-bounces@harvard.edu',
-    'support_email_address' : 'tlt_support@harvard.edu',
-    'course_migration_success_subject'  : 'Course site is ready',
-    'course_migration_success_body'     : 'Success! \nYour new Canvas course site has been created and is ready for you at:\n'+
-            ' {0} \n\n Here are some resources for getting started with your site:\n http://tlt.harvard.edu/getting-started#teachingstaff',
-
-    'course_migration_failure_subject'  : 'Course site not created',
-    'course_migration_failure_body'     : 'There was a problem creating your course site in Canvas.\n'+
-            'Your local academic support staff has been notified and will be in touch with you.\n\n'+
-            'If you have questions please contact them at:\n'+
-            ' FAS: atg@fas.harvard.edu\n'+
-            ' DCE: academictechnology@dce.harvard.edu\n'+
-            ' (Let them know that course site creation failed for sis_course_id: {0} ',
-
-    'support_email_subject_on_failure'  : 'Course site not created',
-    'support_email_body_on_failure'     : 'There was a problem creating a course site in Canvas via the wizard.\n\n'+
-            'Course site creation failed for sis_course_id: {0}\n'+
-            'User: {1}\n'+
-            '{2}\n'+
-            'Environment: {3}\n',
-    'environment' : 'Production',
-}
 
 INSTALLED_APPS = (
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
-    'django.contrib.sites',
+    #'django.contrib.sites',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'django.contrib.webdesign',
+    #'django.contrib.webdesign',
     # Uncomment the next line to enable the admin:
     #'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -235,3 +225,67 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 LOGIN_URL = reverse_lazy('pin:login')
+
+ICOMMONS_COMMON = {
+    'ICOMMONS_API_HOST': SECURE_SETTINGS.get('icommons_api_host'),
+    'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user'),
+    'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass'),
+}
+
+# Important this be declared, but we need to allow for unit tests to run in a Jenkins environment so
+# default to a bogus url.
+CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://changeme')
+
+COURSE_WIZARD = {
+    'OLD_LMS_URL': SECURE_SETTINGS.get('old_lms_url'),
+}
+
+CANVAS_WIZARD = {
+    'TOKEN': SECURE_SETTINGS.get('canvas_token'),  # Need a token
+}
+
+CANVAS_SITE_SETTINGS = {
+    'base_url': CANVAS_URL + '/',
+}
+
+CANVAS_SDK_SETTINGS = {
+    'auth_token': SECURE_SETTINGS.get('canvas_token'),  # Need a token
+    'base_api_url': CANVAS_URL + '/api',
+    'max_retries': 3,
+    'per_page': 1000,
+}
+
+CANVAS_EMAIL_NOTIFICATION = {
+    'from_email_address': 'icommons-bounces@harvard.edu',
+    'support_email_address': 'tlt_support@harvard.edu',
+    'course_migration_success_subject': 'Course site is ready',
+    'course_migration_success_body': 'Success! \nYour new Canvas course site has been created and is ready for you at:\n'+
+            ' {0} \n\n Here are some resources for getting started with your site:\n http://tlt.harvard.edu/getting-started#teachingstaff',
+
+    'course_migration_failure_subject': 'Course site not created',
+    'course_migration_failure_body': 'There was a problem creating your course site in Canvas.\n'+
+            'Your local academic support staff has been notified and will be in touch with you.\n\n'+
+            'If you have questions please contact them at:\n'+
+            ' FAS: atg@fas.harvard.edu\n'+
+            ' DCE/Summer: AcademicTechnology@dce.harvard.edu\n'+
+            ' (Let them know that course site creation failed for sis_course_id: {0} ',
+
+    'support_email_subject_on_failure': 'Course site not created',
+    'support_email_body_on_failure': 'There was a problem creating a course site in Canvas via the wizard.\n\n'+
+            'Course site creation failed for sis_course_id: {0}\n'+
+            'User: {1}\n'+
+            '{2}\n'+
+            'Environment: {3}\n',
+    'environment' : 'Production',
+}
+
+QUALTRICS_LINK = {
+    'AGREEMENT_ID': SECURE_SETTINGS.get('qualtrics_agreement_id'),
+    'QUALTRICS_APP_KEY': SECURE_SETTINGS.get('qualtrics_app_key'),
+    'QUALTRICS_API_URL': SECURE_SETTINGS.get('qualtrics_api_url'),
+    'QUALTRICS_API_USER': SECURE_SETTINGS.get('qualtrics_api_user'),
+    'QUALTRICS_API_TOKEN': SECURE_SETTINGS.get('qualtrics_api_token'),
+    'QUALTRICS_AUTH_GROUP': SECURE_SETTINGS.get('qualtrics_auth_group'),
+    'USER_DECLINED_TERMS_URL': 'ql:internal',
+    'USER_ACCEPTED_TERMS_URL': 'ql:internal',
+}
