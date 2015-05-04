@@ -238,6 +238,8 @@ CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://changeme')
 
 COURSE_WIZARD = {
     'OLD_LMS_URL': SECURE_SETTINGS.get('old_lms_url'),
+    'TERM_TOOL_BASE_URL' : 'https://isites.harvard.edu',
+
 }
 
 CANVAS_WIZARD = {

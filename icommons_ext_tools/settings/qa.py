@@ -12,6 +12,8 @@ CANVAS_EMAIL_NOTIFICATION['course_migration_failure_subject'] += ' (TEST, PLEASE
 CANVAS_EMAIL_NOTIFICATION['support_email_subject_on_failure'] += ' (TEST, PLEASE IGNORE)'
 CANVAS_EMAIL_NOTIFICATION['environment'] = 'QA'
 
+COURSE_WIZARD['TERM_TOOL_BASE_URL'] = 'https://qa.tlt.harvard.edu'
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
