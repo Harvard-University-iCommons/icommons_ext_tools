@@ -202,6 +202,28 @@ file {'/etc/profile.d/oracle.sh':
     require => Exec['instantclient-basiclite'],
 }
 
+# Ensure github.com ssh public key is in the .ssh/known_hosts file so
+# pip won't try to prompt on the terminal to accept it
+file {'/home/vagrant/.ssh':
+    ensure => directory,
+    mode => 0700,
+}
+
+exec {'known_hosts':
+    provider => 'shell',
+    user => 'vagrant',
+    group => 'vagrant',
+    command => 'ssh-keyscan github.com >> /home/vagrant/.ssh/known_hosts',
+    unless => 'grep -sq github.com /home/vagrant/.ssh/known_hosts',
+    require => [ File['/home/vagrant/.ssh'], ],
+}
+
+file {'/home/vagrant/.ssh/known_hosts':
+    ensure => file,
+    mode => 0744,
+    require => [ Exec['known_hosts'], ],
+}
+
 # Create a symlink from ~/icommons_ext_tools to /vagrant as a convenience for the developer
 file {'/home/vagrant/icommons_ext_tools':
     ensure => link,
@@ -213,8 +235,10 @@ exec {'create-virtualenv':
     provider => 'shell',
     user => 'vagrant',
     group => 'vagrant',
-    require => [ Package['virtualenvwrapper'], File['/home/vagrant/icommons_ext_tools'], File['/etc/profile.d/oracle.sh'] ],
-    environment => ["HOME=/home/vagrant","WORKON_HOME=/home/vagrant/.virtualenvs"],
+    require => [ Package['virtualenvwrapper'], File['/home/vagrant/icommons_ext_tools'], File['/etc/profile.d/oracle.sh'],
+		 Exec['known_hosts'], ],
+    environment => ["ORACLE_HOME=/opt/oracle/instantclient_11_2", "LD_LIBRARY_PATH=$ORACLE_HOME",
+		    "HOME=/home/vagrant", "WORKON_HOME=/home/vagrant/.virtualenvs"],
     command => '/vagrant/vagrant/venv_bootstrap.sh',
     creates => '/home/vagrant/.virtualenvs/icommons_ext_tools',
 }
