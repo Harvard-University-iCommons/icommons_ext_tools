@@ -237,7 +237,8 @@ exec {'create-virtualenv':
     group => 'vagrant',
     require => [ Package['virtualenvwrapper'], File['/home/vagrant/icommons_ext_tools'], File['/etc/profile.d/oracle.sh'],
 		 Exec['known_hosts'], ],
-    environment => ["HOME=/home/vagrant","WORKON_HOME=/home/vagrant/.virtualenvs"],
+    environment => ["ORACLE_HOME=/opt/oracle/instantclient_11_2", "LD_LIBRARY_PATH=$ORACLE_HOME",
+		    "HOME=/home/vagrant", "WORKON_HOME=/home/vagrant/.virtualenvs"],
     command => '/vagrant/vagrant/venv_bootstrap.sh',
     creates => '/home/vagrant/.virtualenvs/icommons_ext_tools',
 }
