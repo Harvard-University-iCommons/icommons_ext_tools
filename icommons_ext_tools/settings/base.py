@@ -281,6 +281,15 @@ CANVAS_EMAIL_NOTIFICATION = {
     'environment' : 'Production',
 }
 
+BULK_COURSE_CREATION = {
+    'log_long_running_jobs': True,
+    'long_running_age_in_minutes': 30,
+    'notification_email_subject': 'Finished creating {} courses in term {}',
+    'notification_email_body': 'Success!\n\nWe finished creating courses for school {} in term {}.\n\n' +
+                               '{} courses were created.',
+    'notification_email_body_failed_count': ' We were unable to successfully create {} courses.',
+}
+
 QUALTRICS_LINK = {
     'AGREEMENT_ID': SECURE_SETTINGS.get('qualtrics_agreement_id'),
     'QUALTRICS_APP_KEY': SECURE_SETTINGS.get('qualtrics_app_key'),
