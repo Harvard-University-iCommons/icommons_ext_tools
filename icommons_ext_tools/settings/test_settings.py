@@ -10,9 +10,3 @@ DATABASES = {
 }
 
 ISITES_LMS_URL = ''
-
-# NOTE: once the canvas_course_wizard application is removed we can eliminate it's
-# inclusion below.  Only reason to include it here is to allow for unit tests to work.
-INSTALLED_APPS += (
-    'canvas_course_wizard',
-)
