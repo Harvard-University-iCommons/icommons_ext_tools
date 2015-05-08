@@ -31,6 +31,12 @@ DATABASES = {
     }
 }
 
+DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter']
+DATABASE_APPS_MAPPING = {
+    'canvas_course_site_wizard': 'default',
+}
+DATABASE_MIGRATION_WHITELIST = ['default']
+
 # make tests faster
 # SOUTH_TESTS_MIGRATE = False
 # DATABASES = {
