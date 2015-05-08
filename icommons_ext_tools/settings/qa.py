@@ -29,6 +29,12 @@ DATABASES = {
     }
 }
 
+DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter']
+DATABASE_APPS_MAPPING = {
+    'canvas_course_site_wizard': 'default',
+}
+DATABASE_MIGRATION_WHITELIST = ['default']
+
 # need to override the NLS_DATE_FORMAT that is set by oraclepool
 '''
 DATABASE_EXTRAS = {
