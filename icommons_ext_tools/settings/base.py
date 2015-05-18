@@ -285,6 +285,11 @@ BULK_COURSE_CREATION = {
     'notification_email_body_failed_count': ' We were unable to successfully create {} courses.',
 }
 
+# Background task PID (lock) files
+#   * If created in another directory, ensure the directory exists in runtime environment
+PROCESS_ASYNC_JOBS_PID_FILE = 'process_async_jobs.pid'
+FINALIZE_BULK_CREATE_JOBS_PID_FILE = 'finalize_bulk_create_jobs.pid'
+
 QUALTRICS_LINK = {
     'AGREEMENT_ID': SECURE_SETTINGS.get('qualtrics_agreement_id'),
     'QUALTRICS_APP_KEY': SECURE_SETTINGS.get('qualtrics_app_key'),
