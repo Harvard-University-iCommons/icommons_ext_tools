@@ -138,19 +138,19 @@ define download ($uri, $timeout = 300) {
 # Using the helper function above, download the Oracle instantclient zip files:
 download {
   "/tmp/instantclient-basiclite-linux.x64-11.2.0.3.0.zip":
-      uri => "http://test.isites.harvard.edu/oracle/instantclient-basiclite-linux.x64-11.2.0.3.0.zip",
+      uri => "https://s3.amazonaws.com/icommons-static/oracle/instantclient-basiclite-linux.x64-11.2.0.3.0.zip",
       timeout => 900;
 }
 
 download {
   "/tmp/instantclient-sqlplus-linux.x64-11.2.0.3.0.zip":
-      uri => "http://test.isites.harvard.edu/oracle/instantclient-sqlplus-linux.x64-11.2.0.3.0.zip",
+      uri => "https://s3.amazonaws.com/icommons-static/oracle/instantclient-sqlplus-linux.x64-11.2.0.3.0.zip",
       timeout => 900;
 }
 
 download {
   "/tmp/instantclient-sdk-linux.x64-11.2.0.3.0.zip":
-      uri => "http://test.isites.harvard.edu/oracle/instantclient-sdk-linux.x64-11.2.0.3.0.zip",
+      uri => "https://s3.amazonaws.com/icommons-static/oracle/instantclient-sdk-linux.x64-11.2.0.3.0.zip",
       timeout => 900;
 }
 
