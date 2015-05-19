@@ -282,7 +282,7 @@ BULK_COURSE_CREATION = {
     'notification_email_subject': 'Finished creating {} courses in term {}',
     'notification_email_body': 'We finished running the process to create course sites '
                                'for the term {} at the school {}\n\n'
-                               ' - {} course sites were created successfully.',
+                               ' - {} course sites were created successfully.\n',
     'notification_email_body_failed_count': ' - {} course sites were not created.',
 }
 
