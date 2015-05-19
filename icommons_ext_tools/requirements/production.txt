@@ -8,6 +8,6 @@ newrelic==2.8.0.7
 
 gunicorn
 
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v1.6#egg=django-icommons-common
+git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@v1.9.5#egg=django-icommons-common
 git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@v0.8.3#egg=django-icommons-ui
-git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@v1.3#egg=django-canvas-course-site-wizard
+git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@v1.3.1#egg=django-canvas-course-site-wizard
