@@ -280,9 +280,10 @@ BULK_COURSE_CREATION = {
     'log_long_running_jobs': True,
     'long_running_age_in_minutes': 30,
     'notification_email_subject': 'Finished creating {} courses in term {}',
-    'notification_email_body': 'Success!\n\nWe finished creating courses for school {} in term {}.\n\n' +
-                               '{} courses were created.',
-    'notification_email_body_failed_count': ' We were unable to successfully create {} courses.',
+    'notification_email_body': 'We finished running the process to create course sites '
+                               'for the term {} at the school {}\n\n'
+                               ' - {} course sites were created successfully.',
+    'notification_email_body_failed_count': ' - {} course sites were not created.',
 }
 
 # Background task PID (lock) files
