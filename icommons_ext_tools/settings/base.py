@@ -206,6 +206,7 @@ INSTALLED_APPS = (
     #'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
     # 'django.contrib.admindocs',
+    'icommons_common',
     'icommons_common.monitor',
     'icommons_ui',
     'qualtrics_link',
@@ -237,11 +238,7 @@ ICOMMONS_COMMON = {
 CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://changeme')
 
 COURSE_WIZARD = {
-    'OLD_LMS_URL': SECURE_SETTINGS.get('old_lms_url'),
-}
-
-CANVAS_WIZARD = {
-    'TOKEN': SECURE_SETTINGS.get('canvas_token'),  # Need a token
+    'TERM_TOOL_BASE_URL' : 'https://isites.harvard.edu',
 }
 
 CANVAS_SITE_SETTINGS = {
@@ -278,6 +275,21 @@ CANVAS_EMAIL_NOTIFICATION = {
             'Environment: {3}\n',
     'environment' : 'Production',
 }
+
+BULK_COURSE_CREATION = {
+    'log_long_running_jobs': True,
+    'long_running_age_in_minutes': 30,
+    'notification_email_subject': 'Finished creating {} courses in term {}',
+    'notification_email_body': 'We finished running the process to create course sites '
+                               'at the school {} for the term {} \n\n'
+                               ' - {} course sites were created successfully.\n',
+    'notification_email_body_failed_count': ' - {} course sites were not created.',
+}
+
+# Background task PID (lock) files
+#   * If created in another directory, ensure the directory exists in runtime environment
+PROCESS_ASYNC_JOBS_PID_FILE = 'process_async_jobs.pid'
+FINALIZE_BULK_CREATE_JOBS_PID_FILE = 'finalize_bulk_create_jobs.pid'
 
 QUALTRICS_LINK = {
     'AGREEMENT_ID': SECURE_SETTINGS.get('qualtrics_agreement_id'),
