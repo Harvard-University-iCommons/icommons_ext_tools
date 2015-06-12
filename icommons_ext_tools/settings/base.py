@@ -279,11 +279,12 @@ CANVAS_EMAIL_NOTIFICATION = {
 BULK_COURSE_CREATION = {
     'log_long_running_jobs': True,
     'long_running_age_in_minutes': 30,
-    'notification_email_subject': 'Finished creating {} courses in term {}',
-    'notification_email_body': 'We finished running the process to create course sites '
-                               'at the school {} for the term {} \n\n'
-                               ' - {} course sites were created successfully.\n',
-    'notification_email_body_failed_count': ' - {} course sites were not created.',
+    'notification_email_subject': 'Sites created for {school} {term} term',
+    'notification_email_body': 'Canvas course sites have been created for the '
+                               '{school} {term} term.\n\n - {success_count} '
+                               'course sites were created successfully.\n',
+    'notification_email_body_failed_count': ' - {} course sites were not '
+                                            'created.',
 }
 
 # Background task PID (lock) files
