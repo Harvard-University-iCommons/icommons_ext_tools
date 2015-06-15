@@ -92,7 +92,7 @@ LOGGING = {
         # Log to a text file that can be rotated by logrotate
         'logfile': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': join(LOG_ROOT, 'icommons_ext_tools.log'),
+            'filename': join(LOG_ROOT, 'django-icommons_ext_tools.log'),
             'formatter': 'verbose'
         },
         'console': {
