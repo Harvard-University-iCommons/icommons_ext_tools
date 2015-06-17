@@ -343,10 +343,10 @@ LOGGING = {
             'filename': normpath(join(_LOG_ROOT, 'django-icommons_ext_tools.log')),
             'formatter': 'verbose',
         },
-        'cron-logfile': {
+        'jobs-logfile': {
             'level': _DEFAULT_LOG_LEVEL,
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': normpath(join(_LOG_ROOT, 'cron-icommons_ext_tools.log')),
+            'filename': normpath(join(_LOG_ROOT, 'django-jobs-icommons_ext_tools.log')),
             'formatter': 'verbose'
         },
     },
@@ -370,7 +370,7 @@ LOGGING = {
             'level': 'DEBUG',
         },
         'canvas_course_site_wizard.management': {
-            'handlers': ['console', 'mail_admins', 'cron-logfile'],
+            'handlers': ['console', 'mail_admins', 'jobs-logfile'],
             'level': 'DEBUG',
             'propagate': False,
         },
