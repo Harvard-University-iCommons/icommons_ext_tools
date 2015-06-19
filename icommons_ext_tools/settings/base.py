@@ -39,7 +39,7 @@ ADMINS = (
 
 # LOG_ROOT used for log file storage; EMAIL_FILE_PATH used for
 # email output if EMAIL_BACKEND is filebased.EmailBackend
-LOG_ROOT = SECURE_SETTINGS.get('log_root', 'logs/')
+_LOG_ROOT = SECURE_SETTINGS.get('log_root', '')
 
 # This is the address that admin emails (sent to the addresses in the ADMINS list) will be sent 'from'.
 # It can be overridden in specific settings files to indicate what environment
@@ -63,7 +63,7 @@ EMAIL_SUBJECT_PREFIX = ''
 # environment settings files to point to the environment-specific log directory.
 # Here in the base settings it's set explicitly to None so it will throw an
 # Exception unless overridden in individual environment settings
-EMAIL_FILE_PATH = LOG_ROOT
+EMAIL_FILE_PATH = _LOG_ROOT
 
 # Use smtp.EmailBackend with EMAIL_HOST and EMAIL_USE_TLS
 # to send actual mail via SMTP
@@ -303,4 +303,94 @@ QUALTRICS_LINK = {
     'QUALTRICS_AUTH_GROUP': SECURE_SETTINGS.get('qualtrics_auth_group'),
     'USER_DECLINED_TERMS_URL': 'ql:internal',
     'USER_ACCEPTED_TERMS_URL': 'ql:internal',
+}
+
+_DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', 'DEBUG')
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
+        },
+        'simple': {
+            'format': '%(levelname)s %(module)s %(message)s'
+        }
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'mail_admins': {
+            'level': 'ERROR',
+            'filters': ['require_debug_false'],
+            'class': 'django.utils.log.AdminEmailHandler'
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+            'filters': ['require_debug_true'],
+        },
+        'logfile': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': normpath(join(_LOG_ROOT, 'django-icommons_ext_tools.log')),
+            'formatter': 'verbose',
+        },
+        'jobs-logfile': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': normpath(join(_LOG_ROOT, 'django-jobs-icommons_ext_tools.log')),
+            'formatter': 'verbose'
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['console', 'logfile'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'django': {
+            'handlers': ['console'],
+            'level': 'DEBUG',
+            'propagate': True,
+        },
+        'qualtrics_link': {
+            'handlers': ['console', 'mail_admins', 'logfile'],
+            'level': 'DEBUG',
+        },
+        'canvas_course_site_wizard': {
+            'handlers': ['console', 'mail_admins', 'logfile'],
+            'level': 'DEBUG',
+        },
+        'canvas_course_site_wizard.management': {
+            'handlers': ['console', 'mail_admins', 'jobs-logfile'],
+            'level': 'DEBUG',
+            'propagate': False,
+        },
+        'icommons_common': {
+            'handlers': ['mail_admins', 'console', 'logfile'],
+            'level': 'DEBUG',
+        },
+        'icommons_ui': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+        },
+        # Apps can log to tech_mail to selectively send ERROR emails to ADMINS
+        'tech_mail': {
+            'handlers': ['mail_admins', 'console', 'logfile'],
+            'level': 'ERROR',
+        },
+        'oraclepool': {
+            'handlers': ['console', 'logfile'],
+            'level': 'DEBUG',
+        },
+    }
 }
