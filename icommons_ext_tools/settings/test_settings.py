@@ -1,4 +1,4 @@
-from .base import *
+from .local import *
 
 # NOTE: during tests email is saved in django.core.mail.outbox and no real email is sent
 

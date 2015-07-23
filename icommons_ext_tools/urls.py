@@ -1,10 +1,6 @@
 from django.conf.urls import (patterns, include, url)
-from django.contrib import admin
 
 from canvas_course_site_wizard import urls as ccsw_urls
-
-
-admin.autodiscover()
 
 urlpatterns = patterns(
     '',
