@@ -11,4 +11,3 @@ DATABASES = {
     },
 }
 
-ISITES_LMS_URL = ''

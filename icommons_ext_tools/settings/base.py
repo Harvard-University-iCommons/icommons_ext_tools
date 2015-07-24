@@ -41,6 +41,9 @@ ADMINS = (
 # email output if EMAIL_BACKEND is filebased.EmailBackend
 _LOG_ROOT = SECURE_SETTINGS.get('log_root', '')
 
+#Debug setting
+DEBUG = SECURE_SETTINGS.get('enable_debug', False)
+
 # This is the address that admin emails (sent to the addresses in the ADMINS list) will be sent 'from'.
 # It can be overridden in specific settings files to indicate what environment
 # is producing admin emails (e.g. 'app env <email>').
@@ -79,7 +82,22 @@ EMAIL_PORT = SECURE_SETTINGS.get('email_port', 25)
 
 MANAGERS = ADMINS
 
-# DATABASES are defined in individual environment settings
+# DATABASES
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.oracle',
+        'NAME': SECURE_SETTINGS.get('db_default_name'),
+        'USER': SECURE_SETTINGS.get('db_default_user'),
+        'PASSWORD': SECURE_SETTINGS.get('db_default_pass'),
+        'HOST': SECURE_SETTINGS.get('db_default_host'),
+        'PORT': SECURE_SETTINGS.get('db_default_port'),
+        'OPTIONS': {
+            'threaded': True,
+        },
+        'CONN_MAX_AGE': 0,
+    }
+}
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -213,7 +231,6 @@ INSTALLED_APPS = (
     'icommons_ui',
     'qualtrics_link',
     'crispy_forms',
-    'canvas_course_site_wizard',
 )
 
 # session cookie lasts for 7 hours (in seconds)
@@ -239,10 +256,6 @@ ICOMMONS_COMMON = {
 # default to a bogus url.
 CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://changeme')
 
-COURSE_WIZARD = {
-    'TERM_TOOL_BASE_URL' : 'https://isites.harvard.edu',
-}
-
 CANVAS_SITE_SETTINGS = {
     'base_url': CANVAS_URL + '/',
 }
@@ -254,46 +267,6 @@ CANVAS_SDK_SETTINGS = {
     'per_page': 1000,
 }
 
-CANVAS_EMAIL_NOTIFICATION = {
-    'from_email_address': 'icommons-bounces@harvard.edu',
-    'support_email_address': 'tlt_support@harvard.edu',
-    'course_migration_success_subject': 'Course site is ready',
-    'course_migration_success_body': 'Success! \nYour new Canvas course site has been created and is ready for you at:\n'+
-            ' {0} \n\n Here are some resources for getting started with your site:\n http://tlt.harvard.edu/getting-started#teachingstaff',
-
-    'course_migration_failure_subject': 'Course site not created',
-    'course_migration_failure_body': 'There was a problem creating your course site in Canvas.\n'+
-            'Your local academic support staff has been notified and will be in touch with you.\n\n'+
-            'If you have questions please contact them at:\n'+
-            ' FAS: atg@fas.harvard.edu\n'+
-            ' DCE/Summer: AcademicTechnology@dce.harvard.edu\n'+
-            ' (Let them know that course site creation failed for sis_course_id: {0} ',
-
-    'support_email_subject_on_failure': 'Course site not created',
-    'support_email_body_on_failure': 'There was a problem creating a course site in Canvas via the wizard.\n\n'+
-            'Course site creation failed for sis_course_id: {0}\n'+
-            'User: {1}\n'+
-            '{2}\n'+
-            'Environment: {3}\n',
-    'environment' : 'Production',
-}
-
-BULK_COURSE_CREATION = {
-    'log_long_running_jobs': True,
-    'long_running_age_in_minutes': 30,
-    'notification_email_subject': 'Sites created for {school} {term} term',
-    'notification_email_body': 'Canvas course sites have been created for the '
-                               '{school} {term} term.\n\n - {success_count} '
-                               'course sites were created successfully.\n',
-    'notification_email_body_failed_count': ' - {} course sites were not '
-                                            'created.',
-}
-
-# Background task PID (lock) files
-#   * If created in another directory, ensure the directory exists in runtime environment
-PROCESS_ASYNC_JOBS_PID_FILE = 'process_async_jobs.pid'
-FINALIZE_BULK_CREATE_JOBS_PID_FILE = 'finalize_bulk_create_jobs.pid'
-
 QUALTRICS_LINK = {
     'AGREEMENT_ID': SECURE_SETTINGS.get('qualtrics_agreement_id'),
     'QUALTRICS_APP_KEY': SECURE_SETTINGS.get('qualtrics_app_key'),
@@ -301,8 +274,8 @@ QUALTRICS_LINK = {
     'QUALTRICS_API_USER': SECURE_SETTINGS.get('qualtrics_api_user'),
     'QUALTRICS_API_TOKEN': SECURE_SETTINGS.get('qualtrics_api_token'),
     'QUALTRICS_AUTH_GROUP': SECURE_SETTINGS.get('qualtrics_auth_group'),
-    'USER_DECLINED_TERMS_URL': 'ql:internal',
-    'USER_ACCEPTED_TERMS_URL': 'ql:internal',
+    'USER_DECLINED_TERMS_URL': SECURE_SETTINGS.get('qualtrics_user_declined_terms_url'),
+    'USER_ACCEPTED_TERMS_URL': SECURE_SETTINGS.get('qualtrics_user_accepted_terms_url'),
 }
 
 _DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', 'DEBUG')
