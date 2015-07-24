@@ -87,11 +87,11 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': SECURE_SETTINGS.get('db_default_name'),
-        'USER': SECURE_SETTINGS.get('db_default_user'),
-        'PASSWORD': SECURE_SETTINGS.get('db_default_pass'),
-        'HOST': SECURE_SETTINGS.get('db_default_host'),
-        'PORT': SECURE_SETTINGS.get('db_default_port'),
+        'NAME': SECURE_SETTINGS.get('django_db_name'),
+        'USER': SECURE_SETTINGS.get('django_db_user'),
+        'PASSWORD': SECURE_SETTINGS.get('django_db_pass'),
+        'HOST': SECURE_SETTINGS.get('django_db_host'),
+        'PORT': SECURE_SETTINGS.get('django_db_port'),
         'OPTIONS': {
             'threaded': True,
         },
