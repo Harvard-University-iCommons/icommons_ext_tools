@@ -1,2 +1,2 @@
 # test.py
-from .base import *
+from .aws import *

@@ -6,7 +6,7 @@ if __name__ == "__main__":
     if 'test' in sys.argv:
         os.environ['DJANGO_SETTINGS_MODULE'] = 'icommons_ext_tools.settings.test_settings'
     else:
-        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'icommons_ext_tools.settings.local')
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'icommons_ext_tools.settings.aws')
 
     from django.core.management import execute_from_command_line
 

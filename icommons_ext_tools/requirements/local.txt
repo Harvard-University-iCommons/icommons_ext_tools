@@ -2,9 +2,8 @@
 
 #includes the base.txt requirements needed in all environments
 -r base.txt 
- 
-# below are requirements specific to the local environment
 
+# below are requirements specific to the local environment
 django-debug-toolbar==1.3.2
 git+https://github.com/inducer/pudb.git#egg=pudb
-mock
+mock==1.3.0

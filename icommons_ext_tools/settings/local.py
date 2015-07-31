@@ -1,5 +1,7 @@
 from .base import *
 
+ALLOWED_HOSTS = ['*']
+
 # To allow local development server to load static files with DEBUG=False, run:
 #   manage.py runserver --insecure
 # Note: this should never be done for anything but protected local development purposes.

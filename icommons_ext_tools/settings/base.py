@@ -1,22 +1,20 @@
 # Django settings for icommons_ext_tools project.
 
 from .secure import SECURE_SETTINGS
-from os.path import abspath, dirname, join, normpath
 from django.core.urlresolvers import reverse_lazy
+import os
+import logging
+import time
 
-ALLOWED_HOSTS = ['*']
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Absolute filesystem path to the Django project config directory:
-# (this is the parent of the directory where this file resides,
-# since this file is now inside a 'settings' pacakge directory)
-BASE_DIR = dirname(dirname(abspath(__file__)))
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = SECURE_SETTINGS.get('django_secret_key', 'changeme')
 
+# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = SECURE_SETTINGS.get('enable_debug', False)
 
 CRISPY_FAIL_SILENTLY = not DEBUG
-
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = SECURE_SETTINGS.get('django_secret_key', 'changeme')
 
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
 # Note: If this list (technically a tuple) has only one element, that
@@ -27,6 +25,23 @@ ADMINS = (
 )
 
 MANAGERS = ADMINS
+
+# This is the address that admin emails (sent to the addresses in the ADMINS list) will be sent 'from'.
+# It can be overridden in specific settings files to indicate what environment
+# is producing admin emails (e.g. 'app env <email>').
+SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (BASE_DIR, SECURE_SETTINGS.get('env_name', 'production'))
+SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, 'icommons-bounces@harvard.edu')
+
+# Email subject prefix is what's shown at the beginning of the ADMINS email subject line
+# Django's default is "[Django] ", which isn't helpful and wastes space in the subject line
+# So this overrides the default and removes that unhelpful [Django] prefix.
+# Specific settings files can override, for example to show the settings file being used:
+# EMAIL_SUBJECT_PREFIX = '[%s] ' % SERVER_EMAIL_DISPLAY_NAME
+# TLT-458: currently the tech_logger inserts its own hostname prefix if available, so this
+#          is not being overridden in environment settings files at present.
+EMAIL_SUBJECT_PREFIX = ''
+
+# Application definition
 
 INSTALLED_APPS = (
     'django.contrib.auth',
@@ -54,11 +69,13 @@ AUTHENTICATION_BACKENDS = (
     'icommons_common.auth.backends.PINAuthBackend',
 )
 
+LOGIN_URL = reverse_lazy('pin:login')
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         # Pull in 500.html page from base templates directory?
-        'DIRS': [normpath(join(BASE_DIR, 'templates'))],
+        'DIRS': [os.path.normpath(os.path.join(BASE_DIR, 'templates'))],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -75,8 +92,10 @@ TEMPLATES = [
 
 ROOT_URLCONF = 'icommons_ext_tools.urls'
 
-# Python dotted path to the WSGI application used by Django's runserver.
 WSGI_APPLICATION = 'icommons_ext_tools.wsgi.application'
+
+# Database
+# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -97,20 +116,8 @@ DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter']
 DATABASE_APPS_MAPPING = {}
 DATABASE_MIGRATION_WHITELIST = ['default']
 
-LOGIN_URL = reverse_lazy('pin:login')
-
-# SESSIONS (store in cache)
-
-# session cookie lasts for 7 hours (in seconds)
-SESSION_COOKIE_AGE = 60 * 60 * 7
-
-SESSION_COOKIE_NAME = 'djsessionid'
-
-SESSION_COOKIE_HTTPONLY = True
-
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
-
-# CACHE
+# Cache
+# https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-CACHES
 
 REDIS_HOST = SECURE_SETTINGS.get('redis_host', '127.0.0.1')
 REDIS_PORT = SECURE_SETTINGS.get('redis_port', 6379)
@@ -118,63 +125,28 @@ REDIS_PORT = SECURE_SETTINGS.get('redis_port', 6379)
 CACHES = {
     'default': {
         'BACKEND': 'redis_cache.RedisCache',
-        'LOCATION': "%s:%s" % (REDIS_HOST, REDIS_PORT),
+        'LOCATION': "redis://%s:%s/0" % (REDIS_HOST, REDIS_PORT),
         'OPTIONS': {
             'PARSER_CLASS': 'redis.connection.HiredisParser'
         },
-        'TIMEOUT': SESSION_COOKIE_AGE,  # Tie default timeout to session cookie age
         # Provide a unique value for sharing cache among Django projects
         'KEY_PREFIX': 'icommons_ext_tools',
+        # See following for default timeout (5 minutes as of 1.7):
+        # https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-CACHES-TIMEOUT
+        'TIMEOUT': SECURE_SETTINGS.get('default_cache_timeout_secs', 300),
     },
 }
 
-# EMAIL Settings
+# SESSIONS (store in cache)
 
+SESSION_COOKIE_AGE = 60 * 60 * 7
 
-# This is the address that admin emails (sent to the addresses in the ADMINS list) will be sent 'from'.
-# It can be overridden in specific settings files to indicate what environment
-# is producing admin emails (e.g. 'app env <email>').
-SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (BASE_DIR, SECURE_SETTINGS.get('env_name', 'production'))
-SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, 'icommons-bounces@harvard.edu')
+SESSION_COOKIE_NAME = 'djsessionid'
 
-# Email subject prefix is what's shown at the beginning of the ADMINS email subject line
-# Django's default is "[Django] ", which isn't helpful and wastes space in the subject line
-# So this overrides the default and removes that unhelpful [Django] prefix.
-# Specific settings files can override, for example to show the settings file being used:
-# EMAIL_SUBJECT_PREFIX = '[%s] ' % SERVER_EMAIL_DISPLAY_NAME
-# TLT-458: currently the tech_logger inserts its own hostname prefix if available, so this
-#          is not being overridden in environment settings files at present.
-EMAIL_SUBJECT_PREFIX = ''
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
-# Use smtp.EmailBackend with EMAIL_HOST and EMAIL_USE_TLS
-# to send actual mail via SMTP
-# Note that if DEBUG = True, emails will not be sent by the ADMINS email handler
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = SECURE_SETTINGS.get('email_host', 'mailhost.harvard.edu')
-EMAIL_HOST_USER = SECURE_SETTINGS.get('email_host_user', '')
-EMAIL_HOST_PASSWORD = SECURE_SETTINGS.get('email_host_password', '')
-EMAIL_USE_TLS = SECURE_SETTINGS.get('email_use_tls', False)
-# EMAIL_PORT for use in AWS environment
-# (see http://docs.aws.amazon.com/ses/latest/DeveloperGuide/smtp-connect.html)
-EMAIL_PORT = SECURE_SETTINGS.get('email_port', 25)
-
-
-# DATABASES
-
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.oracle',
-        'NAME': SECURE_SETTINGS.get('django_db'),
-        'USER': SECURE_SETTINGS.get('django_db_user'),
-        'PASSWORD': SECURE_SETTINGS.get('django_db_pass'),
-        'HOST': SECURE_SETTINGS.get('django_db_host'),
-        'PORT': str(SECURE_SETTINGS.get('django_db_port')),
-        'OPTIONS': {
-            'threaded': True,
-        },
-        'CONN_MAX_AGE': 0,
-    }
-}
+# Internationalization
+# https://docs.djangoproject.com/en/1.8/topics/i18n/
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -199,17 +171,94 @@ USE_L10N = False
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = False
 
-# Absolute path to the directory static files should be collected to.
-# Don't put anything in this directory yourself; store your static files
-# in apps' "static/" subdirectories and in STATICFILES_DIRS.
-# Example: "/home/media/media.lawrence.com/static/"
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-# STATIC_ROOT can be overriden in individual environment settings
-STATIC_ROOT = normpath(join(BASE_DIR, 'http_static'))
+STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
-# URL prefix for static files.
-# Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/ext_tools/static/'
+
+
+# Logging
+
+_DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', 'DEBUG')
+# LOG_ROOT used for log file storage; EMAIL_FILE_PATH used for
+# email output if EMAIL_BACKEND is filebased.EmailBackend
+_LOG_ROOT = SECURE_SETTINGS.get('log_root', '')
+
+# Make sure log timestamps are in GMT
+logging.Formatter.converter = time.gmtime
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '%(levelname)s\t%(asctime)s.%(msecs)03dZ\t%(name)s:%(lineno)s\t%(message)s',
+            'datefmt': '%Y-%m-%dT%H:%M:%S'
+        },
+        'simple': {
+            'format': '%(levelname)s\t%(name)s:%(lineno)s\t%(message)s',
+        }
+    },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+            'filters': ['require_debug_true'],
+        },
+        'logfile': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'class': 'logging.handlers.WatchedFileHandler',
+            'filename': os.path.normpath(os.path.join(_LOG_ROOT, 'django-icommons_ext_tools.log')),
+            'formatter': 'verbose',
+        },
+    },
+    'loggers': {
+        'django.request': {
+            'handlers': ['console', 'logfile'],
+            'level': 'ERROR',
+            'propagate': False,
+        },
+        'django': {
+            'handlers': ['console'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+        'qualtrics_link': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+        },
+        'icommons_common': {
+            'handlers': ['console', 'logfile'],
+            'level': 'ERROR',
+        },
+        'icommons_ui': {
+            'handlers': ['console', 'logfile'],
+            'level': 'ERROR',
+        },
+        # Apps can log to tech_mail to selectively send ERROR emails to ADMINS
+        'tech_mail': {
+            'handlers': ['console', 'logfile'],
+            'level': 'ERROR',
+        },
+        'oraclepool': {
+            'handlers': ['console', 'logfile'],
+            'level': 'ERROR',
+        },
+    }
+}
+
+# Other app specific settings
 
 CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
@@ -228,88 +277,4 @@ QUALTRICS_LINK = {
     'QUALTRICS_AUTH_GROUP': SECURE_SETTINGS.get('qualtrics_auth_group'),
     'USER_DECLINED_TERMS_URL': SECURE_SETTINGS.get('qualtrics_user_declined_terms_url'),
     'USER_ACCEPTED_TERMS_URL': SECURE_SETTINGS.get('qualtrics_user_accepted_terms_url'),
-}
-
-_DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', 'DEBUG')
-# LOG_ROOT used for log file storage; EMAIL_FILE_PATH used for
-# email output if EMAIL_BACKEND is filebased.EmailBackend
-_LOG_ROOT = SECURE_SETTINGS.get('log_root', '')
-
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s %(asctime)s %(module)s %(process)d %(thread)d %(message)s'
-        },
-        'simple': {
-            'format': '%(levelname)s %(module)s %(message)s'
-        }
-    },
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        },
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
-        },
-    },
-    'handlers': {
-        'mail_admins': {
-            'level': 'ERROR',
-            'filters': ['require_debug_false'],
-            'class': 'django.utils.log.AdminEmailHandler'
-        },
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
-            'filters': ['require_debug_true'],
-        },
-        'logfile': {
-            'level': _DEFAULT_LOG_LEVEL,
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': normpath(join(_LOG_ROOT, 'django-icommons_ext_tools.log')),
-            'formatter': 'verbose',
-        },
-        'jobs-logfile': {
-            'level': _DEFAULT_LOG_LEVEL,
-            'class': 'logging.handlers.WatchedFileHandler',
-            'filename': normpath(join(_LOG_ROOT, 'django-jobs-icommons_ext_tools.log')),
-            'formatter': 'verbose'
-        },
-    },
-    'loggers': {
-        'django.request': {
-            'handlers': ['console', 'logfile'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
-        'django': {
-            'handlers': ['console'],
-            'level': 'DEBUG',
-            'propagate': True,
-        },
-        'qualtrics_link': {
-            'handlers': ['console', 'mail_admins', 'logfile'],
-            'level': 'DEBUG',
-        },
-        'icommons_common': {
-            'handlers': ['mail_admins', 'console', 'logfile'],
-            'level': 'DEBUG',
-        },
-        'icommons_ui': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
-        },
-        # Apps can log to tech_mail to selectively send ERROR emails to ADMINS
-        'tech_mail': {
-            'handlers': ['mail_admins', 'console', 'logfile'],
-            'level': 'ERROR',
-        },
-        'oraclepool': {
-            'handlers': ['console', 'logfile'],
-            'level': 'DEBUG',
-        },
-    }
 }
