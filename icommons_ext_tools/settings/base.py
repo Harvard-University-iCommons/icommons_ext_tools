@@ -26,10 +26,12 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+ENV_NAME = SECURE_SETTINGS.get('env_name', 'local')
+
 # This is the address that admin emails (sent to the addresses in the ADMINS list) will be sent 'from'.
 # It can be overridden in specific settings files to indicate what environment
 # is producing admin emails (e.g. 'app env <email>').
-SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (BASE_DIR, SECURE_SETTINGS.get('env_name', 'production'))
+SERVER_EMAIL_DISPLAY_NAME = 'icommons_ext_tools - %s' % ENV_NAME
 SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, 'icommons-bounces@harvard.edu')
 
 # Email subject prefix is what's shown at the beginning of the ADMINS email subject line
@@ -53,6 +55,7 @@ INSTALLED_APPS = (
     'icommons_ui',
     'qualtrics_link',
     'crispy_forms',
+    'canvas_course_site_wizard',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -238,6 +241,10 @@ LOGGING = {
             'handlers': ['console', 'logfile'],
             'level': _DEFAULT_LOG_LEVEL,
         },
+        'canvas_course_site_wizard': {
+            'handlers': ['console', 'logfile'],
+            'level': _DEFAULT_LOG_LEVEL,
+        },
         'icommons_common': {
             'handlers': ['console', 'logfile'],
             'level': 'ERROR',
@@ -277,4 +284,57 @@ QUALTRICS_LINK = {
     'QUALTRICS_AUTH_GROUP': SECURE_SETTINGS.get('qualtrics_auth_group'),
     'USER_DECLINED_TERMS_URL': SECURE_SETTINGS.get('qualtrics_user_declined_terms_url'),
     'USER_ACCEPTED_TERMS_URL': SECURE_SETTINGS.get('qualtrics_user_accepted_terms_url'),
+}
+
+# Used by canvas course site wizard
+
+CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://changeme')
+
+CANVAS_SDK_SETTINGS = {
+    'auth_token': SECURE_SETTINGS.get('canvas_token'),  # Need a token
+    'base_api_url': CANVAS_URL + '/api',
+    'max_retries': 3,
+    'per_page': 1000,
+}
+
+ISITES_LMS_URL = SECURE_SETTINGS.get('isites_lms_url', 'http://isites.harvard.edu/')
+
+# Background task PID (lock) files
+#   * If created in another directory, ensure the directory exists in runtime environment
+PROCESS_ASYNC_JOBS_PID_FILE = 'process_async_jobs.pid'
+FINALIZE_BULK_CREATE_JOBS_PID_FILE = 'finalize_bulk_create_jobs.pid'
+
+BULK_COURSE_CREATION = {
+    'log_long_running_jobs': True,
+    'long_running_age_in_minutes': 30,
+    'notification_email_subject': 'Sites created for {school} {term} term',
+    'notification_email_body': 'Canvas course sites have been created for the '
+                               '{school} {term} term.\n\n - {success_count} '
+                               'course sites were created successfully.\n',
+    'notification_email_body_failed_count': ' - {} course sites were not '
+                                            'created.',
+}
+
+CANVAS_EMAIL_NOTIFICATION = {
+    'from_email_address': 'icommons-bounces@harvard.edu',
+    'support_email_address': 'tlt_support@harvard.edu',
+    'course_migration_success_subject': 'Course site is ready',
+    'course_migration_success_body': 'Success! \nYour new Canvas course site has been created and is ready for you at:\n'+
+            ' {0} \n\n Here are some resources for getting started with your site:\n http://tlt.harvard.edu/getting-started#teachingstaff',
+
+    'course_migration_failure_subject': 'Course site not created',
+    'course_migration_failure_body': 'There was a problem creating your course site in Canvas.\n'+
+            'Your local academic support staff has been notified and will be in touch with you.\n\n'+
+            'If you have questions please contact them at:\n'+
+            ' FAS: atg@fas.harvard.edu\n'+
+            ' DCE/Summer: AcademicTechnology@dce.harvard.edu\n'+
+            ' (Let them know that course site creation failed for sis_course_id: {0} ',
+
+    'support_email_subject_on_failure': 'Course site not created',
+    'support_email_body_on_failure': 'There was a problem creating a course site in Canvas via the wizard.\n\n'+
+            'Course site creation failed for sis_course_id: {0}\n'+
+            'User: {1}\n'+
+            '{2}\n'+
+            'Environment: {3}\n',
+    'environment': ENV_NAME.capitalize(),
 }

@@ -17,3 +17,11 @@ EMAIL_HOST_PASSWORD = SECURE_SETTINGS.get('email_host_password', '')
 # SSL is terminated at the ELB so look for this header to know that we should be in ssl mode
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
+
+CANVAS_EMAIL_NOTIFICATION_TEST_MODE = SECURE_SETTINGS.get('canvas_email_notification_test_mode', False)
+
+if CANVAS_EMAIL_NOTIFICATION_TEST_MODE:
+    CANVAS_EMAIL_NOTIFICATION['course_migration_success_subject'] += ' (TEST, PLEASE IGNORE)'
+    CANVAS_EMAIL_NOTIFICATION['course_migration_failure_subject'] += ' (TEST, PLEASE IGNORE)'
+    CANVAS_EMAIL_NOTIFICATION['support_email_subject_on_failure'] += ' (TEST, PLEASE IGNORE)'
+    CANVAS_EMAIL_NOTIFICATION['support_email_address'] = 'tltqaemails@g.harvard.edu'

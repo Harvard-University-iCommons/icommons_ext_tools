@@ -7,6 +7,11 @@ ALLOWED_HOSTS = ['*']
 # Note: this should never be done for anything but protected local development purposes.
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
+CANVAS_EMAIL_NOTIFICATION['course_migration_success_subject'] += ' (TEST, PLEASE IGNORE)'
+CANVAS_EMAIL_NOTIFICATION['course_migration_failure_subject'] += ' (TEST, PLEASE IGNORE)'
+CANVAS_EMAIL_NOTIFICATION['support_email_subject_on_failure'] += ' (TEST, PLEASE IGNORE)'
+CANVAS_EMAIL_NOTIFICATION['support_email_address'] = 'tltqaemails@g.harvard.edu'
+
 # need to override the NLS_DATE_FORMAT that is set by oraclepool
 
 INSTALLED_APPS += ('debug_toolbar',)
