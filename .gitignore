@@ -7,18 +7,9 @@ sqlnet.log
 *.pot
 .vagrant
 *.sqlite3
-secure*.py*
-!secure.py.example
-!secure.py.j2
+secure.py
 jwplayer/
 data/
-icommons_ext_tools/requirements/*.txt
-!icommons_ext_tools/requirements/base.txt
-!icommons_ext_tools/requirements/demo.txt
-!icommons_ext_tools/requirements/local.txt
-!icommons_ext_tools/requirements/qa.txt
-!icommons_ext_tools/requirements/test.txt
-!icommons_ext_tools/requirements/production.txt
 
 # PyCharm IDE metadata
 .idea/

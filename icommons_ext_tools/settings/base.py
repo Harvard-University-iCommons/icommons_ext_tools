@@ -1,35 +1,20 @@
 # Django settings for icommons_ext_tools project.
 
-from . import get_settings_file_name
 from .secure import SECURE_SETTINGS
-from os.path import abspath, basename, dirname, join, normpath
-from sys import path
 from django.core.urlresolvers import reverse_lazy
+import os
 import logging
 import time
 
-### Path stuff as recommended by Two Scoops / with local mods
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# Absolute filesystem path to the Django project config directory:
-# (this is the parent of the directory where this file resides,
-# since this file is now inside a 'settings' pacakge directory)
-DJANGO_PROJECT_CONFIG = dirname(dirname(abspath(__file__)))
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = SECURE_SETTINGS.get('django_secret_key', 'changeme')
 
-# Absolute filesystem path to the top-level project folder:
-# (this is one directory up from the project config directory)
-SITE_ROOT = dirname(DJANGO_PROJECT_CONFIG)
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = SECURE_SETTINGS.get('enable_debug', False)
 
-# Site name:
-SITE_NAME = basename(SITE_ROOT)
-
-# Name of project (which settings apply to)
-PROJECT_NAME = basename(DJANGO_PROJECT_CONFIG)
-
-# Add our project to our pythonpath, this way we don't need to type our project
-# name in our dotted import paths:
-path.append(SITE_ROOT)
-
-### End path stuff
+CRISPY_FAIL_SILENTLY = not DEBUG
 
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
 # Note: If this list (technically a tuple) has only one element, that
@@ -39,14 +24,14 @@ ADMINS = (
     ('iCommons Tech', 'icommons-technical@g.harvard.edu'),
 )
 
-# LOG_ROOT used for log file storage; EMAIL_FILE_PATH used for
-# email output if EMAIL_BACKEND is filebased.EmailBackend
-_LOG_ROOT = SECURE_SETTINGS.get('log_root', '')
+MANAGERS = ADMINS
+
+ENV_NAME = SECURE_SETTINGS.get('env_name', 'local')
 
 # This is the address that admin emails (sent to the addresses in the ADMINS list) will be sent 'from'.
 # It can be overridden in specific settings files to indicate what environment
 # is producing admin emails (e.g. 'app env <email>').
-SERVER_EMAIL_DISPLAY_NAME = '%s - %s' % (DJANGO_PROJECT_CONFIG, SECURE_SETTINGS.get('env_name', 'production'))
+SERVER_EMAIL_DISPLAY_NAME = 'icommons_ext_tools - %s' % ENV_NAME
 SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, 'icommons-bounces@harvard.edu')
 
 # Email subject prefix is what's shown at the beginning of the ADMINS email subject line
@@ -58,30 +43,113 @@ SERVER_EMAIL = '%s <%s>' % (SERVER_EMAIL_DISPLAY_NAME, 'icommons-bounces@harvard
 #          is not being overridden in environment settings files at present.
 EMAIL_SUBJECT_PREFIX = ''
 
-# Use filebased.EmailBackend with EMAIL_FILE_PATH for verifying email format
-# and submission without generating actual SMTP requests
-# EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-# If using filebased.EmailBackend, override EMAIL_FILE_PATH in individual
-# environment settings files to point to the environment-specific log directory.
-# Here in the base settings it's set explicitly to None so it will throw an
-# Exception unless overridden in individual environment settings
-EMAIL_FILE_PATH = _LOG_ROOT
+# Application definition
 
-# Use smtp.EmailBackend with EMAIL_HOST and EMAIL_USE_TLS
-# to send actual mail via SMTP
-# Note that if DEBUG = True, emails will not be sent by the ADMINS email handler
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = SECURE_SETTINGS.get('email_host', 'mailhost.harvard.edu')
-EMAIL_HOST_USER = SECURE_SETTINGS.get('email_host_user', '')
-EMAIL_HOST_PASSWORD = SECURE_SETTINGS.get('email_host_password', '')
-EMAIL_USE_TLS = SECURE_SETTINGS.get('email_use_tls', False)
-# EMAIL_PORT for use in AWS environment
-# (see http://docs.aws.amazon.com/ses/latest/DeveloperGuide/smtp-connect.html)
-EMAIL_PORT = SECURE_SETTINGS.get('email_port', 25)
+INSTALLED_APPS = (
+    'django.contrib.auth',
+    'django.contrib.contenttypes',
+    'django.contrib.sessions',
+    'django.contrib.messages',
+    'django.contrib.staticfiles',
+    'icommons_common',
+    'icommons_ui',
+    'qualtrics_link',
+    'crispy_forms',
+    'canvas_course_site_wizard',
+)
 
-MANAGERS = ADMINS
+MIDDLEWARE_CLASSES = (
+    'django.middleware.common.CommonMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'cached_auth.Middleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    # Uncomment the next line for simple clickjacking protection:
+    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
+)
 
-# DATABASES are defined in individual environment settings
+AUTHENTICATION_BACKENDS = (
+    'icommons_common.auth.backends.PINAuthBackend',
+)
+
+LOGIN_URL = reverse_lazy('pin:login')
+
+TEMPLATES = [
+    {
+        'BACKEND': 'django.template.backends.django.DjangoTemplates',
+        # Pull in 500.html page from base templates directory?
+        'DIRS': [os.path.normpath(os.path.join(BASE_DIR, 'templates'))],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            'context_processors': [
+                'django.template.context_processors.debug',
+                'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
+                'icommons_common.auth.context_processors.pin_context',
+            ],
+            'debug': DEBUG,
+        },
+    },
+]
+
+ROOT_URLCONF = 'icommons_ext_tools.urls'
+
+WSGI_APPLICATION = 'icommons_ext_tools.wsgi.application'
+
+# Database
+# https://docs.djangoproject.com/en/1.8/ref/settings/#databases
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.oracle',
+        'NAME': SECURE_SETTINGS.get('django_db', None),
+        'USER': SECURE_SETTINGS.get('django_db_user', None),
+        'PASSWORD': SECURE_SETTINGS.get('django_db_pass', None),
+        'HOST': SECURE_SETTINGS.get('django_db_host', None),
+        'PORT': str(SECURE_SETTINGS.get('django_db_port', None)),
+        'OPTIONS': {
+            'threaded': True,
+        },
+        'CONN_MAX_AGE': 1200,
+    }
+}
+
+DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter']
+DATABASE_APPS_MAPPING = {}
+DATABASE_MIGRATION_WHITELIST = ['default']
+
+# Cache
+# https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-CACHES
+
+REDIS_HOST = SECURE_SETTINGS.get('redis_host', '127.0.0.1')
+REDIS_PORT = SECURE_SETTINGS.get('redis_port', 6379)
+
+CACHES = {
+    'default': {
+        'BACKEND': 'redis_cache.RedisCache',
+        'LOCATION': "redis://%s:%s/0" % (REDIS_HOST, REDIS_PORT),
+        'OPTIONS': {
+            'PARSER_CLASS': 'redis.connection.HiredisParser'
+        },
+        # Provide a unique value for sharing cache among Django projects
+        'KEY_PREFIX': 'icommons_ext_tools',
+        # See following for default timeout (5 minutes as of 1.7):
+        # https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-CACHES-TIMEOUT
+        'TIMEOUT': SECURE_SETTINGS.get('default_cache_timeout_secs', 300),
+    },
+}
+
+# SESSIONS (store in cache)
+
+SESSION_COOKIE_AGE = 60 * 60 * 7
+
+SESSION_COOKIE_NAME = 'djsessionid'
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+
+# Internationalization
+# https://docs.djangoproject.com/en/1.8/topics/i18n/
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -95,8 +163,6 @@ TIME_ZONE = 'America/New_York'
 # http://www.i18nguy.com/unicode/language-identifiers.html
 LANGUAGE_CODE = 'en-us'
 
-SITE_ID = 1
-
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
 USE_I18N = False
@@ -108,206 +174,20 @@ USE_L10N = False
 # If you set this to False, Django will not use timezone-aware datetimes.
 USE_TZ = False
 
-# Absolute filesystem path to the directory that will hold user-uploaded files.
-# Example: "/home/media/media.lawrence.com/media/"
-MEDIA_ROOT = ''
+# Static files (CSS, JavaScript, Images)
+# https://docs.djangoproject.com/en/1.8/howto/static-files/
 
-# URL that handles the media served from MEDIA_ROOT. Make sure to use a
-# trailing slash.
-# Examples: "http://media.lawrence.com/media/", "http://example.com/media/"
-MEDIA_URL = ''
+STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
-# Absolute path to the directory static files should be collected to.
-# Don't put anything in this directory yourself; store your static files
-# in apps' "static/" subdirectories and in STATICFILES_DIRS.
-# Example: "/home/media/media.lawrence.com/static/"
-
-# STATIC_ROOT can be overriden in individual environment settings
-STATIC_ROOT = normpath(join(SITE_ROOT, 'http_static'))
-
-# URL prefix for static files.
-# Example: "http://media.lawrence.com/static/"
 STATIC_URL = '/ext_tools/static/'
 
-# Additional locations of static files
-STATICFILES_DIRS = (
-    # Put strings here, like "/home/html/static" or "C:/www/django/static".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    #normpath(join(SITE_ROOT, 'static')),
-)
 
-
-# List of finder classes that know how to find static files in
-# various locations.
-STATICFILES_FINDERS = (
-    'django.contrib.staticfiles.finders.FileSystemFinder',
-    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
-    #'django.contrib.staticfiles.finders.DefaultStorageFinder',
-)
-
-# Make this unique, and don't share it with anybody.
-SECRET_KEY = SECURE_SETTINGS.get('django_secret_key', 'changeme')
-
-# List of callables that know how to import templates from various sources.
-TEMPLATE_LOADERS = (
-    'django.template.loaders.filesystem.Loader',
-    'django.template.loaders.app_directories.Loader',
-    #'django.template.loaders.eggs.Loader',
-)
-
-MIDDLEWARE_CLASSES = (
-    #'django.middleware.common.BrokenLinkEmailsMiddleware',
-    'django.middleware.common.CommonMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-
-    #'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'cached_auth.Middleware',
-
-    'django.contrib.messages.middleware.MessageMiddleware',
-    # Uncomment the next line for simple clickjacking protection:
-    # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-
-)
-
-AUTHENTICATION_BACKENDS = (
-    'icommons_common.auth.backends.PINAuthBackend',
-)
-
-TEMPLATE_CONTEXT_PROCESSORS = (
-    "django.contrib.auth.context_processors.auth",
-    "django.core.context_processors.debug",
-    "django.core.context_processors.i18n",
-    "django.core.context_processors.media",
-    "django.core.context_processors.static",
-    "django.core.context_processors.tz",
-    "django.contrib.messages.context_processors.messages",
-    "icommons_common.auth.context_processors.pin_context",
-)
-
-ROOT_URLCONF = 'icommons_ext_tools.urls'
-
-# Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = 'icommons_ext_tools.wsgi.application'
-
-TEMPLATE_DIRS = (
-    # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
-    # Always use forward slashes, even on Windows.
-    # Don't forget to use absolute paths, not relative paths.
-    normpath(join(SITE_ROOT, 'templates')),
-)
-
-INSTALLED_APPS = (
-    'django.contrib.auth',
-    'django.contrib.contenttypes',
-    'django.contrib.sessions',
-    #'django.contrib.sites',
-    'django.contrib.messages',
-    'django.contrib.staticfiles',
-    #'django.contrib.webdesign',
-    # Uncomment the next line to enable the admin:
-    #'django.contrib.admin',
-    # Uncomment the next line to enable admin documentation:
-    # 'django.contrib.admindocs',
-    'icommons_common',
-    'icommons_common.monitor',
-    'icommons_ui',
-    'qualtrics_link',
-    'crispy_forms',
-    'canvas_course_site_wizard',
-)
-
-# session cookie lasts for 7 hours (in seconds)
-SESSION_COOKIE_AGE = 60 * 60 * 7
-
-SESSION_COOKIE_NAME = 'djsessionid'
-
-SESSION_COOKIE_HTTPONLY = True
-
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
-
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
-
-LOGIN_URL = reverse_lazy('pin:login')
-
-ICOMMONS_COMMON = {
-    'ICOMMONS_API_HOST': SECURE_SETTINGS.get('icommons_api_host'),
-    'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user'),
-    'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass'),
-}
-
-# Important this be declared, but we need to allow for unit tests to run in a Jenkins environment so
-# default to a bogus url.
-CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://changeme')
-
-COURSE_WIZARD = {
-    'TERM_TOOL_BASE_URL' : 'https://isites.harvard.edu',
-}
-
-CANVAS_SITE_SETTINGS = {
-    'base_url': CANVAS_URL + '/',
-}
-
-CANVAS_SDK_SETTINGS = {
-    'auth_token': SECURE_SETTINGS.get('canvas_token'),  # Need a token
-    'base_api_url': CANVAS_URL + '/api',
-    'max_retries': 3,
-    'per_page': 1000,
-}
-
-CANVAS_EMAIL_NOTIFICATION = {
-    'from_email_address': 'icommons-bounces@harvard.edu',
-    'support_email_address': 'tlt_support@harvard.edu',
-    'course_migration_success_subject': 'Course site is ready',
-    'course_migration_success_body': 'Success! \nYour new Canvas course site has been created and is ready for you at:\n'+
-            ' {0} \n\n Here are some resources for getting started with your site:\n http://tlt.harvard.edu/getting-started#teachingstaff',
-
-    'course_migration_failure_subject': 'Course site not created',
-    'course_migration_failure_body': 'There was a problem creating your course site in Canvas.\n'+
-            'Your local academic support staff has been notified and will be in touch with you.\n\n'+
-            'If you have questions please contact them at:\n'+
-            ' FAS: atg@fas.harvard.edu\n'+
-            ' DCE/Summer: AcademicTechnology@dce.harvard.edu\n'+
-            ' (Let them know that course site creation failed for sis_course_id: {0} ',
-
-    'support_email_subject_on_failure': 'Course site not created',
-    'support_email_body_on_failure': 'There was a problem creating a course site in Canvas via the wizard.\n\n'+
-            'Course site creation failed for sis_course_id: {0}\n'+
-            'User: {1}\n'+
-            '{2}\n'+
-            'Environment: {3}\n',
-    'environment' : 'Production',
-}
-
-BULK_COURSE_CREATION = {
-    'log_long_running_jobs': True,
-    'long_running_age_in_minutes': 30,
-    'notification_email_subject': 'Sites created for {school} {term} term',
-    'notification_email_body': 'Canvas course sites have been created for the '
-                               '{school} {term} term.\n\n - {success_count} '
-                               'course sites were created successfully.\n',
-    'notification_email_body_failed_count': ' - {} course sites were not '
-                                            'created.',
-}
-
-# Background task PID (lock) files
-#   * If created in another directory, ensure the directory exists in runtime environment
-PROCESS_ASYNC_JOBS_PID_FILE = 'process_async_jobs.pid'
-FINALIZE_BULK_CREATE_JOBS_PID_FILE = 'finalize_bulk_create_jobs.pid'
-
-QUALTRICS_LINK = {
-    'AGREEMENT_ID': SECURE_SETTINGS.get('qualtrics_agreement_id'),
-    'QUALTRICS_APP_KEY': SECURE_SETTINGS.get('qualtrics_app_key'),
-    'QUALTRICS_API_URL': SECURE_SETTINGS.get('qualtrics_api_url'),
-    'QUALTRICS_API_USER': SECURE_SETTINGS.get('qualtrics_api_user'),
-    'QUALTRICS_API_TOKEN': SECURE_SETTINGS.get('qualtrics_api_token'),
-    'QUALTRICS_AUTH_GROUP': SECURE_SETTINGS.get('qualtrics_auth_group'),
-    'USER_DECLINED_TERMS_URL': 'ql:internal',
-    'USER_ACCEPTED_TERMS_URL': 'ql:internal',
-}
+# Logging
 
 _DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', 'DEBUG')
+# LOG_ROOT used for log file storage; EMAIL_FILE_PATH used for
+# email output if EMAIL_BACKEND is filebased.EmailBackend
+_LOG_ROOT = SECURE_SETTINGS.get('log_root', '')
 
 # Make sure log timestamps are in GMT
 logging.Formatter.converter = time.gmtime
@@ -342,7 +222,7 @@ LOGGING = {
         'logfile': {
             'level': _DEFAULT_LOG_LEVEL,
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': normpath(join(_LOG_ROOT, 'django-icommons_ext_tools.log')),
+            'filename': os.path.normpath(os.path.join(_LOG_ROOT, 'django-icommons_ext_tools.log')),
             'formatter': 'verbose',
         },
     },
@@ -383,4 +263,78 @@ LOGGING = {
             'level': 'ERROR',
         },
     }
+}
+
+# Other app specific settings
+
+CRISPY_TEMPLATE_PACK = 'bootstrap3'
+
+ICOMMONS_COMMON = {
+    'ICOMMONS_API_HOST': SECURE_SETTINGS.get('icommons_api_host'),
+    'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user'),
+    'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass'),
+}
+
+QUALTRICS_LINK = {
+    'AGREEMENT_ID': SECURE_SETTINGS.get('qualtrics_agreement_id'),
+    'QUALTRICS_APP_KEY': SECURE_SETTINGS.get('qualtrics_app_key'),
+    'QUALTRICS_API_URL': SECURE_SETTINGS.get('qualtrics_api_url'),
+    'QUALTRICS_API_USER': SECURE_SETTINGS.get('qualtrics_api_user'),
+    'QUALTRICS_API_TOKEN': SECURE_SETTINGS.get('qualtrics_api_token'),
+    'QUALTRICS_AUTH_GROUP': SECURE_SETTINGS.get('qualtrics_auth_group'),
+    'USER_DECLINED_TERMS_URL': SECURE_SETTINGS.get('qualtrics_user_declined_terms_url'),
+    'USER_ACCEPTED_TERMS_URL': SECURE_SETTINGS.get('qualtrics_user_accepted_terms_url'),
+}
+
+# Used by canvas course site wizard
+
+CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://changeme')
+
+CANVAS_SDK_SETTINGS = {
+    'auth_token': SECURE_SETTINGS.get('canvas_token'),  # Need a token
+    'base_api_url': CANVAS_URL + '/api',
+    'max_retries': 3,
+    'per_page': 1000,
+}
+
+ISITES_LMS_URL = SECURE_SETTINGS.get('isites_lms_url', 'http://isites.harvard.edu/')
+
+# Background task PID (lock) files
+#   * If created in another directory, ensure the directory exists in runtime environment
+PROCESS_ASYNC_JOBS_PID_FILE = 'process_async_jobs.pid'
+FINALIZE_BULK_CREATE_JOBS_PID_FILE = 'finalize_bulk_create_jobs.pid'
+
+BULK_COURSE_CREATION = {
+    'log_long_running_jobs': True,
+    'long_running_age_in_minutes': 30,
+    'notification_email_subject': 'Sites created for {school} {term} term',
+    'notification_email_body': 'Canvas course sites have been created for the '
+                               '{school} {term} term.\n\n - {success_count} '
+                               'course sites were created successfully.\n',
+    'notification_email_body_failed_count': ' - {} course sites were not '
+                                            'created.',
+}
+
+CANVAS_EMAIL_NOTIFICATION = {
+    'from_email_address': 'icommons-bounces@harvard.edu',
+    'support_email_address': 'tlt_support@harvard.edu',
+    'course_migration_success_subject': 'Course site is ready',
+    'course_migration_success_body': 'Success! \nYour new Canvas course site has been created and is ready for you at:\n'+
+            ' {0} \n\n Here are some resources for getting started with your site:\n http://tlt.harvard.edu/getting-started#teachingstaff',
+
+    'course_migration_failure_subject': 'Course site not created',
+    'course_migration_failure_body': 'There was a problem creating your course site in Canvas.\n'+
+            'Your local academic support staff has been notified and will be in touch with you.\n\n'+
+            'If you have questions please contact them at:\n'+
+            ' FAS: atg@fas.harvard.edu\n'+
+            ' DCE/Summer: AcademicTechnology@dce.harvard.edu\n'+
+            ' (Let them know that course site creation failed for sis_course_id: {0} ',
+
+    'support_email_subject_on_failure': 'Course site not created',
+    'support_email_body_on_failure': 'There was a problem creating a course site in Canvas via the wizard.\n\n'+
+            'Course site creation failed for sis_course_id: {0}\n'+
+            'User: {1}\n'+
+            '{2}\n'+
+            'Environment: {3}\n',
+    'environment': ENV_NAME.capitalize(),
 }
