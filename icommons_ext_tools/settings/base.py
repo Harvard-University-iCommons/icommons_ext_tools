@@ -290,6 +290,10 @@ QUALTRICS_LINK = {
 
 CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://changeme')
 
+CANVAS_SITE_SETTINGS = {
+    'base_url': CANVAS_URL + '/',
+}
+
 CANVAS_SDK_SETTINGS = {
     'auth_token': SECURE_SETTINGS.get('canvas_token'),  # Need a token
     'base_api_url': CANVAS_URL + '/api',
