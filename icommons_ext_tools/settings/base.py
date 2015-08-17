@@ -219,7 +219,7 @@ LOGGING = {
             'formatter': 'simple',
             'filters': ['require_debug_true'],
         },
-        'logfile': {
+        'app_logfile': {
             'level': _DEFAULT_LOG_LEVEL,
             'class': 'logging.handlers.WatchedFileHandler',
             'filename': os.path.normpath(os.path.join(_LOG_ROOT, 'django-icommons_ext_tools.log')),
@@ -228,7 +228,7 @@ LOGGING = {
     },
     'loggers': {
         'django.request': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': 'ERROR',
             'propagate': False,
         },
@@ -238,28 +238,28 @@ LOGGING = {
             'propagate': True,
         },
         'qualtrics_link': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_ogfile'],
             'level': _DEFAULT_LOG_LEVEL,
         },
         'canvas_course_site_wizard': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
         },
         'icommons_common': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': 'ERROR',
         },
         'icommons_ui': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': 'ERROR',
         },
         # Apps can log to tech_mail to selectively send ERROR emails to ADMINS
         'tech_mail': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': 'ERROR',
         },
         'oraclepool': {
-            'handlers': ['console', 'logfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': 'ERROR',
         },
     }
