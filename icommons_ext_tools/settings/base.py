@@ -238,7 +238,7 @@ LOGGING = {
             'propagate': True,
         },
         'qualtrics_link': {
-            'handlers': ['console', 'app_ogfile'],
+            'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
         },
         'canvas_course_site_wizard': {
