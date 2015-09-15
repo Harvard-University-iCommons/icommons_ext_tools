@@ -1,5 +1,6 @@
 from django.conf.urls import (patterns, include, url)
 from qualtrics_link import urls as ql_urls
+from canvas_course_site_wizard import urls as ccsw_urls
 
 urlpatterns = patterns(
     '',
