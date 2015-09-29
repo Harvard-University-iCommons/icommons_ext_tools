@@ -52,6 +52,10 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'icommons_common',
+    # Adding monitor as an app so Django will
+    # pick up templates with default enabled
+    # app directories loader
+    'icommons_common.monitor',
     'icommons_ui',
     'qualtrics_link',
     'crispy_forms',
