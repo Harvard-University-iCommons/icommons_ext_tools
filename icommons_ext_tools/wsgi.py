@@ -11,6 +11,6 @@ import os
 from django.core.wsgi import get_wsgi_application
 from dj_static import Cling
 
-os.environ.setdefault("DJANGO_SETTINGS_MODULE", "icommons_ext_tools.settings")
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "icommons_ext_tools.settings.aws")
 
 application = Cling(get_wsgi_application())

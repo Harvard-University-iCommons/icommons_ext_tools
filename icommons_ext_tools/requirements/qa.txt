@@ -1,14 +1,3 @@
 # qa environment requirements
 # this may in future be called the ACP requirements (for acp server) or the /release branch requirements
-
-# includes the base.txt requirements needed in all environments
--r base.txt   
- 
-# below are requirements specific to the qa environment
-newrelic==2.8.0.7
-
-gunicorn
-
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-common.git@master#egg=django-icommons-common
-git+ssh://git@github.com/Harvard-University-iCommons/django-icommons-ui.git@master#egg=django-icommons-ui
-git+ssh://git@github.com/Harvard-University-iCommons/django-canvas-course-site-wizard.git@master#egg=django-canvas-course-site-wizard
+-r aws.txt   
