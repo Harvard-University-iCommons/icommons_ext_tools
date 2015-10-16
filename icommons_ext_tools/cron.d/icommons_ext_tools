@@ -1,0 +1,2 @@
+* * * * * deploy /var/opt/virtualenvs/icommons_ext_tools/bin/python /opt/tlt/icommons_ext_tools/manage.py process_async_jobs >> /var/opt/tlt/logs/cron-icommons_ext_tools.log 2>&1
+* * * * * deploy /var/opt/virtualenvs/icommons_ext_tools/bin/python /opt/tlt/icommons_ext_tools/manage.py finalize_bulk_create_jobs >> /var/opt/tlt/logs/cron-icommons_ext_tools.log 2>&1
