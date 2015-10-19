@@ -88,7 +88,7 @@
         {# TLT-486 specifies that only DCE and FAS point of contact info will be shown for errors during Canvas course site creation #}
         {% if not renderable_error %}
           <li>GSD: <a href="mailto:klau@gsd.harvard.edu{% if renderable_error %}?subject={{ renderable_error.display_text }}{% endif %}">klau@gsd.harvard.edu</a></li>
-          <li>GSE: <a href="mailto:it_onestop@gse.harvard.edu{% if renderable_error %}?subject={{ renderable_error.display_text }}{% endif %}">it_onestop@gse.harvard.edu</a></li>
+          <li>GSE: <a href="mailto:canvas@gse.harvard.edu{% if renderable_error %}?subject={{ renderable_error.display_text }}{% endif %}">canvas@gse.harvard.edu</a></li>
           <li>HDS: <a href="mailto:coursesites@hds.harvard.edu{% if renderable_error %}?subject={{ renderable_error.display_text }}{% endif %}">coursesites@hds.harvard.edu</a></li>
           <li>HKS: <a href="mailto:ithelp@hks.harvard.edu{% if renderable_error %}?subject={{ renderable_error.display_text }}{% endif %}">ithelp@hks.harvard.edu</a></li>
           <li>HLS: <a href="mailto:ask@edtech.libanswers.com{% if renderable_error %}?subject={{ renderable_error.display_text }}{% endif %}">ask@edtech.libanswers.com</a></li>
