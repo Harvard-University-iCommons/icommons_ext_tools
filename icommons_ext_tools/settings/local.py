@@ -3,6 +3,12 @@ from logging.config import dictConfig
 
 ALLOWED_HOSTS = ['*']
 
+DEBUG = True
+
+SECRET_KEY = "==$(1zr5hus_7r@)g4m^t@0qztiqeeeby5%r20q(sa2i^q@-0k"
+
+CRISPY_FAIL_SILENTLY = False
+
 # To allow local development server to load static files with DEBUG=False, run:
 #   manage.py runserver --insecure
 # Note: this should never be done for anything but protected local development purposes.

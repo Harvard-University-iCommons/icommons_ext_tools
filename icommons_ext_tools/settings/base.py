@@ -8,13 +8,8 @@ import time
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = SECURE_SETTINGS.get('django_secret_key', 'changeme')
-
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = SECURE_SETTINGS.get('enable_debug', False)
-
-CRISPY_FAIL_SILENTLY = not DEBUG
 
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
 # Note: If this list (technically a tuple) has only one element, that
@@ -92,7 +87,6 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'icommons_common.auth.context_processors.pin_context',
             ],
-            'debug': DEBUG,
         },
     },
 ]
@@ -229,17 +223,17 @@ LOGGING = {
     'root': {
         'level': logging.WARNING,
         'handlers': ['default'],
-    },    
+    },
     'loggers': {
         'qualtrics_link': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['default'],
-            'propagate': False, 
+            'propagate': False,
         },
         'canvas_course_site_wizard': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['default'],
-            'propagate': False, 
+            'propagate': False,
         },
     }
 }

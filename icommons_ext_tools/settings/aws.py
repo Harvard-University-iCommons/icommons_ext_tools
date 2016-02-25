@@ -4,6 +4,9 @@ from logging.config import dictConfig
 # tlt hostnames
 ALLOWED_HOSTS = ['.tlt.harvard.edu']
 
+# Make this unique and don't share with anybody!
+SECRET_KEY = SECURE_SETTINGS['django_secret_key']
+
 # AWS Email Settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'email-smtp.us-east-1.amazonaws.com'
