@@ -1,2 +1,0 @@
-# production environment requirements
--r aws.txt
