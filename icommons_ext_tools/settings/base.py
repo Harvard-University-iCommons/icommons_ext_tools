@@ -52,6 +52,10 @@ INSTALLED_APPS = (
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'icommons_common',
+    # Adding monitor as an app so Django will
+    # pick up templates with default enabled
+    # app directories loader
+    'icommons_common.monitor',
     'icommons_ui',
     'qualtrics_link',
     'crispy_forms',
@@ -184,6 +188,10 @@ STATIC_URL = '/ext_tools/static/'
 
 # Logging
 
+# Turn off default Django logging
+# https://docs.djangoproject.com/en/1.8/topics/logging/#disabling-logging-configuration
+LOGGING_CONFIG = None
+
 _DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', 'DEBUG')
 # LOG_ROOT used for log file storage; EMAIL_FILE_PATH used for
 # email output if EMAIL_BACKEND is filebased.EmailBackend
@@ -204,63 +212,34 @@ LOGGING = {
             'format': '%(levelname)s\t%(name)s:%(lineno)s\t%(message)s',
         }
     },
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        },
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
-        },
-    },
     'handlers': {
-        'console': {
-            'level': 'DEBUG',
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
-            'filters': ['require_debug_true'],
-        },
-        'app_logfile': {
-            'level': _DEFAULT_LOG_LEVEL,
+        'default': {
             'class': 'logging.handlers.WatchedFileHandler',
-            'filename': os.path.normpath(os.path.join(_LOG_ROOT, 'django-icommons_ext_tools.log')),
+            'level': _DEFAULT_LOG_LEVEL,
             'formatter': 'verbose',
+            'filename': os.path.normpath(os.path.join(_LOG_ROOT, 'django-icommons_ext_tools.log')),
         },
     },
+    # This is the default logger for any apps or libraries that use the logger
+    # package, but are not represented in the `loggers` dict below.  A level
+    # must be set and handlers defined.  Setting this logger is equivalent to
+    # setting and empty string logger in the loggers dict below, but the separation
+    # here is a bit more explicit.  See link for more details:
+    # https://docs.python.org/2.7/library/logging.config.html#dictionary-schema-details
+    'root': {
+        'level': logging.WARNING,
+        'handlers': ['default'],
+    },    
     'loggers': {
-        'django.request': {
-            'handlers': ['console', 'app_logfile'],
-            'level': 'ERROR',
-            'propagate': False,
-        },
-        'django': {
-            'handlers': ['console'],
-            'level': 'ERROR',
-            'propagate': True,
-        },
         'qualtrics_link': {
-            'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
+            'handlers': ['default'],
+            'propagate': False, 
         },
         'canvas_course_site_wizard': {
-            'handlers': ['console', 'app_logfile'],
             'level': _DEFAULT_LOG_LEVEL,
-        },
-        'icommons_common': {
-            'handlers': ['console', 'app_logfile'],
-            'level': 'ERROR',
-        },
-        'icommons_ui': {
-            'handlers': ['console', 'app_logfile'],
-            'level': 'ERROR',
-        },
-        # Apps can log to tech_mail to selectively send ERROR emails to ADMINS
-        'tech_mail': {
-            'handlers': ['console', 'app_logfile'],
-            'level': 'ERROR',
-        },
-        'oraclepool': {
-            'handlers': ['console', 'app_logfile'],
-            'level': 'ERROR',
+            'handlers': ['default'],
+            'propagate': False, 
         },
     }
 }
