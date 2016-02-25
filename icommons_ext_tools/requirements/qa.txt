@@ -1,3 +1,0 @@
-# qa environment requirements
-# this may in future be called the ACP requirements (for acp server) or the /release branch requirements
--r aws.txt   

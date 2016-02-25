@@ -1,6 +1,13 @@
 from .base import *
+from logging.config import dictConfig
 
 ALLOWED_HOSTS = ['*']
+
+DEBUG = True
+
+SECRET_KEY = "==$(1zr5hus_7r@)g4m^t@0qztiqeeeby5%r20q(sa2i^q@-0k"
+
+CRISPY_FAIL_SILENTLY = False
 
 # To allow local development server to load static files with DEBUG=False, run:
 #   manage.py runserver --insecure
@@ -23,3 +30,12 @@ INTERNAL_IPS = ('127.0.0.1', '10.0.2.2',)
 DEBUG_TOOLBAR_CONFIG = {
     'INTERCEPT_REDIRECTS': False,
 }
+
+# Log to console instead of a file when running locally
+LOGGING['handlers']['default'] = {
+    'level': logging.DEBUG,
+    'class': 'logging.StreamHandler',
+    'formatter': 'simple',
+}
+
+dictConfig(LOGGING)
