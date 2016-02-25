@@ -125,7 +125,7 @@ def getssotesturl(keyvaluepairs):
 def getqualtricsurl(keyvaluepairs):
     encodedtoken = createencodedtoken(keyvaluepairs)
     qualtricsurl = 'https://harvard.qualtrics.com/ControlPanel/?ssotoken='+encodedtoken
-    print qualtricsurl
+    logger.debug("qualtrics url is %s", qualtricsurl)
     return qualtricsurl
 
 def getclientip(request):

@@ -1,7 +1,11 @@
 from .base import *
+from logging.config import dictConfig
 
 # tlt hostnames
 ALLOWED_HOSTS = ['.tlt.harvard.edu']
+
+# Make this unique and don't share with anybody!
+SECRET_KEY = SECURE_SETTINGS['django_secret_key']
 
 # AWS Email Settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
@@ -25,3 +29,5 @@ if CANVAS_EMAIL_NOTIFICATION_TEST_MODE:
     CANVAS_EMAIL_NOTIFICATION['course_migration_failure_subject'] += ' (TEST, PLEASE IGNORE)'
     CANVAS_EMAIL_NOTIFICATION['support_email_subject_on_failure'] += ' (TEST, PLEASE IGNORE)'
     CANVAS_EMAIL_NOTIFICATION['support_email_address'] = 'tltqaemails@g.harvard.edu'
+
+dictConfig(LOGGING)
