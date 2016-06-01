@@ -8,9 +8,9 @@
 {{ block.super }}
 <style type="text/css">
 	.bold { font-weight: bold;}
-	caption { 
-		margin-bottom: 10px; 
-		font-size: large; 
+	caption {
+		margin-bottom: 10px;
+		font-size: large;
 		font-weight: bold;
 	}
 </style>
@@ -21,7 +21,7 @@
 <h2>We're sorry, your user id doesn't appear to be covered by the university license.</h2>
 <br />
 <p>
-Affiliates from <span class="bold">Harvard Medical School</span> and <span class="bold">Harvard Dental School</span> have access to Qualtrics through a local school license.  <span class="bold">HMS/HSDM</span> users should contact <a href="mailto:mycourses_support@hms.harvard.edu">mycourses_support@hms.harvard.edu</a> or 617-432-1773 for more information.
+Affiliates from <span class="bold">Harvard Medical School</span> and <span class="bold">Harvard Dental School</span> have access to Qualtrics through a local school license.  <span class="bold">HMS/HSDM</span> users should contact <a href="mailto:mycourses_support@hms.harvard.edu">mycourses_support@hms.harvard.edu</a> or 617-432-1173 for more information.
 </p>
 
 <p>
@@ -41,14 +41,14 @@ Affiliates from <span class="bold">Harvard Business School</span> are not able t
 <table class="table table-striped table-hover">
  	<caption>iCommons API Data</caption>
     {% for key,value in  person.items %}
-    <tr> <th>{{key}}</th><td>{{value}}</td></tr> 
+    <tr> <th>{{key}}</th><td>{{value}}</td></tr>
     {% endfor %}
 </table>
 </td><td valign="top">
 <table class="table table-striped table-hover">
  	<caption>Processed Data</caption>
     {% for key,value in  processeddata.items %}
-    <tr> <th>{{key}}</th><td>{{value}}</td></tr> 
+    <tr> <th>{{key}}</th><td>{{value}}</td></tr>
     {% endfor %}
 </table>
 </td>
