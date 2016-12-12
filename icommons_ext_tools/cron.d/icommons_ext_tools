@@ -1,3 +1,0 @@
-# Formerly this tracked cron the site creator periodic asynchronous processes
-# (Django manage.py tasks) process_async_jobs and finalize_bulk_create_jobs.
-# TLT-2645 migrated those processes into canvas_account_admin_tools.
