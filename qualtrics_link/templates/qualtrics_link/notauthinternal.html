@@ -18,22 +18,7 @@
 
 {% block content %}
 
-<h2>We're sorry, your user id doesn't appear to be covered by the university license.</h2>
-<br />
-<p>
-Affiliates from <span class="bold">Harvard Medical School</span> and <span class="bold">Harvard Dental School</span> have access to Qualtrics through a local school license.  <span class="bold">HMS/HSDM</span> users should contact <a href="mailto:mycourses_support@hms.harvard.edu">mycourses_support@hms.harvard.edu</a> or 617-432-1173 for more information.
-</p>
-
-<p>
-Affiliates from <span class="bold">Harvard Business School</span> are not able to access Qualtrics through the university license and the service is not currently offered by <span class="bold">HBS IT</span>.
-</p>
-
-<p>
-<span class="bold">XID holders</span> are not able to access Qualtrics through the university license.
-</p>
-
-<p>If you believe that you should be able to access Qualtrics, please contact <a href="mailto:ithelp@harvard.edu">ithelp@harvard.edu</a> and we'll verify that your Harvard account is configured correctly.</p>
-
+{% include "qualtrics_link/_unauthorized_message.html" %}
 
 <br />
 <table>
