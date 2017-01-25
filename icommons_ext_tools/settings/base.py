@@ -53,7 +53,6 @@ INSTALLED_APPS = (
     'icommons_common.monitor',
     'icommons_ui',
     'qualtrics_link',
-    'crispy_forms',
     'canvas_course_site_wizard',
 )
 
@@ -239,8 +238,6 @@ LOGGING = {
 }
 
 # Other app specific settings
-
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 ICOMMONS_COMMON = {
     'ICOMMONS_API_HOST': SECURE_SETTINGS.get('icommons_api_host'),
