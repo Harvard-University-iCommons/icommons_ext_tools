@@ -1,6 +1,5 @@
 Django==1.8.17
 cx-Oracle==5.2.1
-dj-static==0.0.6
 django-cached-authentication-middleware==0.2.1
 django-redis-cache==1.7.1
 hiredis==0.2.0

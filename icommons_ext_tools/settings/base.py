@@ -176,8 +176,7 @@ USE_TZ = False
 
 STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
-STATIC_URL = '/ext_tools/static/'
-
+STATIC_URL = '/static/'
 
 # Logging
 
