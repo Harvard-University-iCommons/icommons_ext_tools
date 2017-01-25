@@ -1,10 +1,11 @@
 # Django settings for icommons_ext_tools project.
 
-from .secure import SECURE_SETTINGS
-from django.core.urlresolvers import reverse_lazy
 import os
 import logging
 import time
+
+from django.core.urlresolvers import reverse_lazy
+from .secure import SECURE_SETTINGS
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -204,12 +205,26 @@ LOGGING = {
             'format': '%(levelname)s\t%(name)s:%(lineno)s\t%(message)s',
         }
     },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
     'handlers': {
         'default': {
             'class': 'logging.handlers.WatchedFileHandler',
             'level': _DEFAULT_LOG_LEVEL,
             'formatter': 'verbose',
             'filename': os.path.normpath(os.path.join(_LOG_ROOT, 'django-icommons_ext_tools.log')),
+        },
+        'console': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+            'filters': ['require_debug_true'],
         },
     },
     # This is the default logger for any apps or libraries that use the logger
@@ -225,7 +240,7 @@ LOGGING = {
     'loggers': {
         'qualtrics_link': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
         'canvas_course_site_wizard': {
