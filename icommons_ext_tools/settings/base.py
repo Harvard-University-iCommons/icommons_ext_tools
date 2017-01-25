@@ -235,11 +235,6 @@ LOGGING = {
             'handlers': ['default'],
             'propagate': False,
         },
-        'icommons_common': {
-            'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
-            'propagate': False,
-        },
     }
 }
 

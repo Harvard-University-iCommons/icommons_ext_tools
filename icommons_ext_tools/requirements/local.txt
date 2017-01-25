@@ -4,7 +4,7 @@
 -r base.txt 
 
 # below are requirements specific to the local environment
-django-debug-toolbar==1.6
+django-debug-toolbar==1.5
 django-sslserver==0.19
 git+https://github.com/inducer/pudb.git#egg=pudb
 mock==2.0.0

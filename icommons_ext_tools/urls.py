@@ -1,4 +1,3 @@
-from django.conf import settings
 from django.conf.urls import (patterns, include, url)
 from qualtrics_link import urls as ql_urls
 from canvas_course_site_wizard import urls as ccsw_urls
@@ -14,9 +13,3 @@ urlpatterns = patterns(
 handler403 = 'icommons_ext_tools.views.handler403'
 handler404 = 'icommons_ext_tools.views.handler404'
 handler500 = 'icommons_ext_tools.views.handler500'
-
-if settings.DEBUG:
-    import debug_toolbar
-    urlpatterns += [
-        url(r'^__debug__/', include(debug_toolbar.urls)),
-    ]
