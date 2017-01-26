@@ -237,6 +237,12 @@ LOGGING = {
         'handlers': ['default'],
     },
     'loggers': {
+        'django': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'filters': ['require_debug_true'],
+            'handlers': ['console', 'default'],
+            'propagate': False,
+        },
         'qualtrics_link': {
             'level': _DEFAULT_LOG_LEVEL,
             'handlers': ['console', 'default'],
