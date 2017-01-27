@@ -113,8 +113,11 @@ DATABASES = {
 }
 
 DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter']
-DATABASE_APPS_MAPPING = {}
-DATABASE_MIGRATION_WHITELIST = ['default']
+DATABASE_APPS_MAPPING = {
+    'qualtrics_link': 'default',
+    'icommons_common': 'default'
+}
+DATABASE_MIGRATION_WHITELIST = []
 
 # Cache
 # https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-CACHES
