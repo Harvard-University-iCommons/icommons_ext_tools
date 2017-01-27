@@ -1,22 +1,13 @@
-from django.conf.urls import patterns, url
+from django.conf.urls import url
 
-from .views import MonitorResponseView
+from qualtrics_link import views
 
-urlpatterns = patterns('',
-
-    url(r'^$', 'qualtrics_link.views.index', name='index'),
-
-    url(r'^launch$', 'qualtrics_link.views.launch', name='launch'),
-
-    url(r'^internal$', 'qualtrics_link.views.internal', name='internal'),
-
-    url(r'^get_org_info\.json$', 'qualtrics_link.views.get_org_info', name='get_org_info'),
-
-    url(r'^user_accept_terms$', 'qualtrics_link.views.user_accept_terms', name='user_accept_terms'),
-
-    url(r'^user_decline_terms$', 'qualtrics_link.views.user_decline_terms', name='user_decline_terms'),
-
-    url(r'^monitor$', MonitorResponseView.as_view()),
-    
-)
-
+urlpatterns = [
+    url(r'^$', views.index, name='index'),
+    url(r'^get_org_info\.json$', views.get_org_info, name='get_org_info'),
+    url(r'^internal$', views.internal, name='internal'),
+    url(r'^launch$', views.launch, name='launch'),
+    url(r'^monitor$', views.MonitorResponseView.as_view()),
+    url(r'^user_accept_terms$', views.user_accept_terms, name='user_accept_terms'),
+    url(r'^user_decline_terms$', views.user_decline_terms, name='user_decline_terms'),
+]

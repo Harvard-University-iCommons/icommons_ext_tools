@@ -1,10 +1,11 @@
 # Django settings for icommons_ext_tools project.
 
-from .secure import SECURE_SETTINGS
-from django.core.urlresolvers import reverse_lazy
 import os
 import logging
 import time
+
+from django.core.urlresolvers import reverse_lazy
+from .secure import SECURE_SETTINGS
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -53,8 +54,6 @@ INSTALLED_APPS = (
     'icommons_common.monitor',
     'icommons_ui',
     'qualtrics_link',
-    'crispy_forms',
-    'canvas_course_site_wizard',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -177,8 +176,7 @@ USE_TZ = False
 
 STATIC_ROOT = os.path.normpath(os.path.join(BASE_DIR, 'http_static'))
 
-STATIC_URL = '/ext_tools/static/'
-
+STATIC_URL = '/static/'
 
 # Logging
 
@@ -206,12 +204,26 @@ LOGGING = {
             'format': '%(levelname)s\t%(name)s:%(lineno)s\t%(message)s',
         }
     },
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
     'handlers': {
         'default': {
             'class': 'logging.handlers.WatchedFileHandler',
             'level': _DEFAULT_LOG_LEVEL,
             'formatter': 'verbose',
             'filename': os.path.normpath(os.path.join(_LOG_ROOT, 'django-icommons_ext_tools.log')),
+        },
+        'console': {
+            'level': _DEFAULT_LOG_LEVEL,
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+            'filters': ['require_debug_true'],
         },
     },
     # This is the default logger for any apps or libraries that use the logger
@@ -225,22 +237,21 @@ LOGGING = {
         'handlers': ['default'],
     },
     'loggers': {
-        'qualtrics_link': {
+        'django': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'filters': ['require_debug_true'],
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
-        'canvas_course_site_wizard': {
+        'qualtrics_link': {
             'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['default'],
+            'handlers': ['console', 'default'],
             'propagate': False,
         },
     }
 }
 
 # Other app specific settings
-
-CRISPY_TEMPLATE_PACK = 'bootstrap3'
 
 ICOMMONS_COMMON = {
     'ICOMMONS_API_HOST': SECURE_SETTINGS.get('icommons_api_host'),
@@ -257,61 +268,4 @@ QUALTRICS_LINK = {
     'QUALTRICS_AUTH_GROUP': SECURE_SETTINGS.get('qualtrics_auth_group'),
     'USER_DECLINED_TERMS_URL': SECURE_SETTINGS.get('qualtrics_user_declined_terms_url'),
     'USER_ACCEPTED_TERMS_URL': SECURE_SETTINGS.get('qualtrics_user_accepted_terms_url'),
-}
-
-# Used by canvas course site wizard
-
-CANVAS_URL = SECURE_SETTINGS.get('canvas_url', 'https://changeme')
-
-CANVAS_SITE_SETTINGS = {
-    'base_url': CANVAS_URL + '/',
-}
-
-CANVAS_SDK_SETTINGS = {
-    'auth_token': SECURE_SETTINGS.get('canvas_token'),  # Need a token
-    'base_api_url': CANVAS_URL + '/api',
-    'max_retries': 3,
-    'per_page': 1000,
-}
-
-ISITES_LMS_URL = SECURE_SETTINGS.get('isites_lms_url', 'http://isites.harvard.edu/')
-
-# Background task PID (lock) files
-#   * If created in another directory, ensure the directory exists in runtime environment
-PROCESS_ASYNC_JOBS_PID_FILE = 'process_async_jobs.pid'
-FINALIZE_BULK_CREATE_JOBS_PID_FILE = 'finalize_bulk_create_jobs.pid'
-
-BULK_COURSE_CREATION = {
-    'log_long_running_jobs': True,
-    'long_running_age_in_minutes': 30,
-    'notification_email_subject': 'Sites created for {school} {term} term',
-    'notification_email_body': 'Canvas course sites have been created for the '
-                               '{school} {term} term.\n\n - {success_count} '
-                               'course sites were created successfully.\n',
-    'notification_email_body_failed_count': ' - {} course sites were not '
-                                            'created.',
-}
-
-CANVAS_EMAIL_NOTIFICATION = {
-    'from_email_address': 'icommons-bounces@harvard.edu',
-    'support_email_address': 'tlt_support@harvard.edu',
-    'course_migration_success_subject': 'Course site is ready',
-    'course_migration_success_body': 'Success! \nYour new Canvas course site has been created and is ready for you at:\n'+
-            ' {0} \n\n Here are some resources for getting started with your site:\n http://tlt.harvard.edu/getting-started#teachingstaff',
-
-    'course_migration_failure_subject': 'Course site not created',
-    'course_migration_failure_body': 'There was a problem creating your course site in Canvas.\n'+
-            'Your local academic support staff has been notified and will be in touch with you.\n\n'+
-            'If you have questions please contact them at:\n'+
-            ' FAS: atg@fas.harvard.edu\n'+
-            ' DCE/Summer: AcademicTechnology@dce.harvard.edu\n'+
-            ' (Let them know that course site creation failed for sis_course_id: {0} ',
-
-    'support_email_subject_on_failure': 'Course site not created',
-    'support_email_body_on_failure': 'There was a problem creating a course site in Canvas via the wizard.\n\n'+
-            'Course site creation failed for sis_course_id: {0}\n'+
-            'User: {1}\n'+
-            '{2}\n'+
-            'Environment: {3}\n',
-    'environment': ENV_NAME.capitalize(),
 }
