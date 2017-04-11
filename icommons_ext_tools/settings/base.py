@@ -99,7 +99,7 @@ WSGI_APPLICATION = 'icommons_ext_tools.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': SECURE_SETTINGS.get('db_default_name', 'icommons_ext_tools'),
         'USER': SECURE_SETTINGS.get('db_default_user', 'postgres'),
         'PASSWORD': SECURE_SETTINGS.get('db_default_password'),
@@ -113,19 +113,11 @@ DATABASES = {
         'PASSWORD': SECURE_SETTINGS.get('db_coursemanager_password'),
         'HOST': SECURE_SETTINGS.get('db_coursemanager_host'),
         'PORT': str(SECURE_SETTINGS.get('db_coursemanager_port')),
-        'OPTIONS': {
-            'threaded': True,
-        },
         'CONN_MAX_AGE': 0,
     }
 }
 
-DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter']
-DATABASE_APPS_MAPPING = {
-    'qualtrics_link': 'default',
-    'icommons_common': 'coursemanager'
-}
-DATABASE_MIGRATION_WHITELIST = []
+DATABASE_ROUTERS = ['icommons_common.routers.CourseSchemaDatabaseRouter']
 
 # Cache
 # https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-CACHES
