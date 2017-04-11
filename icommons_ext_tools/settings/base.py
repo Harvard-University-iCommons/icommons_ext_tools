@@ -117,6 +117,7 @@ DATABASES = {
     }
 }
 
+COURSE_SCHEMA_DB_NAME = 'coursemanager'
 DATABASE_ROUTERS = ['icommons_common.routers.CourseSchemaDatabaseRouter']
 
 # Cache
