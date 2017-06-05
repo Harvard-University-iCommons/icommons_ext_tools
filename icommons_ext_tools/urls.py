@@ -1,12 +1,11 @@
+import django_cas_ng
 from django.conf.urls import (
     include,
     url)
 from django_cas_ng import views as cas_ng_views
-
 from icommons_ui import views as ui_views
-from qualtrics_link import urls as ql_urls
-import django_cas_ng
 
+from qualtrics_link import urls as ql_urls
 
 urlpatterns = [
     url(r'^accounts/login/', django_cas_ng.views.login, name='cas_ng_login'),
