@@ -99,25 +99,26 @@ WSGI_APPLICATION = 'icommons_ext_tools.wsgi.application'
 
 DATABASES = {
     'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': SECURE_SETTINGS.get('db_default_name', 'icommons_ext_tools'),
+        'USER': SECURE_SETTINGS.get('db_default_user', 'postgres'),
+        'PASSWORD': SECURE_SETTINGS.get('db_default_password'),
+        'HOST': SECURE_SETTINGS.get('db_default_host', '127.0.0.1'),
+        'PORT': SECURE_SETTINGS.get('db_default_port', 5432),  # Default postgres port
+    },
+    'coursemanager': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': SECURE_SETTINGS.get('django_db', None),
-        'USER': SECURE_SETTINGS.get('django_db_user', None),
-        'PASSWORD': SECURE_SETTINGS.get('django_db_pass', None),
-        'HOST': SECURE_SETTINGS.get('django_db_host', None),
-        'PORT': str(SECURE_SETTINGS.get('django_db_port', None)),
-        'OPTIONS': {
-            'threaded': True,
-        },
-        'CONN_MAX_AGE': 1200,
+        'NAME': SECURE_SETTINGS.get('db_coursemanager_name'),
+        'USER': SECURE_SETTINGS.get('db_coursemanager_user'),
+        'PASSWORD': SECURE_SETTINGS.get('db_coursemanager_password'),
+        'HOST': SECURE_SETTINGS.get('db_coursemanager_host'),
+        'PORT': str(SECURE_SETTINGS.get('db_coursemanager_port')),
+        'CONN_MAX_AGE': 0,
     }
 }
 
-DATABASE_ROUTERS = ['icommons_common.routers.DatabaseAppsRouter']
-DATABASE_APPS_MAPPING = {
-    'qualtrics_link': 'default',
-    'icommons_common': 'default'
-}
-DATABASE_MIGRATION_WHITELIST = []
+COURSE_SCHEMA_DB_NAME = 'coursemanager'
+DATABASE_ROUTERS = ['icommons_common.routers.CourseSchemaDatabaseRouter']
 
 # Cache
 # https://docs.djangoproject.com/en/1.8/ref/settings/#std:setting-CACHES
