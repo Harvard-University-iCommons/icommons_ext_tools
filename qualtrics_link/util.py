@@ -110,7 +110,7 @@ def create_encoded_token(key_value_pairs):
     raw = pad(token)
     cipher = AES.new(key, AES.MODE_ECB)
     encoded_token = base64.b64encode(cipher.encrypt(raw))
-    return urllib2.quote(encoded_token.encode("utf8"),'')
+    return urllib2.quote(encoded_token.encode("utf8"), '')
 
 
 def get_sso_test_url(key_value_pairs):
@@ -136,6 +136,7 @@ def get_client_ip(request):
     return ip_address
 
 
+# Find the area for the given unit, if no matches then use 'Other'
 def lookup_unit(unit):
     if unit in AREA_LOOKUP:
         return AREA_LOOKUP[unit]
@@ -144,12 +145,12 @@ def lookup_unit(unit):
         return 'Other'
 
 
+# Determine If the given unit is contained in the Blacklist, if it is then it is not valid.
 def is_unit_valid(unit):
-    if unit not in BLACKLIST:
-        return True
-    return False
+    return unit not in BLACKLIST
 
 
+# Return the first school from the given school list that is not contained within the blacklist.
 def get_valid_school(schools):
     for school_code in schools:
         school = lookup_unit(school_code)
@@ -157,18 +158,19 @@ def get_valid_school(schools):
             return school
 
 
+# If department is not in the blacklist then return it's division, else return None
 def get_valid_dept(dept):
     division = lookup_unit(dept)
     if division not in BLACKLIST:
         return division
 
 
+# Determines if the Person with the given HUID is in the whitelist and the Person's expiration is today or greater.
 def is_user_in_whitelist(huid):
     try:
         person = QualtricsAccessList.objects.get(user_id=huid)
         if person.expiration_date:
-            expiration_date = person.expiration_date   
-            if expiration_date >= date.today():
+            if person.expiration_date >= date.today():
                 # the user is in the whitelist and has an expiration date that is valid
                 return True
             else:
@@ -179,6 +181,7 @@ def is_user_in_whitelist(huid):
             return True
     except QualtricsAccessList.DoesNotExist:
         # the user is not in the whitelist'
+        logger.info('The HUID {} does not exist within the Qualtrics access list.'.format(huid))
         return False
 
 
