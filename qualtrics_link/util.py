@@ -8,6 +8,9 @@ from Crypto.Cipher import AES
 from django.conf import settings
 from datetime import date
 from icommons_common.models import QualtricsAccessList
+from icommons_common.models import Person
+import requests
+from django.shortcuts import render
 
 logger = logging.getLogger(__name__)
 
@@ -185,38 +188,75 @@ def is_user_in_whitelist(huid):
         return False
 
 
-def build_user_dict(data):
+# Get correct person record from the given person list
+def filter_person_list(person_list):
+    for person in person_list:
+        # Do the filtering logic here to return the correct person record
+        return person
 
-    user_data = {
-        'role': 'generic',
-        'division': 'Other',
-        'validschool': False,
-        'validdept': False
+
+# Get the person list matching the given HUID or return None
+# If no matching Person records, return the error page.
+def get_person_list(huid, request):
+    person_list = Person.objects.filter(huid=huid, prime_role_indicator='Y')
+
+    if len(person_list) == 0:
+        logger.error('The person with huid {} could not be found')
+        return render(request, 'qualtrics_link/error.html', {'request': request})
+    else:
+        return person_list
+
+
+# Get the list of people for the given id and then pass it to the filtering function
+def get_correct_person(huid, request):
+    person_list = get_person_list(huid, request)
+    return filter_person_list(person_list)
+
+
+# Will update the current role and division of the given HUID user
+def update_user(huid, request):
+    person = get_correct_person(huid, request)
+    person_details = get_person_details(person)
+
+    key = settings.QUALTRICS_LINK.get('QUALTRICS_APP_KEY')
+    req_params = {
+        'divisionId': person_details.division,
+        'userType': person_details.role
     }
 
-    if 'people' in data:
-        person = data['people'][0]
-        
-        user_data['firstname'] = person.get('firstName', 'Not Available')
-        user_data['lastname'] = person.get('lastName', 'Not Available')
-        user_data['email'] = person.get('email', 'Not Available')
+    requests.put(url='https://harvard.qualtrics.com/API/v3/users/:{}'.format(huid),
+                 data=req_params,
+                 headers={'X-API-TOKEN': key})
 
-        # School Affiliations check
-        school_affiliations = person.get('schoolAffiliations', 'Not Available')
 
-        valid_school_code = get_valid_school(school_affiliations)
-        if valid_school_code is not None:
-            user_data['validschool'] = True
-            user_data['role'] = 'student'
-            user_data['division'] = valid_school_code
+# Data structure to extend the Person model and add extra attributes
+class PersonDetails:
+    def __init__(self, first_name, last_name, email, role='student',
+                 division='Other', valid_school=False, valid_dept=False):
+        self.first_name = first_name
+        self.last_name = last_name
+        self.email = email
+        self.role = role
+        self.division = division
+        self.valid_school = valid_school
+        self.valid_dept = valid_dept
 
-        # Department Affiliations check
-        department_affiliation = person.get('departmentAffiliation', 'Not Available')
-        if department_affiliation.lower() != 'not available':
-            valid_department = get_valid_dept(department_affiliation)
-            if valid_department is not None:
-                user_data['validdept'] = True
-                user_data['role'] = 'employee'
-                user_data['division'] = valid_department
 
-    return user_data
+# Creates a PersonDetails instance by using the given person record to get values for the extended fields
+def get_person_details(person):
+
+    # TODO Apply appropriate logic to set values or call separate functions to get values
+    role = ''  # get_role(person)
+    division = ''  # get_division(person)
+    valid_school = False
+    valid_dept = False
+
+    return PersonDetails(first_name=person.name_first,
+                         last_name=person.name_last,
+                         email=person.email_address,
+                         role=role,
+                         division=division,
+                         valid_school=valid_school,
+                         valid_dept=valid_dept)
+
+
