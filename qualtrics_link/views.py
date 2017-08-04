@@ -13,6 +13,9 @@ import datetime
 import urllib
 from qualtrics_link.forms import SpoofForm
 import qualtrics_link.util as util
+import requests
+from icommons_common.models import Person
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -35,7 +38,7 @@ def index(request):
 @login_required
 @require_http_methods(['GET'])
 def launch(request):
-
+    icommons_api = IcommonsApi()
     user_can_access = False
     client_ip = util.get_client_ip(request)
 
@@ -56,34 +59,20 @@ def launch(request):
         logger.info("xidnotauthorized\t{}\t{}".format(current_date, client_ip))
         return render(request, 'qualtrics_link/notauthorized.html', {'request': request})
     
-    person_data_obj = IcommonsApi()
-    resp = person_data_obj.people_by_id(huid)
-
-    if resp.status_code == 200:
-        data = resp.json()
-        user_dict = util.build_user_dict(data)
-        first_name = user_dict.get('firstname')
-        last_name = user_dict.get('lastname')
-        email = user_dict.get('email')
-        role = user_dict.get('role')
-        division = user_dict.get('division')
-        valid_school = user_dict.get('validschool', False)
-        valid_department = user_dict.get('validdept', False)
-
-    else:
-        logger.error('huid: {}, api call returned response code {}'.format(huid, str(resp.status_code)))
-        return render(request, 'qualtrics_link/error.html', {'request': request})
+    person = util.get_correct_person(huid, request)
+    # The PersonDetails object extends the Person model with additional attributes
+    person_details = util.get_person_details(person)
 
     # Check if the user can use qualtrics or not
     # the value of user_can_access is set to False by default
     # if any of the checks here pass we set user_can_access to True
-    if valid_department or valid_school or user_in_whitelist:
+    if person_details.valid_department or person_details.valid_school or user_in_whitelist:
         user_can_access = True
 
     if user_can_access:
         # Check to see if the user has accepted the terms of service
         agreement_id = settings.QUALTRICS_LINK.get('AGREEMENT_ID', '260')
-        acceptance_resp = person_data_obj.tos_get_acceptance(agreement_id, huid)
+        acceptance_resp = icommons_api.tos_get_acceptance(agreement_id, huid)
         
         if acceptance_resp.status_code == 200:
             acceptance_json = acceptance_resp.json()
@@ -93,23 +82,31 @@ def launch(request):
                     acceptance_text = acceptance_json['agreements'][0]['text']
                     return render(request, 'qualtrics_link/agreement.html', {'request': request, 'agreement': acceptance_text})
             else:
-                logger.error('huid: {}, api call returned response code {}'.format(huid, str(resp.status_code)))
+                logger.error('huid: {}, api call returned response code {}'.format(huid, str(acceptance_resp.status_code)))
                 return render(request, 'qualtrics_link/error.html', {'request': request})
         else:
-            logger.error('huid: {}, api call returned response code {}'.format(huid, str(resp.status_code)))
+            logger.error('huid: {}, api call returned response code {}'.format(huid, str(acceptance_resp.status_code)))
             return render(request, 'qualtrics_link/error.html', {'request': request})
 
         enc_id = util.get_encrypted_huid(huid)
-        key_value_pairs = "id="+enc_id+"&timestamp="+current_date+"&expiration="+expiration_date+"&firstname="+first_name+"&lastname="+last_name+"&email="+email+"&UserType="+role+"&Division="+division
+        key_value_pairs = "id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
+        key_value_pairs = key_value_pairs.format(enc_id,
+                                                 current_date,
+                                                 expiration_date,
+                                                 person_details.name_first,
+                                                 person_details.name_last,
+                                                 person_details.email_address,
+                                                 person_details.role,
+                                                 person_details.division)
         qualtrics_link = util.get_qualtrics_url(key_value_pairs)
-        logger.info("{}\t{}\t{}\t{}".format(current_date, client_ip, role, division))
+        logger.info("{}\t{}\t{}\t{}".format(current_date, client_ip, person_details.role, person_details.division))
 
         # The redirect line below will be how the application works if everything is good for the user.
         return redirect(qualtrics_link)
 
     else:
-        logline = "notauthorized\t{}\t{}\t{}\t{}".format(current_date, client_ip, role, division)
-        logger.info(logline)
+        logger.info("notauthorized\t{}\t{}\t{}\t{}".format(current_date, client_ip,
+                                                           person_details.role, person_details.division))
         return render(request, 'qualtrics_link/notauthorized.html', {'request': request})
 
 
