@@ -58,10 +58,14 @@
 	<tr>
 		<td valign="top">
 			<table class="table table-striped table-hover">
-			 	<caption>iCommons API Data</caption>
-			    {% for key,value in  person.items %}
-			    <tr> <th>{{key}}</th><td>{{value}}</td></tr> 
-			    {% endfor %}
+			 	<caption>People Data</caption>
+				<tr> <th>First name</th><td>{{person.name_first}}</td></tr>
+				<tr> <th>Last name</th><td>{{person.name_last}}</td></tr>
+				<tr> <th>Email</th><td>{{person.email_address}}</td></tr>
+				<tr> <th>Role</th><td>{{person.role_type_cd}}</td></tr>
+				<tr> <th>Division</th><td>{{person.department}}</td></tr>
+				<tr> <th>School affiliations</th><td>{{processed_data.school_affiliations}}</td></tr>
+				<tr> <th>ID</th><td>{{person.univ_id}}</td></tr>
 			</table>
 			<p><a href="{{ssotestlink}}" class="btn btn-primary">Qualtrics SSO test Link</a></p>
 			<p><a href="{{qualtricslink}}" class="btn btn-primary">Qualtrics Survey Link</a></p>
@@ -70,10 +74,13 @@
 			 <table class="table table-striped table-hover">
 			 	<caption>Processed Data</caption>
 			   	<tr> <th>user_id</th><td>{{huid}} </td></tr> 
-			    <tr> <th>authenticated</th><td>{{request.user.is_authenticated}}</td></tr> 
-			    {% for key,value in  keyValueDict.items %}
-			    <tr> <th>{{key}}</th><td>{{value}}</td></tr> 
-			    {% endfor %}
+			    <tr> <th>authenticated</th><td>{{request.user.is_authenticated}}</td></tr>
+				<tr> <th>First name</th><td>{{processed_data.first_name}}</td></tr>
+				<tr> <th>Last name</th><td>{{processed_data.last_name}}</td></tr>
+				<tr> <th>Email</th><td>{{processed_data.email}}</td></tr>
+				<tr> <th>Role</th><td>{{processed_data.role}}</td></tr>
+				<tr> <th>Division</th><td>{{processed_data.division}}</td></tr>
+				<tr> <th>ID</th><td>{{processed_data.id}}</td></tr>
 			    <tr><th>user_in_whitelist</th><td>{{user_in_whitelist}}</td></tr>
 			</table>
 		</td>
