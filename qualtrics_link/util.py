@@ -8,7 +8,8 @@ from Crypto.Cipher import AES
 from django.conf import settings
 from datetime import date
 from icommons_common.models import QualtricsAccessList
-from icommons_common.models import Person, Department
+from icommons_common.models import Person
+from qualtrics_link.models import SchoolCodeMapping
 import requests
 from django.shortcuts import render
 
@@ -217,6 +218,25 @@ def update_user(huid, division, role):
                  headers={'X-API-TOKEN': token})
 
 
+# Maps the given school code to a school using the school_code_mapping table
+def lookup_school_affiliations(school_cd):
+    try:
+        return SchoolCodeMapping.objects.get(student_school_code=school_cd).employee_school_code
+    except SchoolCodeMapping.DoesNotExist:
+        logging.error('The school code {} could not be found.'.format(school_cd))
+        return 'Not Available'
+
+
+def get_school_affiliations(person_list):
+    affiliations = []
+    for person in person_list:
+        school = lookup_school_affiliations(person.school_cd)
+        if school is not None and school != 'Not Available':
+            affiliations.append(str(school))
+
+    return affiliations
+
+
 # Data structure to extend the Person model and add extra attributes
 class PersonDetails:
     def __init__(self, person, id, first_name, last_name, email, role='student',
@@ -241,29 +261,27 @@ def get_person_details(huid, request):
     if len(person_list) > 0:
         person = filter_person_list(person_list)
     else:
-        logger.error('No records with the huid of {} could be found')
-        return render(request, 'qualtrics_link/error.html', {'request': request})
-
-    # School Affiliations check
-    # school_affiliations = get_school_affiliations(person)
-    # valid_school_code = get_valid_school(school_affiliations)
-    # if valid_school_code is not None:
-    #     valid_school = True
-    #     division = valid_school_code
+        return None
 
     role = 'student'
     division = 'Other'
+    valid_school = False
+    valid_dept = False
+
+    # School Affiliations check
+    school_affiliations = get_school_affiliations(person_list)
+    valid_school_code = get_valid_school(school_affiliations)
+    if valid_school_code is not None:
+        valid_school = True
+        division = valid_school_code
 
     # Department Affiliations check
     if person.department is not None:
-        try:
-            valid_dept_name = get_valid_dept(person.department)
-            if valid_dept_name is not None:
-                valid_dept = True
-                role = 'employee'
-                division = valid_dept_name
-        except Department.DoesNotExist:
-            logger.error('Department {} does not exist. HUID: {}'.format(person.dept_id, person.univ_id))
+        valid_dept_name = get_valid_dept(person.department)
+        if valid_dept_name is not None:
+            valid_dept = True
+            role = 'employee'
+            division = valid_dept_name
 
     return PersonDetails(person=person,
                          id=person.univ_id,
@@ -272,6 +290,6 @@ def get_person_details(huid, request):
                          email=person.email_address,
                          role=role,
                          division=division,
-                         # valid_school=valid_school,
-                         # valid_dept=valid_dept
-                         )
+                         valid_school=valid_school,
+                         valid_dept=valid_dept,
+                         school_affiliations=school_affiliations)
