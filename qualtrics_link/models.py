@@ -9,6 +9,8 @@ class SchoolCodeMapping(models.Model):
     into a single table. It is a bit complex  to append the school data to the
     ldap_people_plus view and since this rarely changes, we are fetching and
     maintaining a copy locally
+
+    TODO: Revisit and fix this when we move to new people service
     """
 
     student_school_code = models.CharField(max_length=2)
