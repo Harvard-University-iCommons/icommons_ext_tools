@@ -13,8 +13,6 @@ import datetime
 import urllib
 from qualtrics_link.forms import SpoofForm
 import qualtrics_link.util as util
-import requests
-from icommons_common.models import Person
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
@@ -59,9 +57,8 @@ def launch(request):
         logger.info("xidnotauthorized\t{}\t{}".format(current_date, client_ip))
         return render(request, 'qualtrics_link/notauthorized.html', {'request': request})
     
-    person = util.get_correct_person(huid, request)
     # The PersonDetails object extends the Person model with additional attributes
-    person_details = util.get_person_details(person)
+    person_details = util.get_person_details(huid, request)
 
     # Check if the user can use qualtrics or not
     # the value of user_can_access is set to False by default
@@ -100,6 +97,9 @@ def launch(request):
                                                  person_details.division)
         qualtrics_link = util.get_qualtrics_url(key_value_pairs)
         logger.info("{}\t{}\t{}\t{}".format(current_date, client_ip, person_details.role, person_details.division))
+
+        # Update the users division and role fields of their Qualtrics profile
+        util.update_user(huid, person_details.division, person_details.role)
 
         # The redirect line below will be how the application works if everything is good for the user.
         return redirect(qualtrics_link)
@@ -156,36 +156,24 @@ def internal(request):
         logger.info("xidnotauthorized\t{}\t{}".format(current_date, client_ip))
         return render(request, 'qualtrics_link/notauthorized.html', {'request': request})
 
-    # initialize the icommons api module
-    person_data_obj = IcommonsApi()
-    person = person_data_obj.people_by_id(huid)
+        # The PersonDetails object extends the Person model with additional attributes
+        person_details = util.get_person_details(person)
 
-    if person.status_code == 200:
-        data = person.json()
-        user = data['people'][0]
-        user_dict = util.build_user_dict(data)
-        first_name = user_dict.get('firstname')
-        last_name = user_dict.get('lastname')
-        email = user_dict.get('email')
-        role = user_dict.get('role')
-        division = user_dict.get('division')
-        valid_school = user_dict.get('validschool', False)
-        valid_department = user_dict.get('validdept', False)
+        icommons_api = IcommonsApi()
 
     else:
-        logger.error('huid: {}, api call returned response code {}'.format(huid, str(person.status_code)))
         return render(request, 'qualtrics_link/error.html', {'request': request})
 
     # Check if the user can use qualtrics or not
     # the value of user_can_access is set to False by default
     # if any of the checks here pass we set user_can_access to True
-    if valid_department or valid_school or user_in_whitelist:
+    if person_details.valid_department or person_details.valid_school or user_in_whitelist:
         user_can_access = True
     
     if user_can_access:
         # If they are allowed to use Qualtrics, check to see if the user has accepted the terms of service    
         agreement_id = settings.QUALTRICS_LINK.get('AGREEMENT_ID')
-        acceptance_resp = person_data_obj.tos_get_acceptance(agreement_id, huid)
+        acceptance_resp = icommons_api.tos_get_acceptance(agreement_id, huid)
         
         if acceptance_resp.status_code == 200:
             acceptance_json = acceptance_resp.json()
@@ -205,14 +193,32 @@ def internal(request):
         enc_id = util.get_encrypted_huid(huid)
         logline = "{}\t{}\t{}\t{}".format(current_date, client_ip, role, division)
         logger.info(logline)
-        key_value_pairs = "id="+enc_id+"&timestamp="+current_date+"&expiration="+expiration_date+"&firstname="+first_name+"&lastname="+last_name+"&email="+email+"&UserType="+role+"&Division="+division
+        key_value_pairs = "id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
+        key_value_pairs = key_value_pairs.format(enc_id,
+                                                 current_date,
+                                                 expiration_date,
+                                                 person_details.name_first,
+                                                 person_details.name_last,
+                                                 person_details.email_address,
+                                                 person_details.role,
+                                                 person_details.division)
         sso_test_link = util.get_sso_test_url(key_value_pairs)
         qualtrics_link = util.get_qualtrics_url(key_value_pairs)
-        return render(request, 'qualtrics_link/main.html', {'request': request, 'qualtricslink' : qualtrics_link, 'ssotestlink': sso_test_link, 'huid': huid, 'user_in_whitelist': user_in_whitelist, 'keyValueDict':  user_dict, 'person': user, 'form': spoof_form})
+        context = {
+            'request': request,
+            'qualtricslink': qualtrics_link,
+            'ssotestlink': sso_test_link,
+            'huid': huid,
+            'user_in_whitelist': user_in_whitelist,
+            'processed_data': person_details,
+            'person': person_details.person,
+            'form': spoof_form
+        }
+        return render(request, 'qualtrics_link/main.html', context)
         
     else:
         logger.info("notauthorized\t{}\t{}\t{}\t{}".format(current_date, client_ip, role, division))
-        return render(request, 'qualtrics_link/notauthinternal.html', {'request': request, 'person': user, 'processeddata' : user_dict})
+        return render(request, 'qualtrics_link/notauthinternal.html', {'request': request, 'person': person_details.person, 'processed_data': person_details})
 
 
 @login_required
@@ -222,10 +228,10 @@ def user_accept_terms(request):
     if not huid:
         huid = request.user.username
 
-    person_data_obj = IcommonsApi()
+    icommons_api = IcommonsApi()
     ip_address = util.get_client_ip(request)
     params = {'agreementId': '260', 'ipAddress': ip_address}
-    resp = person_data_obj.tos_create_acceptance(params, huid)
+    resp = icommons_api.tos_create_acceptance(params, huid)
     
     if resp.status_code == 200:
         logger.info("termsofservice accepted: \t{}\t{}".format(ip_address, '260'))
@@ -286,7 +292,7 @@ def get_org_info(request):
     else:
         result = request.session.get('getOrgActivity', '{}')
 
-    org_activity = '{ "getOrgActivity" : '+result+ '}'
+    org_activity = '{ "getOrgActivity" : ' + result + '}'
     result = '{ "org_info" : [' + response_counts + ',' + org_activity + ' ]}'
 
     response = HttpResponse(result, content_type="application/json")
