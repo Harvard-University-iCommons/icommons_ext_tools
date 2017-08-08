@@ -192,7 +192,7 @@ def is_user_in_whitelist(huid):
 # we want to determine if any are employee status and to return that record.
 def filter_person_list(person_list):
     for person in person_list:
-        if person.role_type.lower() == 'employee':
+        if person.role_type_cd.lower() == 'employee':
             return person
     # If no employee records were found, then return the first person in the list
     return person_list[0]
@@ -200,7 +200,7 @@ def filter_person_list(person_list):
 
 # Get the person list matching the given HUID or return None
 def get_person_list(huid):
-    person_list = Person.objects.filter(huid=huid, prime_role_indicator='Y')
+    person_list = Person.objects.filter(univ_id=huid, prime_role_indicator='Y')
     return person_list
 
 

@@ -156,18 +156,15 @@ def internal(request):
         logger.info("xidnotauthorized\t{}\t{}".format(current_date, client_ip))
         return render(request, 'qualtrics_link/notauthorized.html', {'request': request})
 
-        # The PersonDetails object extends the Person model with additional attributes
-        person_details = util.get_person_details(person)
+    # The PersonDetails object extends the Person model with additional attributes
+    person_details = util.get_person_details(huid, request)
 
-        icommons_api = IcommonsApi()
-
-    else:
-        return render(request, 'qualtrics_link/error.html', {'request': request})
+    icommons_api = IcommonsApi()
 
     # Check if the user can use qualtrics or not
     # the value of user_can_access is set to False by default
     # if any of the checks here pass we set user_can_access to True
-    if person_details.valid_department or person_details.valid_school or user_in_whitelist:
+    if person_details.valid_dept or person_details.valid_school or user_in_whitelist:
         user_can_access = True
     
     if user_can_access:
@@ -184,14 +181,14 @@ def internal(request):
                     request.session['spoofid'] = huid
                     return render(request, 'qualtrics_link/agreement.html', {'request': request, 'agreement': acceptance_text})
             else:
-                logger.error('huid: {}, api call returned response code {}'.format(huid, str(person.status_code)))
+                logger.error('Received acceptance status of 200 but could not find any agreements for huid: {}'.format(huid))
                 return render(request, 'qualtrics_link/error.html', {'request': request})
         else:
-            logger.error('huid: {}, api call returned response code {}'.format(huid, str(person.status_code)))
+            logger.error('huid: {}, api call returned response code other than 200 {}'.format(acceptance_resp))
             return render(request, 'qualtrics_link/error.html', {'request': request})
 
         enc_id = util.get_encrypted_huid(huid)
-        logline = "{}\t{}\t{}\t{}".format(current_date, client_ip, role, division)
+        logline = "{}\t{}\t{}\t{}".format(current_date, client_ip, person_details.role, person_details.division)
         logger.info(logline)
         key_value_pairs = "id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
         key_value_pairs = key_value_pairs.format(enc_id,
@@ -217,7 +214,7 @@ def internal(request):
         return render(request, 'qualtrics_link/main.html', context)
         
     else:
-        logger.info("notauthorized\t{}\t{}\t{}\t{}".format(current_date, client_ip, role, division))
+        logger.info("notauthorized\t{}\t{}\t{}\t{}".format(current_date, client_ip, person_details.role, person_details.division))
         return render(request, 'qualtrics_link/notauthinternal.html', {'request': request, 'person': person_details.person, 'processed_data': person_details})
 
 
