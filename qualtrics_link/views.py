@@ -60,10 +60,14 @@ def launch(request):
     # The PersonDetails object extends the Person model with additional attributes
     person_details = util.get_person_details(huid, request)
 
+    if person_details is None:
+        logger.error('No records with the huid of {} could be found').format(huid)
+        return render(request, 'qualtrics_link/error.html', {'request': request})
+
     # Check if the user can use qualtrics or not
     # the value of user_can_access is set to False by default
     # if any of the checks here pass we set user_can_access to True
-    if person_details.valid_department or person_details.valid_school or user_in_whitelist:
+    if person_details.valid_dept or person_details.valid_school or user_in_whitelist:
         user_can_access = True
 
     if user_can_access:
@@ -159,6 +163,10 @@ def internal(request):
     # The PersonDetails object extends the Person model with additional attributes
     person_details = util.get_person_details(huid, request)
 
+    if person_details is None:
+        logger.error('No records with the huid of {} could be found').format(huid)
+        return render(request, 'qualtrics_link/error.html', {'request': request})
+
     icommons_api = IcommonsApi()
 
     # Check if the user can use qualtrics or not
@@ -169,7 +177,7 @@ def internal(request):
     
     if user_can_access:
         # If they are allowed to use Qualtrics, check to see if the user has accepted the terms of service    
-        agreement_id = settings.QUALTRICS_LINK.get('AGREEMENT_ID', '260')
+        agreement_id = settings.QUALTRICS_LINK.get('AGREEMENT_ID')
         acceptance_resp = icommons_api.tos_get_acceptance(agreement_id, huid)
 
         if acceptance_resp.status_code == 200:
@@ -214,8 +222,15 @@ def internal(request):
         return render(request, 'qualtrics_link/main.html', context)
         
     else:
+        context = {
+            'request': request,
+            'person': person_details.person,
+            'processed_data': person_details,
+            'huid': huid,
+            'user_in_whitelist': user_in_whitelist,
+        }
         logger.info("notauthorized\t{}\t{}\t{}\t{}".format(current_date, client_ip, person_details.role, person_details.division))
-        return render(request, 'qualtrics_link/notauthinternal.html', {'request': request, 'person': person_details.person, 'processed_data': person_details})
+        return render(request, 'qualtrics_link/notauthinternal.html', context)
 
 
 @login_required
