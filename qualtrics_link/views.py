@@ -90,9 +90,9 @@ def launch(request):
         key_value_pairs = key_value_pairs.format(enc_id,
                                                  current_date,
                                                  expiration_date,
-                                                 person_details.name_first,
-                                                 person_details.name_last,
-                                                 person_details.email_address,
+                                                 person_details.first_name,
+                                                 person_details.last_name,
+                                                 person_details.email,
                                                  person_details.role,
                                                  person_details.division)
         qualtrics_link = util.get_qualtrics_url(key_value_pairs)
@@ -169,9 +169,9 @@ def internal(request):
     
     if user_can_access:
         # If they are allowed to use Qualtrics, check to see if the user has accepted the terms of service    
-        agreement_id = settings.QUALTRICS_LINK.get('AGREEMENT_ID')
+        agreement_id = settings.QUALTRICS_LINK.get('AGREEMENT_ID', '260')
         acceptance_resp = icommons_api.tos_get_acceptance(agreement_id, huid)
-        
+
         if acceptance_resp.status_code == 200:
             acceptance_json = acceptance_resp.json()
             if 'agreements' in acceptance_json:
@@ -184,19 +184,19 @@ def internal(request):
                 logger.error('Received acceptance status of 200 but could not find any agreements for huid: {}'.format(huid))
                 return render(request, 'qualtrics_link/error.html', {'request': request})
         else:
-            logger.error('huid: {}, api call returned response code other than 200 {}'.format(acceptance_resp))
+            logger.error('huid: {}, api call returned response code other than 200 {}'.format(huid, acceptance_resp))
             return render(request, 'qualtrics_link/error.html', {'request': request})
 
         enc_id = util.get_encrypted_huid(huid)
         logline = "{}\t{}\t{}\t{}".format(current_date, client_ip, person_details.role, person_details.division)
         logger.info(logline)
-        key_value_pairs = "id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
+        key_value_pairs = u"id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
         key_value_pairs = key_value_pairs.format(enc_id,
                                                  current_date,
                                                  expiration_date,
-                                                 person_details.name_first,
-                                                 person_details.name_last,
-                                                 person_details.email_address,
+                                                 person_details.first_name,
+                                                 person_details.last_name,
+                                                 person_details.email,
                                                  person_details.role,
                                                  person_details.division)
         sso_test_link = util.get_sso_test_url(key_value_pairs)
