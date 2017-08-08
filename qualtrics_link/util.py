@@ -8,7 +8,7 @@ from Crypto.Cipher import AES
 from django.conf import settings
 from datetime import date
 from icommons_common.models import QualtricsAccessList
-from icommons_common.models import Person
+from icommons_common.models import Person, Department
 import requests
 from django.shortcuts import render
 
@@ -188,51 +188,42 @@ def is_user_in_whitelist(huid):
         return False
 
 
-# Get correct person record from the given person list
+# If there are more than one record returned for a HUID,
+# we want to determine if any are employee status and to return that record.
 def filter_person_list(person_list):
     for person in person_list:
-        # Do the filtering logic here to return the correct person record
-        return person
+        if person.role_type.lower() == 'employee':
+            return person
+    # If no employee records were found, then return the first person in the list
+    return person_list[0]
 
 
 # Get the person list matching the given HUID or return None
-# If no matching Person records, return the error page.
-def get_person_list(huid, request):
+def get_person_list(huid):
     person_list = Person.objects.filter(huid=huid, prime_role_indicator='Y')
-
-    if len(person_list) == 0:
-        logger.error('The person with huid {} could not be found')
-        return render(request, 'qualtrics_link/error.html', {'request': request})
-    else:
-        return person_list
+    return person_list
 
 
-# Get the list of people for the given id and then pass it to the filtering function
-def get_correct_person(huid, request):
-    person_list = get_person_list(huid, request)
-    return filter_person_list(person_list)
-
-
-# Will update the current role and division of the given HUID user
-def update_user(huid, request):
-    person = get_correct_person(huid, request)
-    person_details = get_person_details(person)
-
-    key = settings.QUALTRICS_LINK.get('QUALTRICS_APP_KEY')
+# Will update the given HUID users current role and division for their Qualtrics account
+def update_user(huid, division, role):
+    token = settings.QUALTRICS_LINK.get('QUALTRICS_API_TOKEN')
     req_params = {
-        'divisionId': person_details.division,
-        'userType': person_details.role
+        'divisionId': division,
+        'userType': role
     }
 
     requests.put(url='https://harvard.qualtrics.com/API/v3/users/:{}'.format(huid),
                  data=req_params,
-                 headers={'X-API-TOKEN': key})
+                 headers={'X-API-TOKEN': token})
 
 
 # Data structure to extend the Person model and add extra attributes
 class PersonDetails:
-    def __init__(self, first_name, last_name, email, role='student',
-                 division='Other', valid_school=False, valid_dept=False):
+    def __init__(self, person, id, first_name, last_name, email, role='student',
+                 division='Other', valid_school=False, valid_dept=False,
+                 school_affiliations=[]):
+        self.person = person
+        self.id = id
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
@@ -240,23 +231,47 @@ class PersonDetails:
         self.division = division
         self.valid_school = valid_school
         self.valid_dept = valid_dept
+        self.school_affiliations = school_affiliations,
 
 
 # Creates a PersonDetails instance by using the given person record to get values for the extended fields
-def get_person_details(person):
+def get_person_details(huid, request):
+    person_list = get_person_list(huid)
 
-    # TODO Apply appropriate logic to set values or call separate functions to get values
-    role = ''  # get_role(person)
-    division = ''  # get_division(person)
-    valid_school = False
-    valid_dept = False
+    if len(person_list) > 0:
+        person = filter_person_list(person_list)
+    else:
+        logger.error('No records with the huid of {} could be found')
+        return render(request, 'qualtrics_link/error.html', {'request': request})
 
-    return PersonDetails(first_name=person.name_first,
+    # School Affiliations check
+    # school_affiliations = get_school_affiliations(person)
+    # valid_school_code = get_valid_school(school_affiliations)
+    # if valid_school_code is not None:
+    #     valid_school = True
+    #     division = valid_school_code
+
+    role = 'student'
+    division = 'Other'
+
+    # Department Affiliations check
+    if person.department is not None:
+        try:
+            valid_dept_name = get_valid_dept(person.department)
+            if valid_dept_name is not None:
+                valid_dept = True
+                role = 'employee'
+                division = valid_dept_name
+        except Department.DoesNotExist:
+            logger.error('Department {} does not exist. HUID: {}'.format(person.dept_id, person.univ_id))
+
+    return PersonDetails(person=person,
+                         id=person.univ_id,
+                         first_name=person.name_first,
                          last_name=person.name_last,
                          email=person.email_address,
                          role=role,
                          division=division,
-                         valid_school=valid_school,
-                         valid_dept=valid_dept)
-
-
+                         # valid_school=valid_school,
+                         # valid_dept=valid_dept
+                         )
