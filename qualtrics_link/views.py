@@ -14,6 +14,7 @@ import urllib
 from qualtrics_link.forms import SpoofForm
 import qualtrics_link.util as util
 from django.conf import settings
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +59,7 @@ def launch(request):
         return render(request, 'qualtrics_link/notauthorized.html', {'request': request})
     
     # The PersonDetails object extends the Person model with additional attributes
-    person_details = util.get_person_details(huid, request)
+    person_details = util.get_person_details(huid)
 
     if person_details is None:
         logger.error('No records with the huid of {} could be found').format(huid)
@@ -102,8 +103,10 @@ def launch(request):
         qualtrics_link = util.get_qualtrics_url(key_value_pairs)
         logger.info("{}\t{}\t{}\t{}".format(current_date, client_ip, person_details.role, person_details.division))
 
-        # Update the users division and role fields of their Qualtrics profile
-        util.update_user(huid, person_details.division, person_details.role)
+        # We only want to call the update function if there is an account, check to see if one exists
+        if util.get_qualtrics_user(huid).status_code != requests.requests.codes.ok:
+            # Update the users division and role fields of their Qualtrics profile
+            util.update_qualtrics_user(huid, person_details.division, person_details.role)
 
         # The redirect line below will be how the application works if everything is good for the user.
         return redirect(qualtrics_link)
@@ -161,7 +164,7 @@ def internal(request):
         return render(request, 'qualtrics_link/notauthorized.html', {'request': request})
 
     # The PersonDetails object extends the Person model with additional attributes
-    person_details = util.get_person_details(huid, request)
+    person_details = util.get_person_details(huid)
 
     if person_details is None:
         logger.error('No records with the huid of {} could be found').format(huid)

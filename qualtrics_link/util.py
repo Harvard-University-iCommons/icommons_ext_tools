@@ -206,16 +206,24 @@ def get_person_list(huid):
 
 
 # Will update the given HUID users current role and division for their Qualtrics account
-def update_user(huid, division, role):
+def update_qualtrics_user(huid, division, role):
     token = settings.QUALTRICS_LINK.get('QUALTRICS_API_TOKEN')
     req_params = {
         'divisionId': division,
         'userType': role
     }
 
-    requests.put(url='https://harvard.qualtrics.com/API/v3/users/:{}'.format(huid),
+    requests.put(url='https://harvard.qualtrics.com/API/v3/users/{}'.format(huid),
                  data=req_params,
                  headers={'X-API-TOKEN': token})
+
+
+# Query Qualtrics to get the user with the given HUID
+def get_qualtrics_user(huid):
+    token = settings.QUALTRICS_LINK.get('QUALTRICS_API_TOKEN')
+    response = requests.get(url='https://harvard.qualtrics.com/API/v3/users/{}'.format(huid),
+                            headers={'X-API-TOKEN': token})
+    return response
 
 
 # Maps the given school code to a school using the school_code_mapping table
@@ -227,6 +235,7 @@ def lookup_school_affiliations(school_cd):
         return 'Not Available'
 
 
+# Gets the list of school codes for each person in the given list
 def get_school_affiliations(person_list):
     affiliations = []
     for person in person_list:
@@ -255,7 +264,7 @@ class PersonDetails:
 
 
 # Creates a PersonDetails instance by using the given person record to get values for the extended fields
-def get_person_details(huid, request):
+def get_person_details(huid):
     person_list = get_person_list(huid)
 
     if len(person_list) > 0:
