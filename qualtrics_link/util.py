@@ -11,7 +11,6 @@ from icommons_common.models import QualtricsAccessList
 from icommons_common.models import Person
 from qualtrics_link.models import SchoolCodeMapping
 import requests
-from django.shortcuts import render
 
 logger = logging.getLogger(__name__)
 
@@ -205,25 +204,36 @@ def get_person_list(huid):
     return person_list
 
 
+# This function is waiting on a Qualtrics API update to be able to get a user by their username
 # Will update the given HUID users current role and division for their Qualtrics account
 def update_qualtrics_user(huid, division, role):
+    enc_id = get_encrypted_huid(huid).join('#harvard')
     token = settings.QUALTRICS_LINK.get('QUALTRICS_API_TOKEN')
     req_params = {
         'divisionId': division,
         'userType': role
     }
 
-    requests.put(url='https://harvard.qualtrics.com/API/v3/users/{}'.format(huid),
+    requests.put(url='https://harvard.qualtrics.com/API/v3/users/{}'.format(enc_id),
                  data=req_params,
                  headers={'X-API-TOKEN': token})
 
-
+# This function is waiting on a Qualtrics API update to be able to get a user by their username
 # Query Qualtrics to get the user with the given HUID
 def get_qualtrics_user(huid):
+    enc_id = get_encrypted_huid(huid)
     token = settings.QUALTRICS_LINK.get('QUALTRICS_API_TOKEN')
-    response = requests.get(url='https://harvard.qualtrics.com/API/v3/users/{}'.format(huid),
+    response = requests.get(url='https://harvard.qualtrics.com/API/v3/users/{}'.format(enc_id),
                             headers={'X-API-TOKEN': token})
     return response
+
+
+# Gets all the Qualtrics accounts as a json object
+# If a URL is supplied, then it will be providing pagination of the nextPage field from the previous call
+def get_all_qualtrics_users(url='https://harvard.qualtrics.com/API/v3/users/'):
+    token = settings.QUALTRICS_LINK.get('QUALTRICS_API_TOKEN')
+    response = requests.get(url=url,headers={'X-API-TOKEN': token})
+    return response.json()
 
 
 # Maps the given school code to a school using the school_code_mapping table
@@ -240,7 +250,7 @@ def get_school_affiliations(person_list):
     affiliations = []
     for person in person_list:
         school = lookup_school_affiliations(person.school_cd)
-        if school is not None and school != 'Not Available':
+        if school != '' and school != 'Not Available':
             affiliations.append(str(school))
 
     return affiliations

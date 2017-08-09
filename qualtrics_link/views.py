@@ -91,7 +91,7 @@ def launch(request):
             return render(request, 'qualtrics_link/error.html', {'request': request})
 
         enc_id = util.get_encrypted_huid(huid)
-        key_value_pairs = "id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
+        key_value_pairs = u"id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
         key_value_pairs = key_value_pairs.format(enc_id,
                                                  current_date,
                                                  expiration_date,
@@ -102,11 +102,6 @@ def launch(request):
                                                  person_details.division)
         qualtrics_link = util.get_qualtrics_url(key_value_pairs)
         logger.info("{}\t{}\t{}\t{}".format(current_date, client_ip, person_details.role, person_details.division))
-
-        # We only want to call the update function if there is an account, check to see if one exists
-        if util.get_qualtrics_user(huid).status_code == requests.requests.codes.ok:
-            # Update the users division and role fields of their Qualtrics profile
-            util.update_qualtrics_user(huid, person_details.division, person_details.role)
 
         # The redirect line below will be how the application works if everything is good for the user.
         return redirect(qualtrics_link)

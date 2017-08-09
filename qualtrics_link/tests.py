@@ -1,6 +1,5 @@
 from django.test import TestCase
 import qualtrics_link.util as util
-from unittest import skip
 
 
 class UtilTestCase(TestCase):
@@ -32,25 +31,12 @@ class UtilTestCase(TestCase):
         self.assertEqual(util.get_valid_dept(None), 'Other')
         self.assertIsNone(util.get_valid_dept('HMS'))
 
-    @skip("Skipping until changes are made in view and util")
-    def test_build_user_dict(self):
-        people_in_data = {
-            'people': [
-                {
-                    'first_name': 'firstName',
-                    'last_name': 'lastName',
-                    'schoolAfilliations': [],
-                    'departmentAffiliation': 'UIS'
-                },
-            ]
-        }
-        return_dict = {
-            'first_name': 'firstName',
-            'last_name': 'lastName',
-            'division': 'HUIT',
-            'role': 'employee',
-            'validschool': False,
-            'validdept': True,
-        }
-        pass
-        self.assertEqual(util.build_user_dict(people_in_data), return_dict)
+    def test_lookup_school_affiliations(self):
+        # Test valid lookup
+        self.assertEqual(util.lookup_school_affiliations(39), 'DIV')
+
+        # Test empty employee school code
+        self.assertEqual(util.lookup_school_affiliations(92), '')
+
+        # Test invalid school code
+        self.assertEqual(util.lookup_school_affiliations(9999), 'Not Available')
