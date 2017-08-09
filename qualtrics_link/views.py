@@ -104,7 +104,7 @@ def launch(request):
         logger.info("{}\t{}\t{}\t{}".format(current_date, client_ip, person_details.role, person_details.division))
 
         # We only want to call the update function if there is an account, check to see if one exists
-        if util.get_qualtrics_user(huid).status_code != requests.requests.codes.ok:
+        if util.get_qualtrics_user(huid).status_code == requests.requests.codes.ok:
             # Update the users division and role fields of their Qualtrics profile
             util.update_qualtrics_user(huid, person_details.division, person_details.role)
 
