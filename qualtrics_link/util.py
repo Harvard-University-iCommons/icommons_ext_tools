@@ -222,7 +222,6 @@ def filter_person_list(person_list):
     # Employee check
     employee_list = []
     for person in person_list:
-        print person.role_type_cd
         if person.role_type_cd.lower() == 'employee':
             employee_list.append(person)
 
