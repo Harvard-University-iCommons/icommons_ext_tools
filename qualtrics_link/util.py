@@ -232,7 +232,9 @@ def filter_person_list(person_list):
             return emp_with_prime
 
     # Check if any of the Person records contain the prime role indicator
-    get_person_with_prime_indicator(person_list)
+    person_with_prime = get_person_with_prime_indicator(person_list)
+    if person_with_prime is not None:
+        return person_with_prime
 
     # If no employee records were found, then return the first person in the list
     return person_list[0]
