@@ -226,10 +226,13 @@ def filter_person_list(person_list):
             employee_list.append(person)
 
     # If more than one Person with Employee role, check if any have prime indicator set to 'Y'
+    # Else return the first employee record
     if len(employee_list) > 0:
         emp_with_prime = get_person_with_prime_indicator(employee_list)
         if emp_with_prime is not None:
             return emp_with_prime
+        else:
+            return employee_list[0]
 
     # Check if any of the Person records contain the prime role indicator
     person_with_prime = get_person_with_prime_indicator(person_list)
