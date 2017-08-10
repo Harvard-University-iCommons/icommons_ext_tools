@@ -1,16 +1,18 @@
+import base64
 import hashlib
 import hmac
-import base64
 import logging
 import urllib2
+from datetime import date
 from unicodedata import normalize
+
+import requests
 from Crypto.Cipher import AES
 from django.conf import settings
-from datetime import date
-from icommons_common.models import QualtricsAccessList
+
 from icommons_common.models import Person
+from icommons_common.models import QualtricsAccessList
 from qualtrics_link.models import SchoolCodeMapping
-import requests
 
 logger = logging.getLogger(__name__)
 
@@ -139,8 +141,10 @@ def get_client_ip(request):
     return ip_address
 
 
-# Find the area for the given unit, if no matches then use 'Other'
 def lookup_unit(unit):
+    """
+    Find the area for the given unit, if no matches then use 'Other'
+    """
     if unit in AREA_LOOKUP:
         return AREA_LOOKUP[unit]
     else:
@@ -148,28 +152,36 @@ def lookup_unit(unit):
         return 'Other'
 
 
-# Determine If the given unit is contained in the Blacklist, if it is then it is not valid.
 def is_unit_valid(unit):
+    """
+    Determine If the given unit is contained in the Blacklist, if it is then it is not valid
+    """
     return unit not in BLACKLIST
 
 
-# Return the first school from the given school list that is not contained within the blacklist.
 def get_valid_school(schools):
+    """
+    Return the first school from the given school list that is not contained within the blacklist
+    """
     for school_code in schools:
         school = lookup_unit(school_code)
         if school not in BLACKLIST:
             return school
 
 
-# If department is not in the blacklist then return it's division, else return None
 def get_valid_dept(dept):
+    """
+    If department is not in the blacklist then return it's division, else return None
+    """
     division = lookup_unit(dept)
     if division not in BLACKLIST:
         return division
 
 
-# Determines if the Person with the given HUID is in the whitelist and the Person's expiration is today or greater.
 def is_user_in_whitelist(huid):
+    """
+    Determines if the Person with the given HUID is in the whitelist and the Person's expiration is today or greater
+    """
     try:
         person = QualtricsAccessList.objects.get(user_id=huid)
         if person.expiration_date:
@@ -188,39 +200,74 @@ def is_user_in_whitelist(huid):
         return False
 
 
-# If there are more than one record returned for a HUID,
-# we want to determine if any are employee status and to return that record.
-def filter_person_list(person_list):
+def get_person_with_prime_indicator(person_list):
+    """
+    Iterate over a person list and return the first person with prime_role_indicator set to 'Y'
+    Will return None if this condition is not met 
+    """
     for person in person_list:
-        if person.role_type_cd.lower() == 'employee':
+        if person.prime_role_indicator == 'Y':
             return person
+
+
+def filter_person_list(person_list):
+    """
+    If there are more than one record returned for a HUID, we want to determine if they contain attributes with priority
+     - Employee
+        - If multiple Employee records for HUID, check if the prime role indicator field is set for any of them
+     - Person with prime role indicator field set to 'Y'
+     - If no matches are made for the above conditions, return the first person in the given list.   
+    """
+
+    # Employee check
+    employee_list = []
+    for person in person_list:
+        print person.role_type_cd
+        if person.role_type_cd.lower() == 'employee':
+            employee_list.append(person)
+
+    # If more than one Person with Employee role, check if any have prime indicator set to 'Y'
+    if len(employee_list) > 0:
+        emp_with_prime = get_person_with_prime_indicator(employee_list)
+        if emp_with_prime is not None:
+            return emp_with_prime
+
+    # Check if any of the Person records contain the prime role indicator
+    get_person_with_prime_indicator(person_list)
+
     # If no employee records were found, then return the first person in the list
     return person_list[0]
 
 
-# Get the person list matching the given HUID or return None
 def get_person_list(huid):
-    person_list = Person.objects.filter(univ_id=huid, prime_role_indicator='Y')
+    """
+    Get the person list matching the given HUID
+    """
+    person_list = Person.objects.filter(univ_id=huid)
     return person_list
 
 
-# This function is waiting on a Qualtrics API update to be able to get a user by their username
-# Will update the given HUID users current role and division for their Qualtrics account
-def update_qualtrics_user(huid, division, role):
-    enc_id = get_encrypted_huid(huid).join('#harvard')
+def update_qualtrics_user(user_id, division, role):
+    """
+    This function is waiting on a Qualtrics API update to be able to get a user by their username
+    Will update the given HUID users current role and division for their Qualtrics account
+    """
     token = settings.QUALTRICS_LINK.get('QUALTRICS_API_TOKEN')
     req_params = {
         'divisionId': division,
         'userType': role
     }
 
-    requests.put(url='https://harvard.qualtrics.com/API/v3/users/{}'.format(enc_id),
+    requests.put(url='https://harvard.qualtrics.com/API/v3/users/{}'.format(user_id),
                  data=req_params,
                  headers={'X-API-TOKEN': token})
 
-# This function is waiting on a Qualtrics API update to be able to get a user by their username
-# Query Qualtrics to get the user with the given HUID
+
 def get_qualtrics_user(huid):
+    """
+    This function is waiting on a Qualtrics API update to be able to get a user by their username
+    Query Qualtrics to get the user with the given HUID
+    """
     enc_id = get_encrypted_huid(huid)
     token = settings.QUALTRICS_LINK.get('QUALTRICS_API_TOKEN')
     response = requests.get(url='https://harvard.qualtrics.com/API/v3/users/{}'.format(enc_id),
@@ -228,16 +275,20 @@ def get_qualtrics_user(huid):
     return response
 
 
-# Gets all the Qualtrics accounts as a json object
-# If a URL is supplied, then it will be providing pagination of the nextPage field from the previous call
 def get_all_qualtrics_users(url='https://harvard.qualtrics.com/API/v3/users/'):
+    """
+    Gets all the Qualtrics accounts as a json object
+    If a URL is supplied, then it will be providing pagination of the nextPage field from the previous call
+    """
     token = settings.QUALTRICS_LINK.get('QUALTRICS_API_TOKEN')
-    response = requests.get(url=url,headers={'X-API-TOKEN': token})
+    response = requests.get(url=url, headers={'X-API-TOKEN': token})
     return response.json()
 
 
-# Maps the given school code to a school using the school_code_mapping table
 def lookup_school_affiliations(school_cd):
+    """
+    Maps the given school code to a school using the school_code_mapping table  
+    """
     try:
         return SchoolCodeMapping.objects.get(student_school_code=school_cd).employee_school_code
     except SchoolCodeMapping.DoesNotExist:
@@ -245,8 +296,10 @@ def lookup_school_affiliations(school_cd):
         return 'Not Available'
 
 
-# Gets the list of school codes for each person in the given list
 def get_school_affiliations(person_list):
+    """
+    Gets the list of school codes for each person in the given list
+    """
     affiliations = []
     for person in person_list:
         school = lookup_school_affiliations(person.school_cd)
@@ -256,8 +309,10 @@ def get_school_affiliations(person_list):
     return affiliations
 
 
-# Data structure to extend the Person model and add extra attributes
 class PersonDetails:
+    """
+    Data structure to extend the Person model and add extra attributes
+    """
     def __init__(self, person, id, first_name, last_name, email, role='student',
                  division='Other', valid_school=False, valid_dept=False,
                  school_affiliations=[]):
@@ -273,8 +328,10 @@ class PersonDetails:
         self.school_affiliations = school_affiliations,
 
 
-# Creates a PersonDetails instance by using the given person record to get values for the extended fields
 def get_person_details(huid):
+    """
+    Creates a PersonDetails instance by using the given person record to get values for the extended fields
+    """
     person_list = get_person_list(huid)
 
     if len(person_list) > 0:

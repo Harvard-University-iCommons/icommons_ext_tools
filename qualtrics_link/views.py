@@ -1,20 +1,20 @@
-from django.shortcuts import render, redirect
-from django.views.decorators.http import require_http_methods
+import datetime
 import logging
+import time
+import urllib
+from datetime import date
+
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
-from icommons_common.monitor.views import BaseMonitorResponseView
-from icommons_common.icommonsapi import IcommonsApi
-from icommons_common.auth.decorators import group_membership_restriction
 from django.http import HttpResponse
-from datetime import date
-import time
-import datetime
-import urllib
-from qualtrics_link.forms import SpoofForm
+from django.shortcuts import render, redirect
+from django.views.decorators.http import require_http_methods
+
 import qualtrics_link.util as util
-from django.conf import settings
-import requests
+from icommons_common.auth.decorators import group_membership_restriction
+from icommons_common.icommonsapi import IcommonsApi
+from icommons_common.monitor.views import BaseMonitorResponseView
+from qualtrics_link.forms import SpoofForm
 
 logger = logging.getLogger(__name__)
 
@@ -162,7 +162,7 @@ def internal(request):
     person_details = util.get_person_details(huid)
 
     if person_details is None:
-        logger.error('No records with the huid of {} could be found').format(huid)
+        logger.error('No records with the huid of {} could be found'.format(huid))
         return render(request, 'qualtrics_link/error.html', {'request': request})
 
     icommons_api = IcommonsApi()
