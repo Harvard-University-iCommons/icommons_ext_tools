@@ -356,7 +356,7 @@ def get_person_details(huid):
         division = valid_school_code
 
     # Department Affiliations check
-    if person.department is not None:
+    if person.department != '':
         valid_dept_name = get_valid_dept(person.department)
         if valid_dept_name is not None:
             valid_dept = True
