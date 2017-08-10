@@ -42,6 +42,7 @@ EMAIL_SUBJECT_PREFIX = ''
 # Application definition
 
 INSTALLED_APPS = (
+    'django_cas_ng',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -67,10 +68,16 @@ MIDDLEWARE_CLASSES = (
 )
 
 AUTHENTICATION_BACKENDS = (
-    'icommons_common.auth.backends.PINAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
+    'icommons_common.auth.backends.CASAuthBackend',
+
 )
 
-LOGIN_URL = reverse_lazy('pin:login')
+#CAS plugin attributes
+CAS_SERVER_URL = SECURE_SETTINGS.get('cas_server_url', 'https://www.pin1.harvard.edu/cas/')
+CAS_VERSION = '3'
+CAS_LOGGED_MSG = None
+CAS_LOGIN_MSG = None
 
 TEMPLATES = [
     {
@@ -84,7 +91,6 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-                'icommons_common.auth.context_processors.pin_context',
             ],
         },
     },
