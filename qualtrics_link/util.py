@@ -306,7 +306,11 @@ def get_school_affiliations(person_list):
     """
     affiliations = []
     for person in person_list:
-        school = lookup_school_affiliations(person.school_cd)
+        school = 'Not Available'
+        # Only lookup a school affiliation if the person has a school code
+        if person.school_cd != '' and person.school_cd is not None:
+            school = lookup_school_affiliations(person.school_cd)
+
         if school != '' and school != 'Not Available':
             affiliations.append(str(school))
 
