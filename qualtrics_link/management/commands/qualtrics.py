@@ -1,6 +1,5 @@
 import json
 import logging
-import pprint
 
 from django.core.management.base import BaseCommand
 
@@ -34,6 +33,8 @@ class Command(BaseCommand):
             self.filter_users()
         elif options['stats']:
             self.stats()
+        elif options['perform_update']:
+            self.update_users()
         else:
             print 'You need to select a valid option'
 
@@ -57,6 +58,7 @@ class Command(BaseCommand):
         filtered_file = open('filtered.json', 'r')
         filtered_data = json.load(filtered_file)
 
+        # Display information regarding the users who will have their account updated
         for update in filtered_data:
             print
             print 'User %s %s with HUID: %s has the following updates:' % (update['changes']['user']['first_name'],
@@ -75,12 +77,24 @@ class Command(BaseCommand):
         """
         filtered_file = open('filtered.json', 'r')
         filtered_data = json.load(filtered_file)
+        filtered_len = len(filtered_data)
 
+        count = 1
         for user in filtered_data:
-            util.update_qualtrics_user(user_id=user['user_id'], division=user['division'], role=user['role'])
+            print user
+            print 'Updating %d of %d records' % (count, filtered_len)
+            resp = util.update_qualtrics_user(user_id=user['user_id'], division=user['division'], role=user['role']).json()
+            print 'Response: %s, Notice: %s' % (resp['meta']['httpStatus'], resp['meta']['notice'])
+            count += 1
+
+        print 'Update complete'
 
     @staticmethod
     def filter_users():
+        """
+        Go through all the Qualtrics users in the data file and find those who do not match our current People data.
+        Create a new filtered file containing those users who will be updated in another step.
+        """
         employee_user_type = 'UT_egutew4nqz71QgI'
         student_user_type = 'UT_787UadC574xhxgU'
         brand_admin = 'UT_BRANDADMIN'
