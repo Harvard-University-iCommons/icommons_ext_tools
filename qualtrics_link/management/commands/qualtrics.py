@@ -25,50 +25,38 @@ class Command(BaseCommand):
                                                                           'the filtered list file.')
         parser.add_argument('--stats', action='store_true', help='Provide information regarding the changes that are '
                                                                  'to be made during an update.')
+        parser.add_argument('--amount', default=50, type=int, help='The amount of users to filter in a run.')
 
     def handle(self, *args, **options):
         if options['get_users']:
             self.get_users()
         if options['filter_users']:
-            self.filter_users()
+            self.filter_users(options['amount'])
         elif options['stats']:
             self.stats()
         elif options['perform_update']:
             self.update_users()
         else:
-            print 'You need to select a valid option'
+            logger.info('You need to select a valid option')
 
     @staticmethod
     def stats():
-        data_file = open('data.json', 'r')
-        data = json.load(data_file)
-
-        total_users = len(data)
-
-        print 'Amount of users: %d' % total_users
-
-        count = 0
-        for person in data:
-            if person['accountStatus'] == 'active':
-                count += 1
-
-        print 'Total active users: %d' % count
-        print 'Total inactive users: %d' % (total_users - count)
-
         filtered_file = open('filtered.json', 'r')
         filtered_data = json.load(filtered_file)
 
+        logger.info('Total amount of users being updated: %d' % len(filtered_data))
+        logger.info('------------------------------------------------------------')
+
         # Display information regarding the users who will have their account updated
         for update in filtered_data:
-            print
-            print 'User %s %s with HUID: %s has the following updates:' % (update['changes']['user']['first_name'],
-                                                                           update['changes']['user']['last_name'],
-                                                                           update['changes']['user']['huid'])
-            print 'Role is changing from %s => %s' % (update['changes']['previous_data']['role'],
-                                                      update['changes']['new_data']['role'], )
-            print 'Division is changing from %s => %s' % (update['changes']['previous_data']['division'],
-                                                          update['changes']['new_data']['division'], )
-            print
+            logger.info('User %s %s with HUID: %s has the following update:' % (update['changes']['user']['first_name'],
+                                                                                update['changes']['user']['last_name'],
+                                                                                update['changes']['user']['huid']))
+            logger.info('Role is changing from %s => %s' % (update['changes']['previous_data']['role'],
+                                                            update['changes']['new_data']['role']))
+            logger.info('Division is changing from %s => %s' % (update['changes']['previous_data']['division'],
+                                                                update['changes']['new_data']['division']))
+            logger.info('------------------------------------------------------------')
 
     @staticmethod
     def update_users():
@@ -81,16 +69,15 @@ class Command(BaseCommand):
 
         count = 1
         for user in filtered_data:
-            print user
-            print 'Updating %d of %d records' % (count, filtered_len)
+            logger.info('Updating %d of %d records' % (count, filtered_len))
             resp = util.update_qualtrics_user(user_id=user['user_id'], division=user['division'], role=user['role']).json()
-            print 'Response: %s, Notice: %s' % (resp['meta']['httpStatus'], resp['meta']['notice'])
+            logger.info('Response: %s, Notice: %s' % (resp['meta']['httpStatus'], resp['meta']['notice']))
             count += 1
 
-        print 'Update complete'
+        logger.info('Update complete')
 
     @staticmethod
-    def filter_users():
+    def filter_users(slice_amount):
         """
         Go through all the Qualtrics users in the data file and find those who do not match our current People data.
         Create a new filtered file containing those users who will be updated in another step.
@@ -135,7 +122,15 @@ class Command(BaseCommand):
         reverse_user_types = {
             'UT_egutew4nqz71QgI': 'employee',
             'UT_787UadC574xhxgU': 'student',
-            'UT_BRANDADMIN': 'Brand Admin'
+            'UT_BRANDADMIN': 'Brand Admin',
+            'UT_8vKYJklycpVKpiA': 'Generic',
+            'UT_4TQJ8h7ffJklndG': 'XID',
+            'UT_3dBUKOs5wAT2mLW': 'Standard Qualtrics',
+            'UT_4SjjZmbPphZGKDq': 'Standard - Qualtrics - no limits',
+            'UT_5hIxADmZZF1O2jy': 'Full Trial',
+            'UT_cAchjVb6asRttat': 'QTrial Default 102015',
+            'UT_eJQs8UTd28L5L25': 'QTrial Academic',
+            'UT_SELFENROLLMENT': 'Default Self-Enrollment Type'
         }
 
         # Reverse mapping to translate the Qualtrics division code into a readable division
@@ -163,17 +158,14 @@ class Command(BaseCommand):
 
         data_file = open('data.json', 'r')
         data = json.load(data_file)
-        print('%d records in file' % len(data))
+        logger.info(('%d records in file' % len(data)))
 
         # List of all users that need to be updated
         update_list = []
 
-        # How many users to process at each run time.
-        slice_amount = 25
-
         position = 1
         for q_person in data[:slice_amount]:
-            print 'Processing user %d out of %d' % (position, slice_amount)
+            logger.info('Processing user %d out of %d' % (position, slice_amount))
             q_id = q_person['id']
             q_username = q_person['username']
             q_division = q_person['divisionId']
@@ -182,11 +174,15 @@ class Command(BaseCommand):
             q_first_name = q_person['firstName']
             q_last_name = q_person['lastName']
 
-            # If the Qualtrics user has no email, filter based on first and last name
-            if q_email is None:
-                person_queryset = Person.objects.filter(name_first=q_first_name, name_last=q_last_name)
-            else:
+            # Filter Person records based off of their email if present
+            if q_email:
                 person_queryset = Person.objects.filter(email_address=q_email)
+                # A user may have had their Qualtrics account created with a different email address than what
+                # is currently stored in our DB. If so, we need to look them up based on first and last name.
+                if len(person_queryset) == 0:
+                    person_queryset = Person.objects.filter(name_first=q_first_name, name_last=q_last_name)
+            else:
+                person_queryset = Person.objects.filter(name_first=q_first_name, name_last=q_last_name)
 
             matching_person = None
             # Iterate through the queryset, encrypting the current Persons HUID to find a match with the q_id
@@ -213,7 +209,8 @@ class Command(BaseCommand):
                     update_person = True
 
                 # If the Person is not a Student or Employee, or Brand Admin then they need to be updated
-                if q_role not in user_type_list:
+                # Or if their roles do not match
+                if q_role not in user_type_list or p_role != q_role:
                     update_dict['user_type'] = p_role
                     update_person = True
 
@@ -237,6 +234,7 @@ class Command(BaseCommand):
                     # has changed
                     if q_division is None:
                         q_division = 'None'
+
                     update_entry['changes'] = {
                         'user': {
                             'huid': person_details.id,
@@ -245,7 +243,7 @@ class Command(BaseCommand):
                         },
                         'previous_data': {
                             'division': reverse_division_mapping[q_division],
-                            'role': reverse_user_types[p_role]
+                            'role': reverse_user_types[q_role]
                         },
                         'new_data': {
                             'division': reverse_division_mapping[update_entry['division']],
@@ -253,14 +251,16 @@ class Command(BaseCommand):
                         }
                     }
 
-                    print 'Found user requiring update'
+                    logger.info('Found user requiring update, Qualtrics ID: %s, HUID: %s' % (q_id, person_details.id))
                     update_list.append(update_entry)
+            else:
+                logger.info('Could not find matching person in DB; Qualtrics id:%s' % q_id)
 
             position += 1
 
-        print
-        print 'Update statistics'
-        print '%d users require updates' % len(update_list)
+        logger.info('\n')
+        logger.info('Update statistics')
+        logger.info('%d users require updates' % len(update_list))
 
         # Get the current data in the filtered file so we can append our new data
         filtered_file = open('filtered.json', 'r')
@@ -292,10 +292,9 @@ class Command(BaseCommand):
             response = util.get_all_qualtrics_users(next_page)
             all_users_list.extend(response['result']['elements'])
             next_page = response['result'].get('nextPage', None)
-            print next_page
+            logger.info(next_page)
 
-        print 'The length of all the current users is:'
-        print len(all_users_list)
+        logger.info('All user count: %d' % len(all_users_list))
 
         # Create JSON file with the user info
         with open('data.json', 'w+') as outfile:
