@@ -120,8 +120,8 @@ class Command(BaseCommand):
         #####
 
         reverse_user_types = {
-            'UT_egutew4nqz71QgI': 'employee',
-            'UT_787UadC574xhxgU': 'student',
+            'UT_egutew4nqz71QgI': 'Employee',
+            'UT_787UadC574xhxgU': 'Student',
             'UT_BRANDADMIN': 'Brand Admin',
             'UT_8vKYJklycpVKpiA': 'Generic',
             'UT_4TQJ8h7ffJklndG': 'XID',
