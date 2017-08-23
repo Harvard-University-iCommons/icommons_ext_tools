@@ -44,7 +44,6 @@ class Command(BaseCommand):
         filtered_file = open('filtered.json', 'r')
         filtered_data = json.load(filtered_file)
 
-        logger.info('Total amount of users being updated: %d' % len(filtered_data))
         logger.info('------------------------------------------------------------')
 
         # Display information regarding the users who will have their account updated
@@ -57,6 +56,7 @@ class Command(BaseCommand):
             logger.info('Division is changing from %s => %s' % (update['changes']['previous_data']['division'],
                                                                 update['changes']['new_data']['division']))
             logger.info('------------------------------------------------------------')
+        logger.info('Total amount of users being updated: %d' % len(filtered_data))
 
     @staticmethod
     def update_users():
@@ -67,14 +67,37 @@ class Command(BaseCommand):
         filtered_data = json.load(filtered_file)
         filtered_len = len(filtered_data)
 
+        stats_file = open('update_stats.json', 'w')
+
+        stats = {
+            'total': filtered_len,
+            'success': 0,
+            'failure': 0,
+            'failure_details': []  # List of user and response dicts detailing the failure
+        }
+
         count = 1
         for user in filtered_data:
             logger.info('Updating %d of %d records' % (count, filtered_len))
-            resp = util.update_qualtrics_user(user_id=user['user_id'], division=user['division'], role=user['role']).json()
-            logger.info('Response: %s, Notice: %s' % (resp['meta']['httpStatus'], resp['meta']['notice']))
+            resp = util.update_qualtrics_user(user_id=user['user_id'],
+                                              division=user['division'],
+                                              role=user['role']).json()
+            if resp['meta']['httpStatus'] != '200 - OK':
+                logger.warning('Response returned a status other than 200')
+                logger.warning('Response: %s' % resp)
+                stats['failure'] += 1
+                stats['failure_details'].append({'user': user,
+                                                 'response': resp})
+            else:
+                stats['success'] += 1
+
             count += 1
 
+        # Writes the updated stats dict to file
+        json.dump(stats, stats_file)
+
         logger.info('Update complete')
+        logger.info(stats)
 
     @staticmethod
     def filter_users(slice_amount):
