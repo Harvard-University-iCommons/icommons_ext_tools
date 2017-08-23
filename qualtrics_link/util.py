@@ -92,10 +92,10 @@ AREA_LOOKUP = {
     'VPA': 'Central Administration',
     'VPF': 'Central Administration',
     'VPG': 'Central Administration',
-} 
+}
 
 BS = 16
-pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS) 
+pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
 
 
 def get_encrypted_huid(huid):
@@ -111,7 +111,7 @@ def create_encoded_token(key_value_pairs):
     key_value_pairs = normalize('NFKD', key_value_pairs).encode('ascii', 'ignore')
     data = bytes(key_value_pairs)
     encoded = base64.b64encode(hmac.new(secret, data).digest())
-    token = key_value_pairs+'&mac='+encoded
+    token = key_value_pairs + '&mac=' + encoded
     raw = pad(token)
     cipher = AES.new(key, AES.MODE_ECB)
     encoded_token = base64.b64encode(cipher.encrypt(raw))
@@ -121,13 +121,13 @@ def create_encoded_token(key_value_pairs):
 def get_sso_test_url(key_value_pairs):
     key = settings.QUALTRICS_LINK.get('QUALTRICS_APP_KEY')
     encoded_token = create_encoded_token(key_value_pairs)
-    sso_test_link = 'https://new.qualtrics.com/ControlPanel/ssoTest.php?key='+key+'&mac=md5&ssotoken='+encoded_token
+    sso_test_link = 'https://new.qualtrics.com/ControlPanel/ssoTest.php?key=' + key + '&mac=md5&ssotoken=' + encoded_token
     return sso_test_link
 
 
 def get_qualtrics_url(key_value_pairs):
     encoded_token = create_encoded_token(key_value_pairs)
-    qualtrics_url = 'https://harvard.qualtrics.com/ControlPanel/?ssotoken='+encoded_token
+    qualtrics_url = 'https://harvard.qualtrics.com/ControlPanel/?ssotoken=' + encoded_token
     logger.debug("qualtrics url is %s", qualtrics_url)
     return qualtrics_url
 
@@ -256,16 +256,22 @@ def update_qualtrics_user(user_id, division, role):
     This function is waiting on a Qualtrics API update to be able to get a user by their username
     Will update the given HUID users current role and division for their Qualtrics account
     """
-    token = settings.QUALTRICS_LINK.get('QUALTRICS_API_TOKEN')
-    req_params = {
-        'divisionId': division,
-        'userType': role
-    }
+    try:
+        token = settings.QUALTRICS_LINK.get('QUALTRICS_API_TOKEN')
+        req_params = {
+            'divisionId': division,
+            'userType': role
+        }
 
-    return requests.put(url='https://harvard.qualtrics.com/API/v3/users/{}'.format(user_id),
-                        json=req_params,
-                        headers={'X-API-TOKEN': token,
-                                 'content-type': 'application/json'})
+        return requests.put(url='https://harvard.qualtrics.com/API/v3/users/{}'.format(user_id),
+                            json=req_params,
+                            headers={'X-API-TOKEN': token,
+                                     'content-type': 'application/json'})
+    except Exception as e:
+        logger.warning('An error occurred while making a Qualtrics update call. '
+                       'ID: %s, Division: %s, Role: %s') % (user_id, division, role)
+        logger.warning(e)
+        return {'meta': {'httpStatus': 500}}
 
 
 def get_qualtrics_user(huid):
@@ -322,6 +328,7 @@ class PersonDetails:
     """
     Data structure to extend the Person model and add extra attributes
     """
+
     def __init__(self, person, id, first_name, last_name, email, role='student',
                  division='Other', valid_school=False, valid_dept=False,
                  school_affiliations=[]):
