@@ -289,11 +289,7 @@ class Command(BaseCommand):
         filtered_file = open('filtered.json', 'r')
         filtered_data = json.load(filtered_file)
         filtered_file = open('filtered.json', 'w')
-
-        if filtered_data is None:
-            json.dump([], filtered_file)
-        else:
-            json.dump(filtered_data + update_list, filtered_file)
+        json.dump(filtered_data + update_list, filtered_file)
 
         # Write the sliced data list to the data file. Removes users that we have processed from the data file.
         data_file = open('data.json', 'w')
@@ -322,3 +318,9 @@ class Command(BaseCommand):
         # Create JSON file with the user info
         with open('data.json', 'w+') as outfile:
             json.dump(all_users_list, outfile)
+
+        # Create a clean instance of the filtered and stats files
+        filtered_file = open('filtered.json', 'w')
+        json.dump([], filtered_file)
+        update_stats_file = open('update_stats.json', 'w')
+        json.dump([], update_stats_file)
