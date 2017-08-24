@@ -322,5 +322,4 @@ class Command(BaseCommand):
         # Create a clean instance of the filtered and stats files
         filtered_file = open('filtered.json', 'w')
         json.dump([], filtered_file)
-        update_stats_file = open('update_stats.json', 'w')
-        json.dump([], update_stats_file)
+        open('update_stats.json', 'w')
