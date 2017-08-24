@@ -263,7 +263,7 @@ def update_qualtrics_user(user_id, division, role):
             'userType': role
         }
 
-        return requests.put(url='https://harvard.qualtrics.com/API/v3/users/{}'.format(user_id),
+        return requests.put(url='https://harvard.az1.qualtrics.com/API/v3/users/{}'.format(user_id),
                             json=req_params,
                             headers={'X-API-TOKEN': token,
                                      'content-type': 'application/json'})
