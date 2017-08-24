@@ -271,7 +271,7 @@ def update_qualtrics_user(user_id, division, role):
         logger.warning('An error occurred while making a Qualtrics update call. '
                        'ID: %s, Division: %s, Role: %s') % (user_id, division, role)
         logger.warning(e)
-        return {'meta': {'httpStatus': 500}}
+        return {'meta': {'httpStatus': '500'}}
 
 
 def get_qualtrics_user(huid):

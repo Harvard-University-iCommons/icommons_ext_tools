@@ -25,6 +25,8 @@ class Command(BaseCommand):
                                                                           'the filtered list file.')
         parser.add_argument('--stats', action='store_true', help='Provide information regarding the changes that are '
                                                                  'to be made during an update.')
+        parser.add_argument('--update-stats', action='store_true', help='Provide information from the '
+                                                                        'perform-update call')
         parser.add_argument('--amount', default=50, type=int, help='The amount of users to filter in a run.')
 
     def handle(self, *args, **options):
@@ -36,8 +38,41 @@ class Command(BaseCommand):
             self.stats()
         elif options['perform_update']:
             self.update_users()
+        elif options['update_stats']:
+            self.update_stats()
         else:
             logger.info('You need to select a valid option')
+
+    @staticmethod
+    def update_stats():
+        """
+        Prints the information from the update run to console
+        """
+        try:
+            update_stats_file = open('update_stats.json', 'r')
+            update_data = json.load(update_stats_file)
+
+            logger.info('The following accounts failed to update:')
+            logger.info('\n')
+            for detail in update_data['failure_details']:
+                logger.info('Qualtrics ID: %s, HUID: %s' % (detail['user']['user_id'],
+                                                            detail['user']['changes']['user']['huid']))
+
+                logger.info('HTTP Status: %s' % detail['response']['meta']['httpStatus'])
+                logger.info('Error Code: %s' % detail['response']['meta']['error']['errorCode'])
+                logger.info('Error Message: %s' % detail['response']['meta']['error']['errorMessage'])
+
+                logger.info('Role changing from %s => %s' % (detail['user']['changes']['previous_data']['role'],
+                                                             detail['user']['changes']['new_data']['role']))
+                logger.info('Division changing from %s => %s' % (detail['user']['changes']['previous_data']['division'],
+                                                                 detail['user']['changes']['new_data']['division']))
+                logger.info('\n')
+
+            logger.info('Total users requiring an update: %d' % update_data['total'])
+            logger.info('Total failures: %d' % update_data['failure'])
+            logger.info('Total successes: %d' % update_data['success'])
+        except IOError:
+            logger.info('There is no update information currently available')
 
     @staticmethod
     def stats():
