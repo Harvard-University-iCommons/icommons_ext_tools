@@ -21,13 +21,16 @@ class Command(BaseCommand):
         parser.add_argument('--filter-users', action='store_true', help='Filters the data.json file to produce a new'
                                                                         'file containing only users that need to be '
                                                                         'updated.')
+        parser.add_argument('--amount', default=50, type=int, help='The amount of users to filter in a run.')
         parser.add_argument('--perform-update', action='store_true', help='Perform the update of Qualtrics user using '
                                                                           'the filtered list file.')
         parser.add_argument('--stats', action='store_true', help='Provide information regarding the changes that are '
                                                                  'to be made during an update.')
         parser.add_argument('--update-stats', action='store_true', help='Provide information from the '
                                                                         'perform-update call')
-        parser.add_argument('--amount', default=50, type=int, help='The amount of users to filter in a run.')
+        parser.add_argument('--secondary_filter', action='store_true', help='Filter the users that require updates into'
+                                                                            'specific files based on the type of update'
+                                                                            'required.')
 
     def handle(self, *args, **options):
         if options['get_users']:
@@ -40,13 +43,46 @@ class Command(BaseCommand):
             self.update_users()
         elif options['update_stats']:
             self.update_stats()
+        elif options['secondary_filter']:
+            self.secondary_filter()
         else:
             logger.info('You need to select a valid option')
 
     @staticmethod
+    def secondary_filter():
+        """
+        A secondary filter on the list contained within the filtered.json file.
+        Will retrieve the users that have no division set or users that have a user type of generic 
+        and place them into separate files respectively.
+        """
+        filtered_file = open('filtered.json', 'r')
+        filtered_data = json.load(filtered_file)
+        no_div_file = open('no_division_users.json', 'w')
+        generic_users_file = open('generic_users.json', 'w')
+
+        generic_list = []
+        no_div_list = []
+
+        for user_data in filtered_data:
+            previous_role = user_data['changes']['previous_data']['role']
+            previous_division = user_data['changes']['previous_data']['division']
+
+            if previous_role == 'Generic':
+                generic_list.append(user_data)
+
+            if previous_division == 'None':
+                no_div_list.append(user_data)
+
+        json.dump(generic_list, generic_users_file)
+        json.dump(no_div_list, no_div_file)
+
+        logger.info('There are %d users with a user type of generic.' % len(generic_list))
+        logger.info('There are %d users with no division set.' % len(no_div_list))
+
+    @staticmethod
     def update_stats():
         """
-        Prints the information from the update run to console
+        Prints the information from the update run to console/log
         """
         try:
             update_stats_file = open('update_stats.json', 'r')
@@ -54,7 +90,13 @@ class Command(BaseCommand):
 
             logger.info('The following accounts failed to update:')
             logger.info('\n')
+
             for detail in update_data['failure_details']:
+                previous_role = detail['user']['changes']['previous_data']['role']
+                previous_division = detail['user']['changes']['previous_data']['division']
+                new_role = detail['user']['changes']['new_data']['role']
+                new_division = detail['user']['changes']['new_data']['division']
+
                 logger.info('Qualtrics ID: %s, HUID: %s' % (detail['user']['user_id'],
                                                             detail['user']['changes']['user']['huid']))
 
@@ -62,10 +104,8 @@ class Command(BaseCommand):
                 logger.info('Error Code: %s' % detail['response']['meta']['error']['errorCode'])
                 logger.info('Error Message: %s' % detail['response']['meta']['error']['errorMessage'])
 
-                logger.info('Role changing from %s => %s' % (detail['user']['changes']['previous_data']['role'],
-                                                             detail['user']['changes']['new_data']['role']))
-                logger.info('Division changing from %s => %s' % (detail['user']['changes']['previous_data']['division'],
-                                                                 detail['user']['changes']['new_data']['division']))
+                logger.info('Role changing from %s => %s' % (previous_role, new_role))
+                logger.info('Division changing from %s => %s' % (previous_division, new_division))
                 logger.info('\n')
 
             logger.info('Total users requiring an update: %d' % update_data['total'])
@@ -76,22 +116,76 @@ class Command(BaseCommand):
 
     @staticmethod
     def stats():
+        """
+        Provide details from the filter-users run, includes information of what is changing for each user as well
+        as counts of division and role changes.
+        """
         filtered_file = open('filtered.json', 'r')
         filtered_data = json.load(filtered_file)
 
         logger.info('------------------------------------------------------------')
 
-        # Display information regarding the users who will have their account updated
+        # A tree of what division/role is being changed to and the number of occurrences
+        # ex: Changing from None to:
+        #        - HUIT: 10
+        #        - FAS: 3
+        change_details = {
+            'division': {},
+            'role': {}
+        }
+
+        # Display information regarding the users who will have their account updated on an individual level
         for update in filtered_data:
+            previous_role = update['changes']['previous_data']['role']
+            previous_division = update['changes']['previous_data']['division']
+            new_role = update['changes']['new_data']['role']
+            new_division = update['changes']['new_data']['division']
+
             logger.info('User %s %s with HUID: %s has the following update:' % (update['changes']['user']['first_name'],
                                                                                 update['changes']['user']['last_name'],
                                                                                 update['changes']['user']['huid']))
-            logger.info('Role is changing from %s => %s' % (update['changes']['previous_data']['role'],
-                                                            update['changes']['new_data']['role']))
-            logger.info('Division is changing from %s => %s' % (update['changes']['previous_data']['division'],
-                                                                update['changes']['new_data']['division']))
+            logger.info('Role is changing from %s => %s' % (previous_role, new_role))
+            logger.info('Division is changing from %s => %s' % (previous_division, new_division))
             logger.info('------------------------------------------------------------')
         logger.info('Total amount of users being updated: %d' % len(filtered_data))
+        logger.info('\n')
+
+        # Build the first level of the tree (Previous division/role)
+        for update in filtered_data:
+            previous_role = update['changes']['previous_data']['role']
+            previous_division = update['changes']['previous_data']['division']
+
+            change_details['division'][previous_division] = {}
+            change_details['role'][previous_role] = {}
+
+        # Build the second level of the tree, based off of the previous value and the new value
+        for update in filtered_data:
+            previous_division = update['changes']['previous_data']['division']
+            new_division = update['changes']['new_data']['division']
+            previous_role = update['changes']['previous_data']['role']
+            new_role = update['changes']['new_data']['role']
+
+            change_details['division'][previous_division][new_division] = 0
+            change_details['role'][previous_role][new_role] = 0
+
+        # Get the occurrences of each type of change
+        for update in filtered_data:
+            previous_division = update['changes']['previous_data']['division']
+            new_division = update['changes']['new_data']['division']
+            previous_role = update['changes']['previous_data']['role']
+            new_role = update['changes']['new_data']['role']
+
+            change_details['division'][previous_division][new_division] += 1
+            change_details['role'][previous_role][new_role] += 1
+
+        # Log of the division and role change counts
+        for div_role, values in change_details.iteritems():
+            logger.info(div_role.upper())
+            for prev_val, new_vals in values.iteritems():
+                logger.info('Changing from %s to:' % prev_val)
+                for new_val, count in new_vals.iteritems():
+                    logger.info('            - %s : %d' % (new_val, count))
+            logger.info('\n')
 
     @staticmethod
     def update_users():
