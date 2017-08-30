@@ -10,10 +10,15 @@ logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
-    help = 'This command works in three steps; ' \
-           '1. Get all Qualtrics users; ' \
-           '2. Find those that need to be updated;' \
-           '3. Update the users from step 2 via the Qualtrics API.'
+
+    help = """
+           This command works in three steps;
+           1. Get all Qualtrics users; --get-users
+           2. Find those that need to be updated; --filter-users --amount {{ amount_to_filter }} 
+           3. Update the users from step 2 via the Qualtrics API; --perform-update 
+           The --stats and update-stats arguments are optional, and only provide readable information to the console 
+           of user information that will change and that has changed post-update.
+           """
 
     def add_arguments(self, parser):
         parser.add_argument('--get-users', action='store_true', help='Query Qualtrics to get all users and store them '
@@ -35,7 +40,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options['get_users']:
             self.get_users()
-        if options['filter_users']:
+        elif options['filter_users']:
             self.filter_users(options['amount'])
         elif options['stats']:
             self.stats()
@@ -233,6 +238,9 @@ class Command(BaseCommand):
         """
         Go through all the Qualtrics users in the data file and find those who do not match our current People data.
         Create a new filtered file containing those users who will be updated in another step.
+        
+        Qualtrics division and role ID's are obtained from the admin console of Qualtrics.
+        Inspecting the hyperlink, via the browsers developer tools, for each division/role will reveal its ID.
         """
         employee_user_type = 'UT_egutew4nqz71QgI'
         student_user_type = 'UT_787UadC574xhxgU'
@@ -451,4 +459,3 @@ class Command(BaseCommand):
         # Create a clean instance of the filtered and stats files
         filtered_file = open('filtered.json', 'w')
         json.dump([], filtered_file)
-        open('update_stats.json', 'w')
