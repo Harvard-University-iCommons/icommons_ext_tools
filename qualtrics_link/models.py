@@ -24,3 +24,18 @@ class SchoolCodeMapping(models.Model):
     def __unicode__(self):
         return self.student_school_code
 
+class Acceptance(models.Model):
+    """
+    This is a table used to track and store Qulatrics user acceptance of terms
+    of service
+    """
+    user_id = models.CharField(max_length=200, primary_key=True)
+    acceptance_date = models.DateTimeField()
+    ip_address = models.CharField(max_length=100)
+
+    class Meta:
+        db_table = u'acceptance'
+
+    def __unicode__(self):
+        return self.id
+
