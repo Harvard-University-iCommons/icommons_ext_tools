@@ -10,7 +10,6 @@ from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
 from icommons_common.auth.decorators import group_membership_restriction
-from icommons_common.icommonsapi import IcommonsApi
 from icommons_common.monitor.views import BaseMonitorResponseView
 
 import qualtrics_link.util as util
@@ -38,7 +37,6 @@ def index(request):
 @login_required
 @require_http_methods(['GET'])
 def launch(request):
-    icommons_api = IcommonsApi()
     user_can_access = False
     client_ip = util.get_client_ip(request)
 
@@ -58,7 +56,7 @@ def launch(request):
     if not huid.isdigit() and not user_in_whitelist:
         logger.info("xidnotauthorized\t{}\t{}".format(current_date, client_ip))
         return render(request, 'qualtrics_link/notauthorized.html', {'request': request})
-    
+
     # The PersonDetails object extends the Person model with additional attributes
     person_details = util.get_person_details(huid)
 
@@ -215,7 +213,6 @@ def internal(request):
             'form': spoof_form
         }
         return render(request, 'qualtrics_link/main.html', context)
-        
     else:
         context = {
             'request': request,
