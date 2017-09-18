@@ -61,7 +61,7 @@ def launch(request):
     person_details = util.get_person_details(huid)
 
     if person_details is None:
-        logger.error('No records with the huid of {} could be found').format(huid)
+        logger.error('No records with the huid of {} could be found'.format(huid))
         return render(request, 'qualtrics_link/error.html', {'request': request})
 
     # Check if the user can use qualtrics or not
