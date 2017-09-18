@@ -268,11 +268,6 @@ LOGGING = {
 
 # Other app specific settings
 
-ICOMMONS_COMMON = {
-    'ICOMMONS_API_HOST': SECURE_SETTINGS.get('icommons_api_host'),
-    'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user'),
-    'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass'),
-}
 
 QUALTRICS_LINK = {
     'AGREEMENT_ID': SECURE_SETTINGS.get('qualtrics_agreement_id'),
