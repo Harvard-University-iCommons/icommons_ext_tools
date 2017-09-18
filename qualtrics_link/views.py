@@ -184,9 +184,7 @@ def internal(request):
         if not user_acceptance:
             request.session['spoofid'] = huid
             return render(request, 'qualtrics_link/agreement.html', {'request': request, 'agreement': "test text"})
-    # except:
-        #     logger.error('Exception in checking for user acceptance, user_id:%s', huid)
-        #     return render(request, 'qualtrics_link/error.html')
+
 
         enc_id = util.get_encrypted_huid(huid)
         logline = "{}\t{}\t{}\t{}".format(current_date, client_ip, person_details.role, person_details.division)
@@ -234,22 +232,17 @@ def user_accept_terms(request):
 
     ip_address = util.get_client_ip(request)
     try:
-        print"timezone",  timezone.now()
-        # current_tz = timezone.get_current_timezone()
-        # local = current_tz.normalize(timezone.now())
-        # print "local",local
+
         user_acceptance = Acceptance.objects.create(
             user_id=huid,
             ip_address=ip_address,
-            acceptance_date=timezone.now() #datetime.now(),
+            acceptance_date=timezone.now()
         )
         logger.info("termsofservice accepted: \t{}".format(ip_address))
-        # print "user_acceptance=", user_acceptance
         return redirect(settings.QUALTRICS_LINK.get('USER_ACCEPTED_TERMS_URL', 'ql:launch'))
     except Exception as e:
-        logger.error('Exception saving acceptance for user')
+        logger.error('Exception saving acceptance for user',e)
 
-    logger.error("Error accepting terms of service")
     return render(request, 'qualtrics_link/error.html', {'request': request})
     
 
