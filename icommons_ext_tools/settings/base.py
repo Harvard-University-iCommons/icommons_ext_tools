@@ -227,7 +227,7 @@ LOGGING = {
             'class': 'logging.handlers.WatchedFileHandler',
             'level': _DEFAULT_LOG_LEVEL,
             'formatter': 'verbose',
-            'filename': os.path.normpath(os.path.join(_LOG_ROOT, 'django-icommons_ext_tools.log')),
+            'filename': os.path.join(_LOG_ROOT, 'django-icommons_ext_tools.log'),
         },
         'console': {
             'level': _DEFAULT_LOG_LEVEL,
@@ -258,16 +258,16 @@ LOGGING = {
             'handlers': ['console', 'default'],
             'propagate': False,
         },
+        'icommons_common': {
+            'handlers': ['console', 'default'],
+            'level': _DEFAULT_LOG_LEVEL,
+            'propagate': False,
+        },
     }
 }
 
 # Other app specific settings
 
-ICOMMONS_COMMON = {
-    'ICOMMONS_API_HOST': SECURE_SETTINGS.get('icommons_api_host'),
-    'ICOMMONS_API_USER': SECURE_SETTINGS.get('icommons_api_user'),
-    'ICOMMONS_API_PASS': SECURE_SETTINGS.get('icommons_api_pass'),
-}
 
 QUALTRICS_LINK = {
     'AGREEMENT_ID': SECURE_SETTINGS.get('qualtrics_agreement_id'),
@@ -276,6 +276,6 @@ QUALTRICS_LINK = {
     'QUALTRICS_API_USER': SECURE_SETTINGS.get('qualtrics_api_user'),
     'QUALTRICS_API_TOKEN': SECURE_SETTINGS.get('qualtrics_api_token'),
     'QUALTRICS_AUTH_GROUP': SECURE_SETTINGS.get('qualtrics_auth_group'),
-    'USER_DECLINED_TERMS_URL': SECURE_SETTINGS.get('qualtrics_user_declined_terms_url'),
+    'USER_DECLINED_TERMS_URL': SECURE_SETTINGS.get('qualtrics_user_declined_terms_url','http://surveytools.harvard.edu'),
     'USER_ACCEPTED_TERMS_URL': SECURE_SETTINGS.get('qualtrics_user_accepted_terms_url'),
 }

@@ -3,18 +3,18 @@ import logging
 import time
 import urllib
 from datetime import date
-
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
+from django.utils import timezone
 from django.views.decorators.http import require_http_methods
+from icommons_common.auth.decorators import group_membership_restriction
+from icommons_common.monitor.views import BaseMonitorResponseView
 
 import qualtrics_link.util as util
-from icommons_common.auth.decorators import group_membership_restriction
-from icommons_common.icommonsapi import IcommonsApi
-from icommons_common.monitor.views import BaseMonitorResponseView
 from qualtrics_link.forms import SpoofForm
+from qualtrics_link.models import Acceptance
 
 logger = logging.getLogger(__name__)
 
@@ -37,7 +37,6 @@ def index(request):
 @login_required
 @require_http_methods(['GET'])
 def launch(request):
-    icommons_api = IcommonsApi()
     user_can_access = False
     client_ip = util.get_client_ip(request)
 
@@ -57,12 +56,12 @@ def launch(request):
     if not huid.isdigit() and not user_in_whitelist:
         logger.info("xidnotauthorized\t{}\t{}".format(current_date, client_ip))
         return render(request, 'qualtrics_link/notauthorized.html', {'request': request})
-    
+
     # The PersonDetails object extends the Person model with additional attributes
     person_details = util.get_person_details(huid)
 
     if person_details is None:
-        logger.error('No records with the huid of {} could be found').format(huid)
+        logger.error('No records with the huid of {} could be found'.format(huid))
         return render(request, 'qualtrics_link/error.html', {'request': request})
 
     # Check if the user can use qualtrics or not
@@ -73,22 +72,21 @@ def launch(request):
 
     if user_can_access:
         # Check to see if the user has accepted the terms of service
-        agreement_id = settings.QUALTRICS_LINK.get('AGREEMENT_ID', '260')
-        acceptance_resp = icommons_api.tos_get_acceptance(agreement_id, huid)
-        
-        if acceptance_resp.status_code == 200:
-            acceptance_json = acceptance_resp.json()
-            if 'agreements' in acceptance_json:
-                length = len(acceptance_json['agreements'])
-                if length > 0:
-                    acceptance_text = acceptance_json['agreements'][0]['text']
-                    return render(request, 'qualtrics_link/agreement.html', {'request': request, 'agreement': acceptance_text})
-            else:
-                logger.error('huid: {}, api call returned response code {}'.format(huid, str(acceptance_resp.status_code)))
-                return render(request, 'qualtrics_link/error.html', {'request': request})
-        else:
-            logger.error('huid: {}, api call returned response code {}'.format(huid, str(acceptance_resp.status_code)))
-            return render(request, 'qualtrics_link/error.html', {'request': request})
+
+        user_acceptance = None
+        try:
+            user_acceptance = Acceptance.objects.get(user_id=huid)
+        except Acceptance.DoesNotExist:
+            logger.info('User %s has not  accepted term of service ', huid)
+        except:
+            logger.error('Exception in checking for user acceptance, '
+                         'user_id:%s', huid)
+            return render(request, 'qualtrics_link/error.html')
+
+        #  Render agreement page if user has not accepted term of service
+        if not user_acceptance:
+            return render(request, 'qualtrics_link/agreement.html',
+                          {'request': request})
 
         enc_id = util.get_encrypted_huid(huid)
         key_value_pairs = u"id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
@@ -165,8 +163,6 @@ def internal(request):
         logger.error('No records with the huid of {} could be found'.format(huid))
         return render(request, 'qualtrics_link/error.html', {'request': request})
 
-    icommons_api = IcommonsApi()
-
     # Check if the user can use qualtrics or not
     # the value of user_can_access is set to False by default
     # if any of the checks here pass we set user_can_access to True
@@ -174,24 +170,23 @@ def internal(request):
         user_can_access = True
     
     if user_can_access:
-        # If they are allowed to use Qualtrics, check to see if the user has accepted the terms of service    
-        agreement_id = settings.QUALTRICS_LINK.get('AGREEMENT_ID')
-        acceptance_resp = icommons_api.tos_get_acceptance(agreement_id, huid)
+        # If they are allowed to use Qualtrics, check to see if the user has accepted the terms of service
+        user_acceptance = None
+        try:
+            user_acceptance = Acceptance.objects.get(user_id=huid)
+        except Acceptance.DoesNotExist:
+            logger.info('User %s has not  accepted term of service ', huid)
+        except Exception as e:
+            logger.error('Exception in checking for user acceptance, '
+                     'user_id:%s', huid, e)
+            return render(request, 'qualtrics_link/error.html')
 
-        if acceptance_resp.status_code == 200:
-            acceptance_json = acceptance_resp.json()
-            if 'agreements' in acceptance_json:
-                length = len(acceptance_json['agreements'])
-                if length > 0:
-                    acceptance_text = acceptance_json['agreements'][0]['text']
-                    request.session['spoofid'] = huid
-                    return render(request, 'qualtrics_link/agreement.html', {'request': request, 'agreement': acceptance_text})
-            else:
-                logger.error('Received acceptance status of 200 but could not find any agreements for huid: {}'.format(huid))
-                return render(request, 'qualtrics_link/error.html', {'request': request})
-        else:
-            logger.error('huid: {}, api call returned response code other than 200 {}'.format(huid, acceptance_resp))
-            return render(request, 'qualtrics_link/error.html', {'request': request})
+        #  Render agreement page if user has not accepted term of service
+        if not user_acceptance:
+            request.session['spoofid'] = huid
+            return render(request, 'qualtrics_link/agreement.html',
+                          {'request': request})
+
 
         enc_id = util.get_encrypted_huid(huid)
         logline = "{}\t{}\t{}\t{}".format(current_date, client_ip, person_details.role, person_details.division)
@@ -218,7 +213,6 @@ def internal(request):
             'form': spoof_form
         }
         return render(request, 'qualtrics_link/main.html', context)
-        
     else:
         context = {
             'request': request,
@@ -238,16 +232,19 @@ def user_accept_terms(request):
     if not huid:
         huid = request.user.username
 
-    icommons_api = IcommonsApi()
     ip_address = util.get_client_ip(request)
-    params = {'agreementId': '260', 'ipAddress': ip_address}
-    resp = icommons_api.tos_create_acceptance(params, huid)
-    
-    if resp.status_code == 200:
-        logger.info("termsofservice accepted: \t{}\t{}".format(ip_address, '260'))
+    try:
+
+        user_acceptance = Acceptance.objects.create(
+            user_id=huid,
+            ip_address=ip_address,
+            acceptance_date=timezone.now()
+        )
+        logger.info("termsofservice accepted: \t{}".format(ip_address))
         return redirect(settings.QUALTRICS_LINK.get('USER_ACCEPTED_TERMS_URL', 'ql:launch'))
-    
-    logger.error("Error accepting terms of service")
+    except Exception as e:
+        logger.error('Exception saving acceptance for user',e)
+
     return render(request, 'qualtrics_link/error.html', {'request': request})
     
 
@@ -255,7 +252,7 @@ def user_accept_terms(request):
 @require_http_methods(['GET'])
 def user_decline_terms(request):
     logger.info("User declined terms of service")
-    return redirect(settings.QUALTRICS_LINK.get('USER_DECLINED_TERMS_URL', 'http://surveytools.harvard.edu'))
+    return redirect(settings.QUALTRICS_LINK.get('USER_DECLINED_TERMS_URL'))
 
 
 @require_http_methods(['GET'])
