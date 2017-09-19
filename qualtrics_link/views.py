@@ -85,7 +85,8 @@ def launch(request):
 
         #  Render agreement page if user has not accepted term of service
         if not user_acceptance:
-            return render(request, 'qualtrics_link/agreement.html', {'request': request, 'agreement': "test text"})
+            return render(request, 'qualtrics_link/agreement.html',
+                          {'request': request})
 
         enc_id = util.get_encrypted_huid(huid)
         key_value_pairs = u"id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
@@ -175,15 +176,16 @@ def internal(request):
             user_acceptance = Acceptance.objects.get(user_id=huid)
         except Acceptance.DoesNotExist:
             logger.info('User %s has not  accepted term of service ', huid)
-        except:
+        except Exception as e:
             logger.error('Exception in checking for user acceptance, '
-                     'user_id:%s', huid)
+                     'user_id:%s', huid, e)
             return render(request, 'qualtrics_link/error.html')
 
         #  Render agreement page if user has not accepted term of service
         if not user_acceptance:
             request.session['spoofid'] = huid
-            return render(request, 'qualtrics_link/agreement.html', {'request': request, 'agreement': "test text"})
+            return render(request, 'qualtrics_link/agreement.html',
+                          {'request': request})
 
 
         enc_id = util.get_encrypted_huid(huid)
