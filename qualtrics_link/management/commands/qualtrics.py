@@ -36,6 +36,8 @@ class Command(BaseCommand):
         parser.add_argument('--secondary_filter', action='store_true', help='Filter the users that require updates into'
                                                                             'specific files based on the type of update'
                                                                             'required.')
+        parser.add_argument('--reverse-update', action='store_true', help='Reverses the update process using the users'
+                                                                          'prior data.')
 
     def handle(self, *args, **options):
         if options['get_users']:
@@ -50,6 +52,8 @@ class Command(BaseCommand):
             self.update_stats()
         elif options['secondary_filter']:
             self.secondary_filter()
+        elif options['reverse_update']:
+            self.reverse_update_users()
         else:
             logger.info('You need to select a valid option')
 
@@ -232,6 +236,95 @@ class Command(BaseCommand):
 
         logger.info('Update complete')
         logger.info(stats)
+
+    @staticmethod
+    def reverse_update_users():
+        """
+        Update all users contained in the filtered json file using prior values.
+        This is just a quick and dirty implementation to be used in case there is large influx of 
+        user issues or tickets due to the original update.
+        Find the filtered.json file used in the original update either on the prod EC2 instance or the 
+        qualtrics management command bucket. Labeled filtered_9_25.json.
+        If this file is not different from what is currently on the EC2 instance, you can use that, otherwise
+        rename your file to be filtered.json, since that is what this command is looking for.
+        After running the command, look at the update_stats.json file using the --update-stats param
+        (You might need to bring that file to your local env since the default logging level for prod is warning)
+        """
+
+        user_type_mapping = {
+            'employee': 'UT_egutew4nqz71QgI',
+            'student': 'UT_787UadC574xhxgU',
+            'brand administrator': 'UT_BRANDADMIN'
+        }
+
+        # Mapping of a division to its Qualtrics ID
+        division_mapping = {
+            'FAS': 'DV_0uG93Am70qIFb00',
+            'GSE': 'DV_eesMPIncvHA270U',
+            'HSPH': 'DV_cvfNy3UwERh9IcA',
+            'Other': 'DV_1zu8x43ZIyqzWlu',
+            'HKS': 'DV_bdu3uP2WTYThpOY',
+            'EXT': 'DV_cSx7CCmUZ1DaS3i',
+            'HLS': 'DV_6DN9Q7jTRzsxgHy',
+            'HUIT': 'DV_77MUQ7NsyaGcQU4',
+            'GSD': 'DV_7V89XC1uxWU2ODW',
+            'Central Administration': 'DV_6Fhm425s7ozZM5D',
+            'HDS': 'DV_5o8WAy3WJXLNX2Q',
+            'HAA (Alumni Assoc.)': 'DV_1WSu6zRMeNx6ZYU',
+            'VPAL Research and Affiliates': 'DV_8dpaRpPHqefdNAx',
+            'Berkman': 'DV_1Ro0atRhq0UV9ti',
+            'Radcliffe': 'DV_agzgkeDIaZPEJHD',
+            'API Div': 'DV_23NVy6XjBHhOXxX',
+            'GSE-PPE [no longer used]': 'DV_0vsxWeIjXJWeS21'
+        }
+
+
+        filtered_file = open('filtered.json', 'r')
+        filtered_data = json.load(filtered_file)
+        filtered_len = len(filtered_data)
+
+        stats_file = open('update_stats.json', 'w')
+
+        stats = {
+            'total': filtered_len,
+            'success': 0,
+            'failure': 0,
+            'failure_details': []  # List of user and response dicts detailing the failure
+        }
+
+        count = 1
+        for user in filtered_data:
+
+            previous_role = user['changes']['previous_data']['role']
+            previous_division = user['changes']['previous_data']['division']
+            new_role = user['changes']['new_data']['role']
+            new_division = user['changes']['new_data']['division']
+
+            logger.info('Role changing from %s => %s' % (new_role, previous_role))
+            logger.info('Division changing from %s => %s' % (new_division, previous_division))
+            logger.info('\n')
+
+            logger.info('Updating %d of %d records' % (count, filtered_len))
+            resp = util.update_qualtrics_user(user_id=user['user_id'],
+                                              division=division_mapping[user['changes']['previous_data']['division']],
+                                              role=user_type_mapping[user['changes']['previous_data']['role'].lower()]).json()
+            if resp['meta']['httpStatus'] != '200 - OK':
+                logger.warning('Response returned a status other than 200')
+                logger.warning('Response: %s' % resp)
+                stats['failure'] += 1
+                stats['failure_details'].append({'user': user,
+                                                 'response': resp})
+            else:
+                stats['success'] += 1
+
+            count += 1
+
+        # Writes the updated stats dict to file
+        json.dump(stats, stats_file)
+
+        logger.info('Update complete')
+        logger.info(stats)
+
 
     @staticmethod
     def filter_users(slice_amount):
