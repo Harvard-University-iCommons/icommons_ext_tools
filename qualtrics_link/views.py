@@ -199,7 +199,7 @@ def internal(request):
                                                  person_details.last_name,
                                                  person_details.email,
                                                  person_details.role,
-                                                 person_details.division)
+                                                 util.DIVISION_MAPPING[person_details.division])
         sso_test_link = util.get_sso_test_url(key_value_pairs)
         qualtrics_link = util.get_qualtrics_url(key_value_pairs)
         context = {
