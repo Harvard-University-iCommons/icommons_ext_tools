@@ -94,6 +94,27 @@ AREA_LOOKUP = {
     'VPG': 'Central Administration',
 }
 
+# Mapping of a division to its Qualtrics ID
+DIVISION_MAPPING = {
+    'FAS': 'DV_0uG93Am70qIFb00',
+    'GSE': 'DV_eesMPIncvHA270U',
+    'HSPH': 'DV_cvfNy3UwERh9IcA',
+    'Other': 'DV_1zu8x43ZIyqzWlu',
+    'HKS': 'DV_bdu3uP2WTYThpOY',
+    'EXT': 'DV_cSx7CCmUZ1DaS3i',
+    'HLS': 'DV_6DN9Q7jTRzsxgHy',
+    'HUIT': 'DV_77MUQ7NsyaGcQU4',
+    'GSD': 'DV_7V89XC1uxWU2ODW',
+    'Central Administration': 'DV_6Fhm425s7ozZM5D',
+    'HDS': 'DV_5o8WAy3WJXLNX2Q',
+    'HAA (Alumni Assoc.)': 'DV_1WSu6zRMeNx6ZYU',
+    'VPAL Research and Affiliates': 'DV_8dpaRpPHqefdNAx',
+    'Berkman': 'DV_1Ro0atRhq0UV9ti',
+    'Radcliffe': 'DV_agzgkeDIaZPEJHD',
+    'API Div': 'DV_23NVy6XjBHhOXxX',
+    'GSE-PPE [no longer used]': 'DV_0vsxWeIjXJWeS21'
+}
+
 BS = 16
 pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
 
