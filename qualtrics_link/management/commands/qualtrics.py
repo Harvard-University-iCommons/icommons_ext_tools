@@ -310,18 +310,15 @@ class Command(BaseCommand):
             qualtrics_user = None
             try:
                 qualtrics_user = QualtricsUser.objects.get(qualtrics_id=q_id)
-                logger.info("Found user with Qualtrics id of {} in DB".format(q_id))
             except QualtricsUser.DoesNotExist:
                 pass
 
             # If there is a QualtricsUser record and manually_updated is True, then skip this user
             if qualtrics_user and qualtrics_user.manually_updated is True:
-                logger.info("User has manually updated set to True")
+                logger.info("User {} has manually updated set to True, skipping".format(qualtrics_user.univ_id))
                 pass
             # Otherwise check if the user requires an update
             else:
-                logger.info("Could not find user, performing update check")
-
                 matching_person = None
 
                 # If we have a QualtricsUser record, then we can use the univ_id from that to get a Person record rather
@@ -330,9 +327,6 @@ class Command(BaseCommand):
                     person_queryset = Person.objects.filter(univ_id=qualtrics_user.univ_id)
                     if len(person_queryset) > 0:
                         matching_person = person_queryset[0]
-                        logger.info("Found Person record matching Qualtrics users univ ID")
-                    else:
-                        logger.info("No Person record matching Qualtrics users univ ID")
                 else:
                     # Filter Person records based off of their email if present
                     if q_email:
