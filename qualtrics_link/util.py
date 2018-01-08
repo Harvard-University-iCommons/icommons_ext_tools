@@ -365,11 +365,13 @@ class PersonDetails:
         self.school_affiliations = school_affiliations,
 
 
-def get_person_details(huid):
+def get_person_details(huid, person_list=None):
     """
-    Creates a PersonDetails instance by using the given person record to get values for the extended fields
+    Creates a PersonDetails instance by using the given person record to get values for the extended fields.
+    If the optional person_list is passed in, it avoids having to redo a query
     """
-    person_list = get_person_list(huid)
+    if person_list is None:
+        person_list = get_person_list(huid)
 
     if len(person_list) > 0:
         person = filter_person_list(person_list)
