@@ -39,3 +39,11 @@ class Acceptance(models.Model):
     def __unicode__(self):
         return self.id
 
+
+class QualtricsUser(models.Model):
+    univ_id = models.CharField(max_length=32)
+    qualtrics_id = models.CharField(max_length=32)
+    manually_updated = models.BooleanField()
+
+    class Meta:
+        db_table = u'qualtrics_user'

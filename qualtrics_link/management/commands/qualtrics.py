@@ -1,10 +1,12 @@
 import json
 import logging
+import time
 
 from django.core.management.base import BaseCommand
 
 from icommons_common.models import Person
 from qualtrics_link import util
+from qualtrics_link.models import QualtricsUser
 
 logger = logging.getLogger(__name__)
 
@@ -48,41 +50,8 @@ class Command(BaseCommand):
             self.update_users()
         elif options['update_stats']:
             self.update_stats()
-        elif options['secondary_filter']:
-            self.secondary_filter()
         else:
             logger.info('You need to select a valid option')
-
-    @staticmethod
-    def secondary_filter():
-        """
-        A secondary filter on the list contained within the filtered.json file.
-        Will retrieve the users that have no division set or users that have a user type of generic 
-        and place them into separate files respectively.
-        """
-        filtered_file = open('filtered.json', 'r')
-        filtered_data = json.load(filtered_file)
-        no_div_file = open('no_division_users.json', 'w')
-        generic_users_file = open('generic_users.json', 'w')
-
-        generic_list = []
-        no_div_list = []
-
-        for user_data in filtered_data:
-            previous_role = user_data['changes']['previous_data']['role']
-            previous_division = user_data['changes']['previous_data']['division']
-
-            if previous_role == 'Generic':
-                generic_list.append(user_data)
-
-            if previous_division == 'None':
-                no_div_list.append(user_data)
-
-        json.dump(generic_list, generic_users_file)
-        json.dump(no_div_list, no_div_file)
-
-        logger.info('There are %d users with a user type of generic.' % len(generic_list))
-        logger.info('There are %d users with no division set.' % len(no_div_list))
 
     @staticmethod
     def update_stats():
@@ -242,6 +211,9 @@ class Command(BaseCommand):
         Qualtrics division and role ID's are obtained from the admin console of Qualtrics.
         Inspecting the hyperlink, via the browsers developer tools, for each division/role will reveal its ID.
         """
+
+        start_time = time.time()
+
         employee_user_type = 'UT_egutew4nqz71QgI'
         student_user_type = 'UT_787UadC574xhxgU'
         brand_admin = 'UT_BRANDADMIN'
@@ -334,93 +306,121 @@ class Command(BaseCommand):
             q_first_name = q_person['firstName']
             q_last_name = q_person['lastName']
 
-            # Filter Person records based off of their email if present
-            if q_email:
-                person_queryset = Person.objects.filter(email_address=q_email)
-                # A user may have had their Qualtrics account created with a different email address than what
-                # is currently stored in our DB. If so, we need to look them up based on first and last name.
-                if len(person_queryset) == 0:
-                    person_queryset = Person.objects.filter(name_first=q_first_name, name_last=q_last_name)
+            # Attempt to see if we currently have a QualtricsUser record filtering using the Qualtrics ID
+            qualtrics_user = None
+            try:
+                qualtrics_user = QualtricsUser.objects.get(qualtrics_id=q_id)
+            except QualtricsUser.DoesNotExist:
+                pass
+
+            # If there is a QualtricsUser record and manually_updated is True, then skip this user
+            if qualtrics_user and qualtrics_user.manually_updated is True:
+                logger.info("User {} has manually updated set to True, skipping".format(qualtrics_user.univ_id))
+                pass
+            # Otherwise check if the user requires an update
             else:
-                person_queryset = Person.objects.filter(name_first=q_first_name, name_last=q_last_name)
+                matching_person = None
 
-            matching_person = None
-            # Iterate through the queryset, encrypting the current Persons HUID to find a match with the q_id
-            for person in person_queryset:
-                enc_id = util.get_encrypted_huid(person.univ_id) + '#harvard'
-                if enc_id == q_username:
-                    matching_person = person
-                    break
+                # If we have a QualtricsUser record, then we can use the univ_id from that to get a Person record rather
+                # than having to do other comparisons to find a matching person.
+                if qualtrics_user:
+                    person_queryset = Person.objects.filter(univ_id=qualtrics_user.univ_id)
+                    if len(person_queryset) > 0:
+                        matching_person = person_queryset[0]
+                else:
+                    # Filter Person records based off of their email if present
+                    if q_email:
+                        person_queryset = Person.objects.filter(email_address=q_email)
+                        # A user may have had their Qualtrics account created with a different email address than what
+                        # is currently stored in our DB. If so, we need to look them up based on first and last name.
+                        if len(person_queryset) == 0:
+                            person_queryset = Person.objects.filter(name_first=q_first_name, name_last=q_last_name)
+                    else:
+                        person_queryset = Person.objects.filter(name_first=q_first_name, name_last=q_last_name)
 
-            # Compare the Qualtrics data against the LDAP People data
-            if matching_person is not None:
-                person_details = util.get_person_details(matching_person.univ_id)
-                p_role = user_type_mapping[person_details.role]
-                p_division = division_mapping[person_details.division]
+                    # Iterate through the queryset, encrypting the current Persons HUID to find a match with the q_id
+                    for person in person_queryset:
+                        enc_id = util.get_encrypted_huid(person.univ_id) + '#harvard'
+                        if enc_id == q_username:
+                            matching_person = person
+                            break
 
-                update_person = False
-                update_dict = {
-                    'user_id': q_id
-                }
-                # Do the comparison of what is currently in Qualtrics and what the matching person has
-                # If they differ, then add to the filtered list the current persons q_id, role and division
-                if p_division != q_division:
-                    update_dict['division'] = p_division
-                    update_person = True
+                # Compare the Qualtrics data against the LDAP People data
+                if matching_person is not None:
+                    person_details = util.get_person_details(matching_person.univ_id, person_queryset)
+                    p_role = user_type_mapping[person_details.role]
+                    p_division = division_mapping[person_details.division]
 
-                # If the Person is not a Student or Employee, or Brand Admin then they need to be updated
-                # Or if their roles do not match
-                if q_role not in user_type_list or p_role != q_role:
-                    update_dict['user_type'] = p_role
-                    update_person = True
-
-                # If the update person bool has been set to True, then get the values from the update dict to be
-                # added to the update list.
-                if update_person:
-                    # If the only update is the users division and they are a brand admin, the role will default to the
-                    # persons role of Employee. If they are a brand admin in Qualtrics, set their role to stay the same
-                    # in the default case.
-                    if q_role == brand_admin:
-                        p_role = brand_admin
-
-                    # Use the Person record value as a default in the case of only one field needing to be updated.
-                    update_entry = {
-                        'user_id': update_dict.get('user_id'),
-                        'division': update_dict.get('division', p_division),
-                        'role': update_dict.get('role', p_role),
+                    update_person = False
+                    update_dict = {
+                        'user_id': q_id
                     }
+                    # Do the comparison of what is currently in Qualtrics and what the matching person has
+                    # If they differ, then add to the filtered list the current persons q_id, role and division
+                    if p_division != q_division:
+                        update_dict['division'] = p_division
+                        update_person = True
 
-                    # Have a readable/translated changes portion or the entry that can be output to console to show what
-                    # has changed
-                    if q_division is None:
-                        q_division = 'None'
+                    # If the Person is not a Student or Employee, or Brand Admin then they need to be updated
+                    # Or if their roles do not match
+                    if q_role not in user_type_list or p_role != q_role:
+                        update_dict['user_type'] = p_role
+                        update_person = True
 
-                    update_entry['changes'] = {
-                        'user': {
-                            'huid': person_details.id,
-                            'first_name': person_details.first_name,
-                            'last_name': person_details.last_name
-                        },
-                        'previous_data': {
-                            'division': reverse_division_mapping[q_division],
-                            'role': reverse_user_types[q_role]
-                        },
-                        'new_data': {
-                            'division': reverse_division_mapping[update_entry['division']],
-                            'role': reverse_user_types[update_entry['role']]
+                    # If the update person bool has been set to True, then get the values from the update dict to be
+                    # added to the update list.
+                    if update_person:
+                        # If the only update is the users division and they are a brand admin, the role will default to the
+                        # persons role of Employee. If they are a brand admin in Qualtrics, set their role to stay the same
+                        # in the default case.
+                        if q_role == brand_admin:
+                            p_role = brand_admin
+
+                        # Use the Person record value as a default in the case of only one field needing to be updated.
+                        update_entry = {
+                            'user_id': update_dict.get('user_id'),
+                            'division': update_dict.get('division', p_division),
+                            'role': update_dict.get('role', p_role),
                         }
-                    }
 
-                    logger.info('Found user requiring update, Qualtrics ID: %s, HUID: %s' % (q_id, person_details.id))
-                    update_list.append(update_entry)
-            else:
-                logger.info('Could not find matching person in DB; Qualtrics id:%s' % q_id)
+                        # Have a readable/translated changes portion or the entry that can be output to console to show what
+                        # has changed
+                        if q_division is None:
+                            q_division = 'None'
+
+                        update_entry['changes'] = {
+                            'user': {
+                                'huid': person_details.id,
+                                'first_name': person_details.first_name,
+                                'last_name': person_details.last_name
+                            },
+                            'previous_data': {
+                                'division': reverse_division_mapping[q_division],
+                                'role': reverse_user_types[q_role]
+                            },
+                            'new_data': {
+                                'division': reverse_division_mapping[update_entry['division']],
+                                'role': reverse_user_types[update_entry['role']]
+                            }
+                        }
+
+                        logger.info('Found user requiring update, Qualtrics ID: %s, HUID: %s' % (q_id, person_details.id))
+                        update_list.append(update_entry)
+
+                    # Store all information for the user if we did not originally have the record
+                    # in the quatrics_user table
+                    if qualtrics_user is None:
+                        q_user = QualtricsUser(univ_id=person_details.id, qualtrics_id=q_id, manually_updated=False)
+                        q_user.save()
+                else:
+                    logger.info('Could not find matching person in DB; Qualtrics id:%s' % q_id)
 
             position += 1
 
         logger.info('\n')
         logger.info('Update statistics')
         logger.info('%d users require updates' % len(update_list))
+        logger.info("Total runtime: {} seconds".format(time.time() - start_time))
 
         # Get the current data in the filtered file so we can append our new data
         filtered_file = open('filtered.json', 'r')
