@@ -4,13 +4,9 @@ import os
 import logging
 import time
 
-from django.core.urlresolvers import reverse_lazy
 from .secure import SECURE_SETTINGS
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = SECURE_SETTINGS.get('enable_debug', False)
 
 # THESE ADDRESSES WILL RECEIVE EMAIL ABOUT CERTAIN ERRORS!
 # Note: If this list (technically a tuple) has only one element, that
