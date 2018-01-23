@@ -44,7 +44,7 @@
 <div class="well spoof-form">
 <h4>Enter an HUID to spoof</h4>
 <form action="internal" method="get" role="form">{% csrf_token %}
-	{% for field in form %}
+	{% for field in spoof_form %}
 	{{ field.label_tag }}&nbsp;{{ field }}
 	{% endfor %}
 	<input type="submit" value="Submit" class="btn btn-default"/>
@@ -90,6 +90,23 @@
 		</td>
 	</tr>
 </table>
+
+
+<form action="internal" method="POST">{% csrf_token %}
+    <label for="division">Division: </label>
+    <input id="division" type="text" name="division">
+	{{ qualtrics_user_update_form.division }}
+
+	<label for="role">Role: </label>
+    <input id="role" type="text" name="manually_updated">
+	{{ qualtrics_user_update_form.role }}
+
+	<label for="manually_updated">Manually updated: </label>
+    <input id="manually_updated" type="text" name="manually_updated">
+	{{ qualtrics_user_update_form.manually_updated }}
+
+    <input type="submit" value="Submit">
+</form>
 
 
 {% endblock %}
