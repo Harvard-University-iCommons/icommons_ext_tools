@@ -115,6 +115,32 @@ DIVISION_MAPPING = {
     'GSE-PPE [no longer used]': 'DV_0vsxWeIjXJWeS21'
 }
 
+# Choice tuple used in the Qualtrics internal admin form
+DIVISION_CHOICES = (
+    ('FAS', 'FAS'),
+    ('GSE', 'GSE'),
+    ('HSPH', 'HSPH'),
+    ('Other', 'Other'),
+    ('HKS', 'HKS'),
+    ('EXT', 'EXT'),
+    ('HLS', 'HLS'),
+    ('HUIT', 'HUIT'),
+    ('GSD', 'GSD'),
+    ('Central Administration', 'Central Administration'),
+    ('HDS', 'HDS'),
+    ('HAA (Alumni Assoc.)', 'HAA (Alumni Assoc.)'),
+    ('VPAL Research and Affiliates', 'VPAL Research and Affiliates'),
+    ('Berkman', 'Berkman'),
+    ('Radcliffe', 'Radcliffe'),
+    ('API Div', 'API Div'),
+    ('GSE-PPE [no longer used]', 'GSE-PPE [no longer used]')
+)
+
+ROLE_CHOICES = (
+    ('employee', 'employee'),
+    ('student', 'student')
+)
+
 BS = 16
 pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
 
