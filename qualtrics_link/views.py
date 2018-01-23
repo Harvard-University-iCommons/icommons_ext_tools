@@ -13,8 +13,8 @@ from icommons_common.auth.decorators import group_membership_restriction
 from icommons_common.monitor.views import BaseMonitorResponseView
 
 import qualtrics_link.util as util
-from qualtrics_link.forms import SpoofForm
-from qualtrics_link.models import Acceptance
+from qualtrics_link.forms import SpoofForm, QualtricsUserAdminForm
+from qualtrics_link.models import Acceptance, QualtricsUser
 
 logger = logging.getLogger(__name__)
 
@@ -126,8 +126,19 @@ def internal(request):
     # In this case we take the current time and add 10 minutes (600 seconds)
     expiration_date = datetime.datetime.utcfromtimestamp(current_time + 600).strftime('%Y-%m-%dT%H:%M:%S')
 
+    # If the admin form has been submitted, validate and send the new data to Qualtrics
+    if request.method == 'POST':
+        qualtrics_user_update_form = QualtricsUserAdminForm(data=request.POST)
+        if qualtrics_user_update_form.is_valid():
+            logger.info('POST data')
+            logger.info(request.POST)
+
+            # division = request.POST['division']
+            # role = request.POST['role']
+            # util.update_qualtrics_user(qualtrics_id, division, role)
+
     # Form to allow admins to spoof other users
-    if 'huid' in request.GET: # If the form has been submitted...
+    elif 'huid' in request.GET: # If the form has been submitted...
         # ContactForm was defined in the the previous section
         spoof_form = SpoofForm(request.GET) # A form bound to the POST data
         if spoof_form.is_valid(): # All validation rules pass
@@ -149,6 +160,8 @@ def internal(request):
         spoof_form = SpoofForm() # An unbound form
         huid = request.user.username
         huid = huid.strip()
+
+        qualtrics_user_update_form = QualtricsUserAdminForm()
 
     user_in_whitelist = util.is_user_in_whitelist(huid)
 
@@ -210,7 +223,8 @@ def internal(request):
             'user_in_whitelist': user_in_whitelist,
             'processed_data': person_details,
             'person': person_details.person,
-            'form': spoof_form
+            'spoof_form': spoof_form,
+            'qualtrics_user_update_form': qualtrics_user_update_form
         }
         return render(request, 'qualtrics_link/main.html', context)
     else:
