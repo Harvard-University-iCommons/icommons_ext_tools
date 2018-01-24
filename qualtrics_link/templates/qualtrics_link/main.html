@@ -114,7 +114,7 @@
 		<div class="col-sm-4">
 			Skip in update job: {{ qualtrics_user_update_form.manually_updated }}
 		</div>
-		<input type="hidden" value='{{ huid }}'>
+		<input type="hidden" name="huid" value='{{ huid }}'>
 		<div class="col-sm-1">
 			{% if not qualtrics_user_in_db %}
 				<input type="submit" value="Submit" class="btn btn-primary disabled">
