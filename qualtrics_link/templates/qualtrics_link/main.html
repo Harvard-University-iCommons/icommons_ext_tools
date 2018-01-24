@@ -101,7 +101,7 @@
 	<h4>Manage Qualtrics Division and/or Role</h4>
 	{% if not qualtrics_user_in_db %}
 		<div class="alert alert-warning" role="alert">
-			This user is not currently in out Postgres table. Please contact a dev for further assistance.
+			This user is not currently in our Postgres table. Please contact a dev for further assistance.
 		</div>
 	{% endif %}
 	<form action="internal" method="POST">{% csrf_token %}
