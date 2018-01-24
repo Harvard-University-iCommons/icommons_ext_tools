@@ -29,7 +29,13 @@
 	.title {
 		text-align: center;
 	}
-	.spoof-form { width: 38%; }
+	.spoof-form {
+		width: 38%;
+	}
+
+	.qualtrics_admin {
+		height: 110px;
+	}
 
 </style>
 
@@ -91,22 +97,23 @@
 	</tr>
 </table>
 
-
-<form action="internal" method="POST">{% csrf_token %}
-    <label for="division">Division: </label>
-    <input id="division" type="text" name="division">
-	{{ qualtrics_user_update_form.division }}
-
-	<label for="role">Role: </label>
-    <input id="role" type="text" name="manually_updated">
-	{{ qualtrics_user_update_form.role }}
-
-	<label for="manually_updated">Manually updated: </label>
-    <input id="manually_updated" type="text" name="manually_updated">
-	{{ qualtrics_user_update_form.manually_updated }}
-
-    <input type="submit" value="Submit">
-</form>
+<div class="well qualtrics_admin">
+	<h4>Qualtrics Admin For User:</h4>
+	<form action="internal" method="POST">{% csrf_token %}
+		<div class="col-sm-4">
+			Division: {{ qualtrics_user_update_form.division }}
+		</div>
+		<div class="col-sm-3">
+			Role: {{ qualtrics_user_update_form.role }}
+		</div>
+		<div class="col-sm-4">
+			Manually updated: {{ qualtrics_user_update_form.manually_updated }}
+		</div>
+		<div class="col-sm-1">
+			<input type="submit" value="Submit" class="btn btn-primary">
+		</div>
+	</form>
+</div>
 
 
 {% endblock %}
