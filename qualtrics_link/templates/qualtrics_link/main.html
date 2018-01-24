@@ -34,7 +34,7 @@
 	}
 
 	.qualtrics_admin {
-		height: 110px;
+		padding-bottom: 50px;
 	}
 
 </style>
@@ -49,7 +49,7 @@
 
 <div class="well spoof-form">
 <h4>Enter an HUID to spoof</h4>
-<form action="internal" method="get" role="form">{% csrf_token %}
+<form action="internal" method="POST" role="form">{% csrf_token %}
 	{% for field in spoof_form %}
 	{{ field.label_tag }}&nbsp;{{ field }}
 	{% endfor %}
@@ -98,7 +98,12 @@
 </table>
 
 <div class="well qualtrics_admin">
-	<h4>Qualtrics Admin For User:</h4>
+	<h4>Manage Qualtrics Division and/or Role</h4>
+	{% if not qualtrics_user_in_db %}
+		<div class="alert alert-warning" role="alert">
+			This user is not currently in out Postgres table. Please contact a dev for further assistance.
+		</div>
+	{% endif %}
 	<form action="internal" method="POST">{% csrf_token %}
 		<div class="col-sm-4">
 			Division: {{ qualtrics_user_update_form.division }}
@@ -107,10 +112,16 @@
 			Role: {{ qualtrics_user_update_form.role }}
 		</div>
 		<div class="col-sm-4">
-			Manually updated: {{ qualtrics_user_update_form.manually_updated }}
+			Skip in update job: {{ qualtrics_user_update_form.manually_updated }}
 		</div>
+		<input type="hidden" value='{{ huid }}'>
 		<div class="col-sm-1">
-			<input type="submit" value="Submit" class="btn btn-primary">
+			{% if not qualtrics_user_in_db %}
+				<input type="submit" value="Submit" class="btn btn-primary disabled">
+			{% else %}
+				<input type="submit" value="Submit" class="btn btn-primary">
+			{% endif %}
+
 		</div>
 	</form>
 </div>
