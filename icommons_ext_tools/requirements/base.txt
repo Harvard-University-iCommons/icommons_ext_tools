@@ -1,4 +1,4 @@
-Django==1.10.5
+Django==1.11.9
 cx-Oracle==5.2.1
 psycopg2==2.7.3.1
 django-cached-authentication-middleware==0.2.1
