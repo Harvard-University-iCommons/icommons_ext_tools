@@ -1,4 +1,5 @@
 import django_cas_ng
+from django_cas_ng import views as cas_ng_views
 from django.conf import settings
 from django.conf.urls import url, include
 
