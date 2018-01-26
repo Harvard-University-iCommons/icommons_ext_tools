@@ -116,9 +116,7 @@
 		</div>
 		<input type="hidden" name="huid" value='{{ huid }}'>
 		<div class="col-sm-1">
-			{% if not qualtrics_user_in_db %}
-				<input type="submit" value="Submit" class="btn btn-primary disabled">
-			{% else %}
+			{% if qualtrics_user_in_db %}
 				<input type="submit" value="Submit" class="btn btn-primary">
 			{% endif %}
 
