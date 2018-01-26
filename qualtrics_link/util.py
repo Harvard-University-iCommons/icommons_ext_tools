@@ -131,7 +131,6 @@ DIVISION_CHOICES = (
     ('EXT', 'EXT'),
     ('FAS', 'FAS'),
     ('GSE', 'GSE'),
-    ('GSE-PPE [no longer used]', 'GSE-PPE [no longer used]'),
     ('GSD', 'GSD'),
     ('HAA (Alumni Assoc.)', 'HAA (Alumni Assoc.)'),
     ('HDS', 'HDS'),
