@@ -1,10 +1,9 @@
 import django_cas_ng
-from django.conf.urls import (
-    include,
-    url)
 from django_cas_ng import views as cas_ng_views
-from icommons_ui import views as ui_views
+from django.conf import settings
+from django.conf.urls import url, include
 
+from icommons_ui import views as ui_views
 from qualtrics_link import urls as ql_urls
 
 urlpatterns = [
@@ -14,6 +13,12 @@ urlpatterns = [
     url(r'^ext_tools/qualtrics_link/', include(ql_urls, namespace="ql")),
 
 ]
+
+if settings.DEBUG:
+    import debug_toolbar
+    urlpatterns += [
+        url(r'^__debug__/', include(debug_toolbar.urls)),
+    ]
 
 handler403 = 'icommons_ext_tools.views.handler403'
 handler404 = 'icommons_ext_tools.views.handler404'

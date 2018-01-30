@@ -13,8 +13,8 @@ from icommons_common.auth.decorators import group_membership_restriction
 from icommons_common.monitor.views import BaseMonitorResponseView
 
 import qualtrics_link.util as util
-from qualtrics_link.forms import SpoofForm
-from qualtrics_link.models import Acceptance
+from qualtrics_link.forms import SpoofForm, QualtricsUserAdminForm
+from qualtrics_link.models import Acceptance, QualtricsUser
 
 logger = logging.getLogger(__name__)
 
@@ -112,7 +112,7 @@ def launch(request):
 
 @login_required
 @group_membership_restriction(settings.QUALTRICS_LINK.get('QUALTRICS_AUTH_GROUP'))
-@require_http_methods(['GET'])
+@require_http_methods(['GET', 'POST'])
 def internal(request):
 
     user_can_access = False
@@ -126,29 +126,42 @@ def internal(request):
     # In this case we take the current time and add 10 minutes (600 seconds)
     expiration_date = datetime.datetime.utcfromtimestamp(current_time + 600).strftime('%Y-%m-%dT%H:%M:%S')
 
-    # Form to allow admins to spoof other users
-    if 'huid' in request.GET: # If the form has been submitted...
-        # ContactForm was defined in the the previous section
-        spoof_form = SpoofForm(request.GET) # A form bound to the POST data
-        if spoof_form.is_valid(): # All validation rules pass
-            huid = request.GET['huid']
-            huid = huid.strip()
-            logger.info('USER: '+str(request.user.username) + ' Spoofing: ' + huid)
-            if huid == '':
-                if 'spoofid' in request.session:
-                    del request.session['spoofid']
-                huid = request.user.username
-                
-    elif 'spoofid' in request.session:
+    # Initialize the 2 forms
+    qualtrics_user_update_form = QualtricsUserAdminForm()
+    spoof_form = SpoofForm()
+
+    # Set the initial huid to the person using the internal page
+    huid = request.user.username
+    huid = huid.strip()
+
+    if request.method == 'POST':
+        huid = request.POST['huid']
+        logger.info('USER: ' + str(request.user.username) + ' Spoofing: ' + huid)
+
+        # If the Qualtrics admin form was submitted, validate and then send division and role data
+        if 'role' in request.POST:
+            qualtrics_user_update_form = QualtricsUserAdminForm(data=request.POST)
+
+            if qualtrics_user_update_form.is_valid():
+                # There is currently some HUID's that have multiple Qualtrics accounts.
+                q_user_qset = QualtricsUser.objects.filter(univ_id=huid)
+                if len(q_user_qset) > 0:
+                    q_user = q_user_qset[0]
+                    qualtrics_id = q_user.qualtrics_id
+                    division = util.DIVISION_MAPPING[request.POST['division']]
+                    role = util.USER_TYPE_MAPPING[request.POST['role']]
+                    # Perform the update to Qualtrics with the obtained values
+                    util.update_qualtrics_user(qualtrics_id, division, role)
+                    # Save the users manually_updated field
+                    q_user.manually_updated = request.POST['manually_updated']
+                    q_user.save()
+
+    if 'spoofid' in request.session:
         # We got here because the user accepted the tos and we needed a way to stay the spoofed user
         huid = request.session.get('spoofid')
         huid = huid.strip()
         logger.info('USER: ' + str(request.user.username) + ' Spoofing: ' + str(request.session.get('spoofid', 'None')))
         spoof_form = SpoofForm({'huid': huid.strip()})
-    else:
-        spoof_form = SpoofForm() # An unbound form
-        huid = request.user.username
-        huid = huid.strip()
 
     user_in_whitelist = util.is_user_in_whitelist(huid)
 
@@ -181,7 +194,19 @@ def internal(request):
                      'user_id:%s', huid, e)
             return render(request, 'qualtrics_link/error.html')
 
-        #  Render agreement page if user has not accepted term of service
+        # Set the initial values of the Qualtrics Admin form
+        qualtrics_user_update_form.initial['division'] = person_details.division
+        qualtrics_user_update_form.initial['role'] = person_details.role
+
+        qualtrics_user_in_db = False
+        try:
+            qu = QualtricsUser.objects.get(univ_id=person_details.id)
+            qualtrics_user_update_form.initial['manually_updated'] = qu.manually_updated
+            qualtrics_user_in_db = True
+        except QualtricsUser.DoesNotExist:
+            qualtrics_user_update_form.initial['manually_updated'] = False
+
+        # Render agreement page if user has not accepted term of service
         if not user_acceptance:
             request.session['spoofid'] = huid
             return render(request, 'qualtrics_link/agreement.html',
@@ -210,7 +235,9 @@ def internal(request):
             'user_in_whitelist': user_in_whitelist,
             'processed_data': person_details,
             'person': person_details.person,
-            'form': spoof_form
+            'spoof_form': spoof_form,
+            'qualtrics_user_update_form': qualtrics_user_update_form,
+            'qualtrics_user_in_db': qualtrics_user_in_db
         }
         return render(request, 'qualtrics_link/main.html', context)
     else:

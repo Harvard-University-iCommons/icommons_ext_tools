@@ -35,9 +35,8 @@ class Command(BaseCommand):
                                                                  'to be made during an update.')
         parser.add_argument('--update-stats', action='store_true', help='Provide information from the '
                                                                         'perform-update call')
-        parser.add_argument('--secondary_filter', action='store_true', help='Filter the users that require updates into'
-                                                                            'specific files based on the type of update'
-                                                                            'required.')
+        parser.add_argument('--perform-full-update', action='store_true', help='Will retrieve, filter and update'
+                                                                               ' all users in one go')
 
     def handle(self, *args, **options):
         if options['get_users']:
@@ -50,8 +49,31 @@ class Command(BaseCommand):
             self.update_users()
         elif options['update_stats']:
             self.update_stats()
+        elif options['perform_full_update']:
+            self.perform_full_update()
         else:
             logger.info('You need to select a valid option')
+
+    def perform_full_update(self):
+        """
+        Performs the retrieval of all Qualtrics users, filters them and performs and required updates
+        """
+        # Get all Qualtrics users
+        self.get_users()
+
+        # Get the count of users retrieved from Qualtrics
+        data_file = open('data.json', 'r')
+        data = json.load(data_file)
+        qualtrics_user_count = len(data)
+
+        # Find those who require updates, pass in the count of users from step 1 to filter all users.
+        self.filter_users(qualtrics_user_count)
+        # Display/log those who require updates
+        self.stats()
+        # Perform updates
+        self.update_users()
+        # Display/log stats about users that were updated
+        self.update_stats()
 
     @staticmethod
     def update_stats():
