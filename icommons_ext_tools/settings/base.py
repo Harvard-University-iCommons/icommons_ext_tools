@@ -162,80 +162,11 @@ STATIC_URL = '/static/'
 # https://docs.djangoproject.com/en/1.8/topics/logging/#disabling-logging-configuration
 LOGGING_CONFIG = None
 
-_DEFAULT_LOG_LEVEL = SECURE_SETTINGS.get('log_level', 'DEBUG')
-# LOG_ROOT used for log file storage; EMAIL_FILE_PATH used for
-# email output if EMAIL_BACKEND is filebased.EmailBackend
-_LOG_ROOT = SECURE_SETTINGS.get('log_root', '')
-
 # Make sure log timestamps are in GMT
 logging.Formatter.converter = time.gmtime
 
-LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'verbose': {
-            'format': '%(levelname)s\t%(asctime)s.%(msecs)03dZ\t%(name)s:%(lineno)s\t%(message)s',
-            'datefmt': '%Y-%m-%dT%H:%M:%S'
-        },
-        'simple': {
-            'format': '%(levelname)s\t%(name)s:%(lineno)s\t%(message)s',
-        }
-    },
-    'filters': {
-        'require_debug_false': {
-            '()': 'django.utils.log.RequireDebugFalse'
-        },
-        'require_debug_true': {
-            '()': 'django.utils.log.RequireDebugTrue',
-        },
-    },
-    'handlers': {
-        'default': {
-            'class': 'logging.handlers.WatchedFileHandler',
-            'level': _DEFAULT_LOG_LEVEL,
-            'formatter': 'verbose',
-            'filename': os.path.join(_LOG_ROOT, 'django-icommons_ext_tools.log'),
-        },
-        'console': {
-            'level': _DEFAULT_LOG_LEVEL,
-            'class': 'logging.StreamHandler',
-            'formatter': 'simple',
-            'filters': ['require_debug_true'],
-        },
-    },
-    # This is the default logger for any apps or libraries that use the logger
-    # package, but are not represented in the `loggers` dict below.  A level
-    # must be set and handlers defined.  Setting this logger is equivalent to
-    # setting and empty string logger in the loggers dict below, but the separation
-    # here is a bit more explicit.  See link for more details:
-    # https://docs.python.org/2.7/library/logging.config.html#dictionary-schema-details
-    'root': {
-        'level': logging.WARNING,
-        'handlers': ['default'],
-    },
-    'loggers': {
-        'django': {
-            'level': _DEFAULT_LOG_LEVEL,
-            'filters': ['require_debug_true'],
-            'handlers': ['console', 'default'],
-            'propagate': False,
-        },
-        'qualtrics_link': {
-            'level': _DEFAULT_LOG_LEVEL,
-            'handlers': ['console', 'default'],
-            'propagate': False,
-        },
-        'icommons_common': {
-            'handlers': ['console', 'default'],
-            'level': _DEFAULT_LOG_LEVEL,
-            'propagate': False,
-        },
-    }
-}
 
 # Other app specific settings
-
 
 QUALTRICS_LINK = {
     'AGREEMENT_ID': SECURE_SETTINGS.get('qualtrics_agreement_id'),
@@ -244,6 +175,9 @@ QUALTRICS_LINK = {
     'QUALTRICS_API_USER': SECURE_SETTINGS.get('qualtrics_api_user'),
     'QUALTRICS_API_TOKEN': SECURE_SETTINGS.get('qualtrics_api_token'),
     'QUALTRICS_AUTH_GROUP': SECURE_SETTINGS.get('qualtrics_auth_group'),
-    'USER_DECLINED_TERMS_URL': SECURE_SETTINGS.get('qualtrics_user_declined_terms_url','http://surveytools.harvard.edu'),
-    'USER_ACCEPTED_TERMS_URL': SECURE_SETTINGS.get('qualtrics_user_accepted_terms_url'),
+    'USER_DECLINED_TERMS_URL': SECURE_SETTINGS.get(
+        'qualtrics_user_declined_terms_url',
+        'http://surveytools.harvard.edu'),
+    'USER_ACCEPTED_TERMS_URL': SECURE_SETTINGS.get(
+        'qualtrics_user_accepted_terms_url'),
 }

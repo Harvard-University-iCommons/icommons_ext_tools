@@ -15,10 +15,13 @@ urlpatterns = [
 ]
 
 if settings.DEBUG:
-    import debug_toolbar
-    urlpatterns += [
-        url(r'^__debug__/', include(debug_toolbar.urls)),
-    ]
+    try:
+        import debug_toolbar
+        urlpatterns += [
+            url(r'^__debug__/', include(debug_toolbar.urls)),
+        ]
+    except ImportError:
+        pass  # This is OK for a deployed instance running in DEBUG mode
 
 handler403 = 'icommons_ext_tools.views.handler403'
 handler404 = 'icommons_ext_tools.views.handler404'
