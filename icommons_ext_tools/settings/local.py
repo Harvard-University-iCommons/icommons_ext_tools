@@ -14,10 +14,7 @@ INSTALLED_APPS.extend(['debug_toolbar', 'sslserver'])
 MIDDLEWARE_CLASSES.extend(['debug_toolbar.middleware.DebugToolbarMiddleware'])
 
 # For Django Debug Toolbar:
-INTERNAL_IPS = ('127.0.0.1', '10.0.2.2',)
-DEBUG_TOOLBAR_CONFIG = {
-    'INTERCEPT_REDIRECTS': False,
-}
+INTERNAL_IPS = ['127.0.0.1', '10.0.2.2']
 
 # Log to console when running locally
 configure_installed_apps_logger(logging.DEBUG)

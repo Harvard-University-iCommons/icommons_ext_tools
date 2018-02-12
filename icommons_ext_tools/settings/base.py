@@ -10,7 +10,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__fil
 
 # Application definition
 
-INSTALLED_APPS = (
+INSTALLED_APPS = [
     'django_cas_ng',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -24,9 +24,9 @@ INSTALLED_APPS = (
     'icommons_common.monitor',
     'icommons_ui',
     'qualtrics_link',
-)
+]
 
-MIDDLEWARE_CLASSES = (
+MIDDLEWARE_CLASSES = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -34,12 +34,12 @@ MIDDLEWARE_CLASSES = (
     'django.contrib.messages.middleware.MessageMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
-)
+]
 
-AUTHENTICATION_BACKENDS = (
+AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'icommons_common.auth.backends.CASAuthBackend',
-)
+    'icommons_common.auth.backends.CASAuthBackend'
+]
 
 # CAS plugin attributes
 CAS_SERVER_URL = SECURE_SETTINGS.get('cas_server_url', 'https://www.pin1.harvard.edu/cas/')

@@ -1,16 +1,14 @@
-import django_cas_ng
-from django_cas_ng import views as cas_ng_views
 from django.conf import settings
 from django.conf.urls import url, include
+from django_cas_ng import views as cas_ng_views
 
 from icommons_ui import views as ui_views
-from qualtrics_link import urls as ql_urls
 
 urlpatterns = [
-    url(r'^accounts/login/', django_cas_ng.views.login, name='cas_ng_login'),
-    url(r'^accounts/logout/', django_cas_ng.views.logout, name='cas_ng_logout'),
+    url(r'^accounts/login/', cas_ng_views.login, name='cas_ng_login'),
+    url(r'^accounts/logout/', cas_ng_views.logout, name='cas_ng_logout'),
     url(r'^ext_tools/not_authorized/', ui_views.not_authorized, name="not_authorized"),
-    url(r'^ext_tools/qualtrics_link/', include(ql_urls, namespace="ql")),
+    url(r'^ext_tools/qualtrics_link/', include('qualtrics_link.urls')),
 
 ]
 
