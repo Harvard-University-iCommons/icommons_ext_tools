@@ -1,0 +1,2 @@
+# Update all required Qualtrics users at 4 am every Sunday
+00 4 * * 0 deploy /var/opt/virtualenvs/icommons_ext_tools/bin/python /opt/tlt/icommons_ext_tools/manage.py qualtrics —perform-full-update >> /var/opt/tlt/logs/django-icommons_ext_tools.log 2>&1
