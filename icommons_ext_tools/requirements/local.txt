@@ -1,9 +1,9 @@
 # local environment requirements
 
 #includes the base.txt requirements needed in all environments
--r base.txt 
+-r base.txt
 
 # below are requirements specific to the local environment
-django-debug-toolbar==1.5
+django-debug-toolbar==1.9
 django-sslserver==0.19
 mock==2.0.0

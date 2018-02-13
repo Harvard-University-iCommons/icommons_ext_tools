@@ -29,7 +29,13 @@
 	.title {
 		text-align: center;
 	}
-	.spoof-form { width: 38%; }
+	.spoof-form {
+		width: 38%;
+	}
+
+	.qualtrics_admin {
+		padding-bottom: 50px;
+	}
 
 </style>
 
@@ -43,8 +49,8 @@
 
 <div class="well spoof-form">
 <h4>Enter an HUID to spoof</h4>
-<form action="internal" method="get" role="form">{% csrf_token %}
-	{% for field in form %}
+<form action="internal" method="POST" role="form">{% csrf_token %}
+	{% for field in spoof_form %}
 	{{ field.label_tag }}&nbsp;{{ field }}
 	{% endfor %}
 	<input type="submit" value="Submit" class="btn btn-default"/>
@@ -90,6 +96,33 @@
 		</td>
 	</tr>
 </table>
+
+<div class="well qualtrics_admin">
+	<h4>Manage Qualtrics Division and/or Role</h4>
+	{% if not qualtrics_user_in_db %}
+		<div class="alert alert-warning" role="alert">
+			This user is not currently in our Postgres table. Please contact a dev for further assistance.
+		</div>
+	{% endif %}
+	<form action="internal" method="POST">{% csrf_token %}
+		<div class="col-sm-4">
+			Division: {{ qualtrics_user_update_form.division }}
+		</div>
+		<div class="col-sm-3">
+			Role: {{ qualtrics_user_update_form.role }}
+		</div>
+		<div class="col-sm-4">
+			Skip in update job: {{ qualtrics_user_update_form.manually_updated }}
+		</div>
+		<input type="hidden" name="huid" value='{{ huid }}'>
+		<div class="col-sm-1">
+			{% if qualtrics_user_in_db %}
+				<input type="submit" value="Submit" class="btn btn-primary">
+			{% endif %}
+
+		</div>
+	</form>
+</div>
 
 
 {% endblock %}

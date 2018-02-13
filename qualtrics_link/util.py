@@ -115,6 +115,39 @@ DIVISION_MAPPING = {
     'GSE-PPE [no longer used]': 'DV_0vsxWeIjXJWeS21'
 }
 
+# Maps the user type to its equivalent Qualtrics ID
+USER_TYPE_MAPPING = {
+    'employee': 'UT_egutew4nqz71QgI',
+    'student': 'UT_787UadC574xhxgU',
+    'brand administrator': 'UT_BRANDADMIN'
+}
+
+
+# Choice tuple used in the Qualtrics internal admin form
+DIVISION_CHOICES = (
+    ('API Div', 'API Div'),
+    ('Berkman', 'Berkman'),
+    ('Central Administration', 'Central Administration'),
+    ('EXT', 'EXT'),
+    ('FAS', 'FAS'),
+    ('GSE', 'GSE'),
+    ('GSD', 'GSD'),
+    ('HAA (Alumni Assoc.)', 'HAA (Alumni Assoc.)'),
+    ('HDS', 'HDS'),
+    ('HKS', 'HKS'),
+    ('HLS', 'HLS'),
+    ('HSPH', 'HSPH'),
+    ('HUIT', 'HUIT'),
+    ('Other', 'Other'),
+    ('Radcliffe', 'Radcliffe'),
+    ('VPAL Research and Affiliates', 'VPAL Research and Affiliates')
+)
+
+ROLE_CHOICES = (
+    ('employee', 'Employee'),
+    ('student', 'Student')
+)
+
 BS = 16
 pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
 
