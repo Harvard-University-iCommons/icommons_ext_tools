@@ -8,7 +8,7 @@ urlpatterns = [
     url(r'^accounts/login/', cas_ng_views.login, name='cas_ng_login'),
     url(r'^accounts/logout/', cas_ng_views.logout, name='cas_ng_logout'),
     url(r'^ext_tools/not_authorized/', ui_views.not_authorized, name="not_authorized"),
-    url(r'^ext_tools/qualtrics_link/', include('qualtrics_link.urls')),
+    url(r'^ext_tools/qualtrics_link/', include('qualtrics_link.urls', namespace='ql')),
 
 ]
 
