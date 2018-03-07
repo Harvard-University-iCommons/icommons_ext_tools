@@ -64,10 +64,16 @@ def launch(request):
         logger.error('No records with the huid of {} could be found'.format(huid))
         return render(request, 'qualtrics_link/error.html', {'request': request})
 
+    # Use time.now() for the correct formatting to match the DateTimeField in the DB
+    # This is a different formatting than the above current_date var
+    today = timezone.now()
+
     # Check if the user can use qualtrics or not
     # the value of user_can_access is set to False by default
-    # if any of the checks here pass we set user_can_access to True
-    if person_details.valid_dept or person_details.valid_school or user_in_whitelist:
+    # The user must have at least a valid department, school or be in the whitelist as well as
+    # have a role end date that is either None or today or greater.
+    if (person_details.valid_dept or person_details.valid_school or user_in_whitelist) and \
+       (person_details.role_end_date is None or person_details.role_end_date >= today):
         user_can_access = True
 
     if user_can_access:
