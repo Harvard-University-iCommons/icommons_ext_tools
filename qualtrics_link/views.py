@@ -64,7 +64,9 @@ def launch(request):
         logger.error('No records with the huid of {} could be found'.format(huid))
         return render(request, 'qualtrics_link/error.html', {'request': request})
 
-    today = datetime.datetime.today()
+    # Use time.now() for the correct formatting to match the DateTimeField in the DB
+    # This is a different formatting than the above current_date var
+    today = timezone.now()
 
     # Check if the user can use qualtrics or not
     # the value of user_can_access is set to False by default
