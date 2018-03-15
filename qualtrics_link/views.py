@@ -206,9 +206,10 @@ def internal(request):
 
         qualtrics_user_in_db = False
         try:
-            qu = QualtricsUser.objects.get(univ_id=person_details.id)
-            qualtrics_user_update_form.initial['manually_updated'] = qu.manually_updated
-            qualtrics_user_in_db = True
+            qu = QualtricsUser.objects.filter(univ_id=person_details.id).first()
+            if qu:
+                qualtrics_user_update_form.initial['manually_updated'] = qu.manually_updated
+                qualtrics_user_in_db = True
         except QualtricsUser.DoesNotExist:
             qualtrics_user_update_form.initial['manually_updated'] = False
 
