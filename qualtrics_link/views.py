@@ -189,16 +189,6 @@ def internal(request):
         user_can_access = True
     
     if user_can_access:
-        # If they are allowed to use Qualtrics, check to see if the user has accepted the terms of service
-        user_acceptance = None
-        try:
-            user_acceptance = Acceptance.objects.get(user_id=huid)
-        except Acceptance.DoesNotExist:
-            logger.info('User %s has not  accepted term of service ', huid)
-        except Exception as e:
-            logger.error('Exception in checking for user acceptance, '
-                     'user_id:%s', huid, e)
-            return render(request, 'qualtrics_link/error.html')
 
         # Set the initial values of the Qualtrics Admin form
         qualtrics_user_update_form.initial['division'] = person_details.division
@@ -212,12 +202,6 @@ def internal(request):
                 qualtrics_user_in_db = True
         except QualtricsUser.DoesNotExist:
             qualtrics_user_update_form.initial['manually_updated'] = False
-
-        # Render agreement page if user has not accepted term of service
-        if not user_acceptance:
-            request.session['spoofid'] = huid
-            return render(request, 'qualtrics_link/agreement.html',
-                          {'request': request})
 
 
         enc_id = util.get_encrypted_huid(huid)
