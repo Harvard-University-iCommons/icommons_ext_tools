@@ -193,6 +193,7 @@ def internal(request):
         # Set the initial values of the Qualtrics Admin form
         qualtrics_user_update_form.initial['division'] = person_details.division
         qualtrics_user_update_form.initial['role'] = person_details.role
+        qualtrics_user_update_form.initial['manually_updated'] = False
 
         qualtrics_user_in_db = False
         try:
@@ -200,8 +201,9 @@ def internal(request):
             if qu:
                 qualtrics_user_update_form.initial['manually_updated'] = qu.manually_updated
                 qualtrics_user_in_db = True
-        except QualtricsUser.DoesNotExist:
-            qualtrics_user_update_form.initial['manually_updated'] = False
+        except Exception as ex:
+            logger.info("Exception while finding Qualtrics user", ex)
+
 
 
         enc_id = util.get_encrypted_huid(huid)
