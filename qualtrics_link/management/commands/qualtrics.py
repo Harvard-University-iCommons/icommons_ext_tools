@@ -37,6 +37,9 @@ class Command(BaseCommand):
                                                                         'perform-update call')
         parser.add_argument('--perform-full-update', action='store_true', help='Will retrieve, filter and update'
                                                                                ' all users in one go')
+        parser.add_argument('--map-qualtrics-ids-to-univ-ids', action='store_true', help='Updates the qualtrics_user '
+                                                                                         'table with the mapping of'
+                                                                                         'Qualtrics IDs to univ IDs')
 
     def handle(self, *args, **options):
         if options['get_users']:
@@ -51,6 +54,8 @@ class Command(BaseCommand):
             self.update_stats()
         elif options['perform_full_update']:
             self.perform_full_update()
+        elif options['map_qualtrics_ids_to_univ_ids']:
+            self.map_qualtrics_ids_to_univ_ids()
         else:
             logger.info('You need to select a valid option')
 
@@ -74,6 +79,24 @@ class Command(BaseCommand):
         self.update_users()
         # Display/log stats about users that were updated
         self.update_stats()
+
+    def map_qualtrics_ids_to_univ_ids(self):
+        """
+        Performs the retrieval of all Qualtrics users, identifies which users require an update and maps
+        Qualtrics ID's to university ID's in the same process.
+        """
+        # Get all Qualtrics users
+        self.get_users()
+
+        # Get the count of users retrieved from Qualtrics
+        data_file = open('data.json', 'r')
+        data = json.load(data_file)
+        qualtrics_user_count = len(data)
+
+        # Find those who require updates, pass in the count of users from step 1 to filter all users.
+        self.filter_users(qualtrics_user_count)
+        # Display/log those who require updates
+        self.stats()
 
     @staticmethod
     def update_stats():
@@ -352,17 +375,22 @@ class Command(BaseCommand):
                 else:
                     # Filter Person records based off of their email if present
                     if q_email:
+                        print "Email Address: {}".format(q_email)
                         person_queryset = Person.objects.filter(email_address=q_email)
+                        print len(person_queryset)
                         # A user may have had their Qualtrics account created with a different email address than what
                         # is currently stored in our DB. If so, we need to look them up based on first and last name.
                         if len(person_queryset) == 0:
+                            print "Could not find based on email, trying by first and last name"
                             person_queryset = Person.objects.filter(name_first=q_first_name, name_last=q_last_name)
+                            print len(person_queryset)
                     else:
                         person_queryset = Person.objects.filter(name_first=q_first_name, name_last=q_last_name)
 
                     # Iterate through the queryset, encrypting the current Persons HUID to find a match with the q_id
                     for person in person_queryset:
                         enc_id = util.get_encrypted_huid(person.univ_id) + '#harvard'
+                        print "Encoded ID: {}    Qualtrics username: {}".format(enc_id, q_username)
                         if enc_id == q_username:
                             matching_person = person
                             break
