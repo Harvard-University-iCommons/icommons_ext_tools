@@ -112,8 +112,8 @@ def launch(request):
             qu = QualtricsUser.objects.filter(univ_id=person_details.id).first()
             if qu and qu.manually_updated is False:
                 util.update_qualtrics_user(user_id=qu.qualtrics_id,
-                                           division=person_details.division,
-                                           role=person_details.role)
+                                           division=util.DIVISION_MAPPING[person_details.division],
+                                           role=util.USER_TYPE_MAPPING[person_details.role])
         except Exception as ex:
             logger.info("Exception while finding Qualtrics user", ex)
 
