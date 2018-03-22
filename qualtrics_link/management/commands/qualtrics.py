@@ -375,22 +375,17 @@ class Command(BaseCommand):
                 else:
                     # Filter Person records based off of their email if present
                     if q_email:
-                        print "Email Address: {}".format(q_email)
                         person_queryset = Person.objects.filter(email_address=q_email)
-                        print len(person_queryset)
                         # A user may have had their Qualtrics account created with a different email address than what
                         # is currently stored in our DB. If so, we need to look them up based on first and last name.
                         if len(person_queryset) == 0:
-                            print "Could not find based on email, trying by first and last name"
                             person_queryset = Person.objects.filter(name_first=q_first_name, name_last=q_last_name)
-                            print len(person_queryset)
                     else:
                         person_queryset = Person.objects.filter(name_first=q_first_name, name_last=q_last_name)
 
                     # Iterate through the queryset, encrypting the current Persons HUID to find a match with the q_id
                     for person in person_queryset:
                         enc_id = util.get_encrypted_huid(person.univ_id) + '#harvard'
-                        print "Encoded ID: {}    Qualtrics username: {}".format(enc_id, q_username)
                         if enc_id == q_username:
                             matching_person = person
                             break
