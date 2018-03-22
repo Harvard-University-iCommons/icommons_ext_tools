@@ -110,7 +110,7 @@ def launch(request):
         # Update the users Qualtrics role and division to the most current information prior to redirecting
         try:
             qu = QualtricsUser.objects.filter(univ_id=person_details.id).first()
-            if qu:
+            if qu and qu.manually_updated is False:
                 util.update_qualtrics_user(user_id=qu.qualtrics_id,
                                            division=person_details.division,
                                            role=person_details.role)
