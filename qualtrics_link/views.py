@@ -115,7 +115,8 @@ def launch(request):
                                            division=util.DIVISION_MAPPING[person_details.division],
                                            role=util.USER_TYPE_MAPPING[person_details.role])
         except Exception as ex:
-            logger.info("Exception while finding Qualtrics user", ex)
+            logger.info("Exception while retrieving QualtricsUser and/or performing update of their information. "
+                        "Qualtrics user id: {}, University ID: {}".format(qu.qualtrics_id, qu.univ_id), ex)
 
         # The redirect line below will be how the application works if everything is good for the user.
         return redirect(qualtrics_link)
