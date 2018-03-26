@@ -107,6 +107,17 @@ def launch(request):
         qualtrics_link = util.get_qualtrics_url(key_value_pairs)
         logger.info("{}\t{}\t{}\t{}".format(current_date, client_ip, person_details.role, person_details.division))
 
+        # Update the users Qualtrics role and division to the most current information prior to redirecting
+        try:
+            qu = QualtricsUser.objects.filter(univ_id=person_details.id).first()
+            if qu and qu.manually_updated is False:
+                util.update_qualtrics_user(user_id=qu.qualtrics_id,
+                                           division=util.DIVISION_MAPPING[person_details.division],
+                                           role=util.USER_TYPE_MAPPING[person_details.role])
+        except Exception as ex:
+            logger.info("Exception while retrieving QualtricsUser and/or performing update of their information. "
+                        "Qualtrics user id: {}, University ID: {}".format(qu.qualtrics_id, qu.univ_id), ex)
+
         # The redirect line below will be how the application works if everything is good for the user.
         return redirect(qualtrics_link)
 
