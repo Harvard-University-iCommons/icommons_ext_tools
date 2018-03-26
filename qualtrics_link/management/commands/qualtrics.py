@@ -35,8 +35,6 @@ class Command(BaseCommand):
                                                                  'to be made during an update.')
         parser.add_argument('--update-stats', action='store_true', help='Provide information from the '
                                                                         'perform-update call')
-        parser.add_argument('--perform-full-update', action='store_true', help='Will retrieve, filter and update'
-                                                                               ' all users in one go')
         parser.add_argument('--map-qualtrics-ids-to-univ-ids', action='store_true', help='Updates the qualtrics_user '
                                                                                          'table with the mapping of'
                                                                                          'Qualtrics IDs to univ IDs')
@@ -52,8 +50,6 @@ class Command(BaseCommand):
             self.update_users()
         elif options['update_stats']:
             self.update_stats()
-        elif options['perform_full_update']:
-            self.perform_full_update()
         elif options['map_qualtrics_ids_to_univ_ids']:
             self.map_qualtrics_ids_to_univ_ids()
         else:
