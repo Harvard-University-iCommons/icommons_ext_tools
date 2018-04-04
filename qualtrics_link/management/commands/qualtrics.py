@@ -35,8 +35,9 @@ class Command(BaseCommand):
                                                                  'to be made during an update.')
         parser.add_argument('--update-stats', action='store_true', help='Provide information from the '
                                                                         'perform-update call')
-        parser.add_argument('--perform-full-update', action='store_true', help='Will retrieve, filter and update'
-                                                                               ' all users in one go')
+        parser.add_argument('--map-qualtrics-ids-to-univ-ids', action='store_true', help='Updates the qualtrics_user '
+                                                                                         'table with the mapping of'
+                                                                                         'Qualtrics IDs to univ IDs')
 
     def handle(self, *args, **options):
         if options['get_users']:
@@ -49,8 +50,8 @@ class Command(BaseCommand):
             self.update_users()
         elif options['update_stats']:
             self.update_stats()
-        elif options['perform_full_update']:
-            self.perform_full_update()
+        elif options['map_qualtrics_ids_to_univ_ids']:
+            self.map_qualtrics_ids_to_univ_ids()
         else:
             logger.info('You need to select a valid option')
 
@@ -74,6 +75,24 @@ class Command(BaseCommand):
         self.update_users()
         # Display/log stats about users that were updated
         self.update_stats()
+
+    def map_qualtrics_ids_to_univ_ids(self):
+        """
+        Performs the retrieval of all Qualtrics users, identifies which users require an update and maps
+        Qualtrics ID's to university ID's in the same process.
+        """
+        # Get all Qualtrics users
+        self.get_users()
+
+        # Get the count of users retrieved from Qualtrics
+        data_file = open('data.json', 'r')
+        data = json.load(data_file)
+        qualtrics_user_count = len(data)
+
+        # Find those who require updates, pass in the count of users from step 1 to filter all users.
+        self.filter_users(qualtrics_user_count)
+        # Display/log those who require updates
+        self.stats()
 
     @staticmethod
     def update_stats():

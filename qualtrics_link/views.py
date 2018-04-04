@@ -64,10 +64,16 @@ def launch(request):
         logger.error('No records with the huid of {} could be found'.format(huid))
         return render(request, 'qualtrics_link/error.html', {'request': request})
 
+    # Use time.now() for the correct formatting to match the DateTimeField in the DB
+    # This is a different formatting than the above current_date var
+    today = timezone.now()
+
     # Check if the user can use qualtrics or not
     # the value of user_can_access is set to False by default
-    # if any of the checks here pass we set user_can_access to True
-    if person_details.valid_dept or person_details.valid_school or user_in_whitelist:
+    # The user must have at least a valid department, school or be in the whitelist as well as
+    # have a role end date that is either None or today or greater.
+    if (person_details.valid_dept or person_details.valid_school or user_in_whitelist) and \
+       (person_details.role_end_date is None or person_details.role_end_date >= today):
         user_can_access = True
 
     if user_can_access:
@@ -100,6 +106,17 @@ def launch(request):
                                                  util.DIVISION_MAPPING[person_details.division])
         qualtrics_link = util.get_qualtrics_url(key_value_pairs)
         logger.info("{}\t{}\t{}\t{}".format(current_date, client_ip, person_details.role, person_details.division))
+
+        # Update the users Qualtrics role and division to the most current information prior to redirecting
+        try:
+            qu = QualtricsUser.objects.filter(univ_id=person_details.id).first()
+            if qu and qu.manually_updated is False:
+                util.update_qualtrics_user(user_id=qu.qualtrics_id,
+                                           division=util.DIVISION_MAPPING[person_details.division],
+                                           role=util.USER_TYPE_MAPPING[person_details.role])
+        except Exception as ex:
+            logger.info("Exception while retrieving QualtricsUser and/or performing update of their information. "
+                        "Qualtrics user id: {}, University ID: {}".format(qu.qualtrics_id, qu.univ_id), ex)
 
         # The redirect line below will be how the application works if everything is good for the user.
         return redirect(qualtrics_link)
@@ -183,34 +200,21 @@ def internal(request):
         user_can_access = True
     
     if user_can_access:
-        # If they are allowed to use Qualtrics, check to see if the user has accepted the terms of service
-        user_acceptance = None
-        try:
-            user_acceptance = Acceptance.objects.get(user_id=huid)
-        except Acceptance.DoesNotExist:
-            logger.info('User %s has not  accepted term of service ', huid)
-        except Exception as e:
-            logger.error('Exception in checking for user acceptance, '
-                     'user_id:%s', huid, e)
-            return render(request, 'qualtrics_link/error.html')
 
         # Set the initial values of the Qualtrics Admin form
         qualtrics_user_update_form.initial['division'] = person_details.division
         qualtrics_user_update_form.initial['role'] = person_details.role
+        qualtrics_user_update_form.initial['manually_updated'] = False
 
         qualtrics_user_in_db = False
         try:
-            qu = QualtricsUser.objects.get(univ_id=person_details.id)
-            qualtrics_user_update_form.initial['manually_updated'] = qu.manually_updated
-            qualtrics_user_in_db = True
-        except QualtricsUser.DoesNotExist:
-            qualtrics_user_update_form.initial['manually_updated'] = False
+            qu = QualtricsUser.objects.filter(univ_id=person_details.id).first()
+            if qu:
+                qualtrics_user_update_form.initial['manually_updated'] = qu.manually_updated
+                qualtrics_user_in_db = True
+        except Exception as ex:
+            logger.info("Exception while finding Qualtrics user", ex)
 
-        # Render agreement page if user has not accepted term of service
-        if not user_acceptance:
-            request.session['spoofid'] = huid
-            return render(request, 'qualtrics_link/agreement.html',
-                          {'request': request})
 
 
         enc_id = util.get_encrypted_huid(huid)

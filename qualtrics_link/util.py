@@ -385,7 +385,7 @@ class PersonDetails:
 
     def __init__(self, person, id, first_name, last_name, email, role='student',
                  division='Other', valid_school=False, valid_dept=False,
-                 school_affiliations=[]):
+                 school_affiliations=[], role_end_date=None):
         self.person = person
         self.id = id
         self.first_name = first_name
@@ -396,6 +396,7 @@ class PersonDetails:
         self.valid_school = valid_school
         self.valid_dept = valid_dept
         self.school_affiliations = school_affiliations,
+        self.role_end_date = role_end_date
 
 
 def get_person_details(huid, person_list=None):
@@ -440,4 +441,5 @@ def get_person_details(huid, person_list=None):
                          division=division,
                          valid_school=valid_school,
                          valid_dept=valid_dept,
-                         school_affiliations=school_affiliations)
+                         school_affiliations=school_affiliations,
+                         role_end_date=person.role_end_dt)
