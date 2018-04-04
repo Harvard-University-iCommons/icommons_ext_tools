@@ -70,10 +70,13 @@ def launch(request):
 
     # Check if the user can use qualtrics or not
     # the value of user_can_access is set to False by default
-    # The user must have at least a valid department, school or be in the whitelist as well as
+    # If the user is in the whitelist, they have access
+    # Otherwise the user must have at least a valid department or school as well as
     # have a role end date that is either None or today or greater.
-    if (person_details.valid_dept or person_details.valid_school or user_in_whitelist) and \
-       (person_details.role_end_date is None or person_details.role_end_date >= today):
+    if user_in_whitelist:
+        user_can_access = True
+    elif (person_details.valid_dept or person_details.valid_school) and \
+         (person_details.role_end_date is None or person_details.role_end_date >= today):
         user_can_access = True
 
     if user_can_access:
