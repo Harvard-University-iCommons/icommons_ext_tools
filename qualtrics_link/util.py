@@ -4,6 +4,7 @@ import hmac
 import logging
 import urllib2
 from datetime import date
+from django.utils import timezone
 from unicodedata import normalize
 
 import requests
@@ -272,11 +273,11 @@ def filter_person_list(person_list):
      - Person with prime role indicator field set to 'Y'
      - If no matches are made for the above conditions, return the first person in the given list.   
     """
-
-    # Employee check
+    today = timezone.now()
+    # Check if any of the Person records are an employee type and that they have a valid role end date
     employee_list = []
     for person in person_list:
-        if person.role_type_cd.lower() == 'employee':
+        if person.role_type_cd.lower() == 'employee' and (person.role_end_dt is None or person.role_end_dt >= today):
             employee_list.append(person)
 
     # If more than one Person with Employee role, check if any have prime indicator set to 'Y'
@@ -287,6 +288,11 @@ def filter_person_list(person_list):
             return emp_with_prime
         else:
             return employee_list[0]
+
+    # Check to see if any of the records are an active Student record
+    for person in person_list:
+        if person.role_type_cd.lower() == 'student' and (person.role_end_dt is None or person.role_end_dt >= today):
+            return person
 
     # Check if any of the Person records contain the prime role indicator
     person_with_prime = get_person_with_prime_indicator(person_list)

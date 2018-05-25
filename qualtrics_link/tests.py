@@ -1,5 +1,8 @@
 from django.test import TestCase
 import qualtrics_link.util as util
+from icommons_common.models import Person
+import datetime
+from django.utils import timezone
 
 
 class UtilTestCase(TestCase):
@@ -40,3 +43,37 @@ class UtilTestCase(TestCase):
 
         # Test invalid school code
         self.assertEqual(util.lookup_school_affiliations(9999), 'Not Available')
+
+    def test_filter_person_list(self):
+        today = timezone.now()
+        yesterday = today - datetime.timedelta(days=1)
+        # Use tomorrows date for testing, otherwise the microseconds in the today date will be expired by the time used
+        tomorrow = today + datetime.timedelta(days=1)
+
+        expired_employee = Person(role_type_cd='employee', role_end_dt=yesterday)
+        active_employee = Person(role_type_cd='employee', role_end_dt=tomorrow)
+        expired_student = Person(role_type_cd='student', role_end_dt=yesterday)
+        active_student = Person(role_type_cd='student', role_end_dt=tomorrow)
+        active_employee_none_date = Person(role_type_cd='employee', role_end_dt=None)
+        active_student_none_date = Person(role_type_cd='student', role_end_dt=None)
+
+        self.assertEqual(util.filter_person_list([expired_employee]).role_type_cd, 'employee')
+        self.assertEqual(util.filter_person_list([active_employee_none_date]).role_type_cd, 'employee')
+        self.assertEqual(util.filter_person_list([active_employee]).role_type_cd, 'employee')
+
+        self.assertEqual(util.filter_person_list([expired_student]).role_type_cd, 'student')
+        self.assertEqual(util.filter_person_list([active_student_none_date]).role_type_cd, 'student')
+        self.assertEqual(util.filter_person_list([active_student]).role_type_cd, 'student')
+
+        self.assertEqual(util.filter_person_list([expired_employee, active_student]).role_type_cd, 'student')
+        self.assertEqual(util.filter_person_list([active_employee, active_student]).role_type_cd, 'employee')
+        self.assertEqual(util.filter_person_list([active_employee, expired_student]).role_type_cd, 'employee')
+        self.assertEqual(util.filter_person_list([expired_employee, active_student_none_date]).role_type_cd, 'student')
+        self.assertEqual(util.filter_person_list([active_employee_none_date, expired_student]).role_type_cd, 'employee')
+
+        # Do the same tests with the lists reversed
+        self.assertEqual(util.filter_person_list([active_student, expired_employee]).role_type_cd, 'student')
+        self.assertEqual(util.filter_person_list([active_student, active_employee]).role_type_cd, 'employee')
+        self.assertEqual(util.filter_person_list([expired_student, active_employee]).role_type_cd, 'employee')
+        self.assertEqual(util.filter_person_list([active_student_none_date, expired_employee]).role_type_cd, 'student')
+        self.assertEqual(util.filter_person_list([expired_student, active_employee_none_date]).role_type_cd, 'employee')
