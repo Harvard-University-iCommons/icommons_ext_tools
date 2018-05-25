@@ -113,7 +113,8 @@ DIVISION_MAPPING = {
     'Berkman': 'DV_1Ro0atRhq0UV9ti',
     'Radcliffe': 'DV_agzgkeDIaZPEJHD',
     'API Div': 'DV_23NVy6XjBHhOXxX',
-    'GSE-PPE [no longer used]': 'DV_0vsxWeIjXJWeS21'
+    'GSE-PPE [no longer used]': 'DV_0vsxWeIjXJWeS21',
+    'HUIT AT': 'DV_9BNfbn5fRIagjkx'
 }
 
 # Maps the user type to its equivalent Qualtrics ID
