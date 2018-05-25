@@ -284,7 +284,8 @@ class Command(BaseCommand):
             'Berkman': 'DV_1Ro0atRhq0UV9ti',
             'Radcliffe': 'DV_agzgkeDIaZPEJHD',
             'API Div': 'DV_23NVy6XjBHhOXxX',
-            'GSE-PPE [no longer used]': 'DV_0vsxWeIjXJWeS21'
+            'GSE-PPE [no longer used]': 'DV_0vsxWeIjXJWeS21',
+            'HUIT AT': 'DV_9BNfbn5fRIagjkx'
         }
 
         #####
@@ -308,6 +309,7 @@ class Command(BaseCommand):
 
         # Reverse mapping to translate the Qualtrics division code into a readable division
         reverse_division_mapping = {
+            'DV_9BNfbn5fRIagjkx': 'HUIT AT',
             'DV_0uG93Am70qIFb00': 'FAS',
             'DV_eesMPIncvHA270U': 'GSE',
             'DV_cvfNy3UwERh9IcA': 'HSPH',
