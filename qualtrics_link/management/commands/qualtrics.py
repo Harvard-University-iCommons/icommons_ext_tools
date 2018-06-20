@@ -453,6 +453,8 @@ class Command(BaseCommand):
                     # Store all information for the user if we did not originally have the record
                     # in the quatrics_user table
                     if qualtrics_user is None:
+                        logger.info('Creating QualtricsUser record for user id: {} and Qualtrics id: {}'
+                                    .format(person_details.id, q_id))
                         q_user = QualtricsUser(univ_id=person_details.id, qualtrics_id=q_id, manually_updated=False)
                         q_user.save()
                 else:
