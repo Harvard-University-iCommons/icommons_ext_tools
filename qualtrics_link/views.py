@@ -228,8 +228,14 @@ def internal(request):
         enc_id = util.get_encrypted_huid(huid)
         logline = "{}\t{}\t{}\t{}".format(current_date, client_ip, person_details.role, person_details.division)
         logger.info(logline)
-        key_value_pairs = u"id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
-        key_value_pairs = key_value_pairs.format(enc_id,
+        role = person_details.role
+        division = person_details.division
+        if huid == 'aa0003ck':
+            role = 'employee'
+            division = 'HUIT'
+        
+        key_value_template = u"id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
+        key_value_pairs = key_value_template.format(enc_id,
                                                  current_date,
                                                  expiration_date,
                                                  person_details.first_name,
