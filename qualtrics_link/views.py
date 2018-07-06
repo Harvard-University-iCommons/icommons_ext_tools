@@ -25,7 +25,7 @@ class MonitorResponseView(BaseMonitorResponseView):
 
 # BLOCK_SIZE=16
 BS = 16
-pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS) 
+pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
 unpad = lambda s: s[0:-ord(s[-1])]
 
 
@@ -98,17 +98,22 @@ def launch(request):
                           {'request': request})
 
         enc_id = util.get_encrypted_huid(huid)
-        key_value_pairs = u"id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
-        key_value_pairs = key_value_pairs.format(enc_id,
-                                                 current_date,
-                                                 expiration_date,
-                                                 person_details.first_name,
-                                                 person_details.last_name,
-                                                 person_details.email,
-                                                 person_details.role,
-                                                 util.DIVISION_MAPPING[person_details.division])
+        key_value_template = u"id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
+        role = person_details.role
+        division = person_details.division
+        if huid == 'aa0003ck':
+            role = 'employee'
+            division = 'HUIT'
+        key_value_pairs = key_value_template.format(enc_id,
+                                                    current_date,
+                                                    expiration_date,
+                                                    person_details.first_name,
+                                                    person_details.last_name,
+                                                    person_details.email,
+                                                    role,
+                                                    util.DIVISION_MAPPING[division])
         qualtrics_link = util.get_qualtrics_url(key_value_pairs)
-        logger.info("{}\t{}\t{}\t{}".format(current_date, client_ip, person_details.role, person_details.division))
+        logger.info("{}\t{}\t{}\t{}\t{}\t{}".format(current_date, client_ip, huid, enc_id, role, division))
 
         # Update the users Qualtrics role and division to the most current information prior to redirecting
         try:
@@ -201,7 +206,7 @@ def internal(request):
     # if any of the checks here pass we set user_can_access to True
     if person_details.valid_dept or person_details.valid_school or user_in_whitelist:
         user_can_access = True
-    
+
     if user_can_access:
 
         # Set the initial values of the Qualtrics Admin form
@@ -280,7 +285,7 @@ def user_accept_terms(request):
         logger.error('Exception saving acceptance for user',e)
 
     return render(request, 'qualtrics_link/error.html', {'request': request})
-    
+
 
 @login_required
 @require_http_methods(['GET'])
@@ -337,5 +342,5 @@ def get_org_info(request):
     result = '{ "org_info" : [' + response_counts + ',' + org_activity + ' ]}'
 
     response = HttpResponse(result, content_type="application/json")
-    response["Access-Control-Allow-Origin"] = "*" 
+    response["Access-Control-Allow-Origin"] = "*"
     return response

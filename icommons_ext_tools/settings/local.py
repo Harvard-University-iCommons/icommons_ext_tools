@@ -4,6 +4,8 @@ from dj_log_config_helper import configure_installed_apps_logger
 
 from .base import *
 
+ALLOWED_HOSTS = ['*']
+
 DEBUG = True
 
 #  Dummy secret key value for testing and local usage
