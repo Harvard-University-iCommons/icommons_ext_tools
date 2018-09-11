@@ -114,7 +114,8 @@ DIVISION_MAPPING = {
     'Radcliffe': 'DV_agzgkeDIaZPEJHD',
     'API Div': 'DV_23NVy6XjBHhOXxX',
     'GSE-PPE [no longer used]': 'DV_0vsxWeIjXJWeS21',
-    'HUIT AT': 'DV_9BNfbn5fRIagjkx'
+    'HUIT AT': 'DV_9BNfbn5fRIagjkx',
+    'Tableau Users': 'DV_d59lh2XOCsztQLX'
 }
 
 # Maps the user type to its equivalent Qualtrics ID
@@ -142,7 +143,8 @@ DIVISION_CHOICES = (
     ('HUIT', 'HUIT'),
     ('Other', 'Other'),
     ('Radcliffe', 'Radcliffe'),
-    ('VPAL Research and Affiliates', 'VPAL Research and Affiliates')
+    ('VPAL Research and Affiliates', 'VPAL Research and Affiliates'),
+    ('Tableau Users', 'Tableau Users')
 )
 
 ROLE_CHOICES = (
