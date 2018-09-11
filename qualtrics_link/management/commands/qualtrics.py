@@ -285,7 +285,8 @@ class Command(BaseCommand):
             'Radcliffe': 'DV_agzgkeDIaZPEJHD',
             'API Div': 'DV_23NVy6XjBHhOXxX',
             'GSE-PPE [no longer used]': 'DV_0vsxWeIjXJWeS21',
-            'HUIT AT': 'DV_9BNfbn5fRIagjkx'
+            'HUIT AT': 'DV_9BNfbn5fRIagjkx',
+            'Tableau Users': 'DV_d59lh2XOCsztQLX'
         }
 
         #####
@@ -327,7 +328,8 @@ class Command(BaseCommand):
             'DV_agzgkeDIaZPEJHD': 'Radcliffe',
             'DV_23NVy6XjBHhOXxX': 'API Div',
             'DV_0vsxWeIjXJWeS21': 'GSE-PPE [no longer used]',
-            'None': 'None'
+            'None': 'None',
+            'DV_d59lh2XOCsztQLX': 'Tableau Users'
         }
         #####
 
