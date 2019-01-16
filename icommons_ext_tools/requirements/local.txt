@@ -7,3 +7,5 @@
 django-debug-toolbar==1.9
 django-sslserver==0.19
 mock==2.0.0
+
+faker==1.0.1
