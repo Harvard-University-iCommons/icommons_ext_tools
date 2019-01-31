@@ -32,6 +32,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'cached_auth.Middleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
@@ -42,7 +43,7 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 # CAS plugin attributes
-CAS_SERVER_URL = SECURE_SETTINGS.get('cas_server_url', 'https://www.pin1.harvard.edu/cas/')
+CAS_SERVER_URL = SECURE_SETTINGS.get('cas_server_url', 'https://key-auth1-alb.iam.harvard.edu/cas/')
 CAS_VERSION = '3'
 CAS_LOGGED_MSG = None
 CAS_LOGIN_MSG = None
