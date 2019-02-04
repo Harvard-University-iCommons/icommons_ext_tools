@@ -39,7 +39,7 @@ MIDDLEWARE_CLASSES = [
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'icommons_common.auth.backends.CASAuthBackend'
+    'harvardkey_cas.backends.CASAuthBackend'
 ]
 
 # CAS plugin attributes
