@@ -134,7 +134,9 @@ def launch(request):
 @group_membership_restriction(settings.QUALTRICS_LINK.get('QUALTRICS_AUTH_GROUP'))
 @require_http_methods(['GET', 'POST'])
 def internal(request):
-    logger.debug(request.session.get('USER_GROUPS', 'None'))
+    for key, value in request.session.items():
+        print('{} => {}'.format(key, value))
+    #logger.info(request.session.get('USER_GROUPS')
     user_can_access = False
     client_ip = util.get_client_ip(request)
 
