@@ -6,7 +6,7 @@ import time
 
 from .secure import SECURE_SETTINGS
 
-DEBUG=True
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Application definition
@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     'icommons_common.monitor',
     'icommons_ui',
     'qualtrics_link',
-    'debug_toolbar'
+
 ]
 
 MIDDLEWARE_CLASSES = [
