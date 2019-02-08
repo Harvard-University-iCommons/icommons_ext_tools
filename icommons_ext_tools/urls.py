@@ -5,8 +5,12 @@ from django_cas_ng import views as cas_ng_views
 from icommons_ui import views as ui_views
 
 urlpatterns = [
-    url(r'^accounts/login/', cas_ng_views.login, name='cas_ng_login'),
-    url(r'^accounts/logout/', cas_ng_views.logout, name='cas_ng_logout'),
+
+
+    url(r'^accounts/login/', cas_ng_views.LoginView.as_view(), name='cas_ng_login'),
+    #url(r'^accounts/login/', cas_ng_views.login, name='cas_ng_login'),
+    url(r'^accounts/logout/', cas_ng_views.LogoutView.as_view(), name='cas_ng_logout'),
+    #url(r'^accounts/logout/', cas_ng_views.logout, name='cas_ng_logout'),
     url(r'^ext_tools/not_authorized/', ui_views.not_authorized, name="not_authorized"),
     url(r'^ext_tools/qualtrics_link/', include('qualtrics_link.urls', namespace='ql')),
 
