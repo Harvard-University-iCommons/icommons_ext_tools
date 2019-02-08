@@ -153,9 +153,6 @@ def internal(request):
     # Set the initial huid to the person using the internal page
     huid = request.user.username
     huid = huid.strip()
-    attributes = request.session.get('user_attributes', {})
-    logger.info(attributes.get('sn',''))
-    logger.info(attributes.get(memberOf = attributes.get(u'memberOf')))
     if request.method == 'POST':
         huid = request.POST['huid']
         logger.info('USER: ' + str(request.user.username) + ' Spoofing: ' + huid)
