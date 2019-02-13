@@ -6,6 +6,7 @@ import time
 
 from .secure import SECURE_SETTINGS
 
+
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Application definition
@@ -24,6 +25,7 @@ INSTALLED_APPS = [
     'icommons_common.monitor',
     'icommons_ui',
     'qualtrics_link',
+
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -32,13 +34,14 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'cached_auth.Middleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
     # Uncomment the next line for simple clickjacking protection:
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
-    'icommons_common.auth.backends.CASAuthBackend'
+    'harvardkey_cas.backends.CASAuthBackend'
 ]
 
 # CAS plugin attributes

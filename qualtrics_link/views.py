@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from django.shortcuts import render, redirect
 from django.utils import timezone
 from django.views.decorators.http import require_http_methods
-from icommons_common.auth.decorators import group_membership_restriction
+from harvardkey_cas.decorators import group_membership_restriction
 from icommons_common.monitor.views import BaseMonitorResponseView
 
 import qualtrics_link.util as util
@@ -153,7 +153,6 @@ def internal(request):
     # Set the initial huid to the person using the internal page
     huid = request.user.username
     huid = huid.strip()
-
     if request.method == 'POST':
         huid = request.POST['huid']
         logger.info('USER: ' + str(request.user.username) + ' Spoofing: ' + huid)
