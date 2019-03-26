@@ -271,8 +271,10 @@ def get_person_with_prime_indicator(person_list):
 def filter_person_list(person_list):
     """
     If there are more than one record returned for a HUID, we want to determine if they contain attributes with priority
-     - Employee
+     - Active Employee
         - If multiple Employee records for HUID, check if the prime role indicator field is set for any of them
+    - Active Student
+    - Active CLASPART
      - Person with prime role indicator field set to 'Y'
      - If no matches are made for the above conditions, return the first person in the given list.   
     """
@@ -295,6 +297,11 @@ def filter_person_list(person_list):
     # Check to see if any of the records are an active Student record
     for person in person_list:
         if person.role_type_cd.lower() == 'student' and (person.role_end_dt is None or person.role_end_dt >= today):
+            return person
+
+    # Check to see if any of the records are an active CLASPART record
+    for person in person_list:
+        if person.role_type_cd.lower() == 'claspart' and (person.role_end_dt is None or person.role_end_dt >= today):
             return person
 
     # Check if any of the Person records contain the prime role indicator

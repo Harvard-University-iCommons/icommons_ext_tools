@@ -56,6 +56,9 @@ class UtilTestCase(TestCase):
         active_student = Person(role_type_cd='student', role_end_dt=tomorrow)
         active_employee_none_date = Person(role_type_cd='employee', role_end_dt=None)
         active_student_none_date = Person(role_type_cd='student', role_end_dt=None)
+        active_claspart_none_date = Person(role_type_cd='claspart', role_end_dt=None)
+        active_claspart = Person(role_type_cd='claspart', role_end_dt=tomorrow)
+        expired_claspart = Person(role_type_cd='student', role_end_dt=yesterday)
 
         self.assertEqual(util.filter_person_list([expired_employee]).role_type_cd, 'employee')
         self.assertEqual(util.filter_person_list([active_employee_none_date]).role_type_cd, 'employee')
@@ -70,6 +73,9 @@ class UtilTestCase(TestCase):
         self.assertEqual(util.filter_person_list([active_employee, expired_student]).role_type_cd, 'employee')
         self.assertEqual(util.filter_person_list([expired_employee, active_student_none_date]).role_type_cd, 'student')
         self.assertEqual(util.filter_person_list([active_employee_none_date, expired_student]).role_type_cd, 'employee')
+        self.assertEqual(util.filter_person_list([active_claspart_none_date, expired_claspart]).role_type_cd, 'claspart')
+        self.assertEqual(util.filter_person_list([active_claspart, active_student]).role_type_cd, 'student')
+        self.assertEqual(util.filter_person_list([expired_employee, active_claspart]).role_type_cd, 'claspart')
 
         # Do the same tests with the lists reversed
         self.assertEqual(util.filter_person_list([active_student, expired_employee]).role_type_cd, 'student')
