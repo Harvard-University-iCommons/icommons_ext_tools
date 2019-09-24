@@ -1,5 +1,5 @@
 from django.db import models
-
+from django.utils import timezone
 
 class SchoolCodeMapping(models.Model):
     """
@@ -44,6 +44,9 @@ class QualtricsUser(models.Model):
     univ_id = models.CharField(max_length=32)
     qualtrics_id = models.CharField(max_length=32)
     manually_updated = models.BooleanField()
+    division = models.CharField(max_length=50, null=True)
+    user_type = models.CharField(max_length=50, null=True)
+    last_login = models.DateTimeField(null=True)
 
     class Meta:
         db_table = u'qualtrics_user'

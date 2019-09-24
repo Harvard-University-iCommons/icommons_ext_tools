@@ -8,10 +8,84 @@ from icommons_common.models import Person
 from qualtrics_link import util
 from qualtrics_link.models import QualtricsUser
 
+from django.utils import timezone
+
 logger = logging.getLogger(__name__)
 
 
 class Command(BaseCommand):
+    user_type_mapping = {
+        'employee': 'UT_egutew4nqz71QgI',
+        'student': 'UT_787UadC574xhxgU',
+        'brand administrator': 'UT_BRANDADMIN'
+    }
+
+    # Mapping of a division to its Qualtrics ID
+    division_mapping = {
+        'FAS': 'DV_0uG93Am70qIFb00',
+        'GSE': 'DV_eesMPIncvHA270U',
+        'HSPH': 'DV_cvfNy3UwERh9IcA',
+        'Other': 'DV_1zu8x43ZIyqzWlu',
+        'HKS': 'DV_bdu3uP2WTYThpOY',
+        'EXT': 'DV_cSx7CCmUZ1DaS3i',
+        'HLS': 'DV_6DN9Q7jTRzsxgHy',
+        'HUIT': 'DV_77MUQ7NsyaGcQU4',
+        'GSD': 'DV_7V89XC1uxWU2ODW',
+        'Central Administration': 'DV_6Fhm425s7ozZM5D',
+        'HDS': 'DV_5o8WAy3WJXLNX2Q',
+        'HAA (Alumni Assoc.)': 'DV_1WSu6zRMeNx6ZYU',
+        'VPAL Research and Affiliates': 'DV_8dpaRpPHqefdNAx',
+        'Berkman': 'DV_1Ro0atRhq0UV9ti',
+        'Radcliffe': 'DV_agzgkeDIaZPEJHD',
+        'API Div': 'DV_23NVy6XjBHhOXxX',
+        'GSE-PPE [no longer used]': 'DV_0vsxWeIjXJWeS21',
+        'HUIT AT': 'DV_9BNfbn5fRIagjkx',
+        'Tableau Users': 'DV_d59lh2XOCsztQLX'
+    }
+
+    #####
+    # This section contains reverse lookups based on Qualtrics specific ID's
+    # This is used to create a readable format when outputting to console.
+    #####
+
+    reverse_user_types = {
+        'UT_egutew4nqz71QgI': 'Employee',
+        'UT_787UadC574xhxgU': 'Student',
+        'UT_BRANDADMIN': 'Brand Admin',
+        'UT_8vKYJklycpVKpiA': 'Generic',
+        'UT_4TQJ8h7ffJklndG': 'XID',
+        'UT_3dBUKOs5wAT2mLW': 'Standard Qualtrics',
+        'UT_4SjjZmbPphZGKDq': 'Standard - Qualtrics - no limits',
+        'UT_5hIxADmZZF1O2jy': 'Full Trial',
+        'UT_cAchjVb6asRttat': 'QTrial Default 102015',
+        'UT_eJQs8UTd28L5L25': 'QTrial Academic',
+        'UT_SELFENROLLMENT': 'Default Self-Enrollment Type'
+    }
+
+    # Reverse mapping to translate the Qualtrics division code into a readable division
+    reverse_division_mapping = {
+        'DV_9BNfbn5fRIagjkx': 'HUIT AT',
+        'DV_0uG93Am70qIFb00': 'FAS',
+        'DV_eesMPIncvHA270U': 'GSE',
+        'DV_cvfNy3UwERh9IcA': 'HSPH',
+        'DV_1zu8x43ZIyqzWlu': 'Other',
+        'DV_bdu3uP2WTYThpOY': 'HKS',
+        'DV_cSx7CCmUZ1DaS3i': 'EXT',
+        'DV_6DN9Q7jTRzsxgHy': 'HLS',
+        'DV_77MUQ7NsyaGcQU4': 'HUIT',
+        'DV_7V89XC1uxWU2ODW': 'GSD',
+        'DV_6Fhm425s7ozZM5D': 'Central Administration',
+        'DV_5o8WAy3WJXLNX2Q': 'HDS',
+        'DV_1WSu6zRMeNx6ZYU': 'HAA (Alumni Assoc.)',
+        'DV_8dpaRpPHqefdNAx': 'VPAL Research and Affiliates',
+        'DV_1Ro0atRhq0UV9ti': 'Berkman',
+        'DV_agzgkeDIaZPEJHD': 'Radcliffe',
+        'DV_23NVy6XjBHhOXxX': 'API Div',
+        'DV_0vsxWeIjXJWeS21': 'GSE-PPE [no longer used]',
+        'None': 'None',
+        'DV_d59lh2XOCsztQLX': 'Tableau Users'
+    }
+    #####
 
     help = """
            This command works in three steps;
@@ -38,10 +112,13 @@ class Command(BaseCommand):
         parser.add_argument('--map-qualtrics-ids-to-univ-ids', action='store_true', help='Updates the qualtrics_user '
                                                                                          'table with the mapping of'
                                                                                          'Qualtrics IDs to univ IDs')
+        parser.add_argument('--update-div-role-login-cols', action='store_true')
 
     def handle(self, *args, **options):
         if options['get_users']:
             self.get_users()
+        elif options['update_div_role_login_cols']:
+            self.update_div_role_login_cols()
         elif options['filter_users']:
             self.filter_users(options['amount'])
         elif options['stats']:
@@ -93,6 +170,28 @@ class Command(BaseCommand):
         self.filter_users(qualtrics_user_count)
         # Display/log those who require updates
         self.stats()
+
+    def update_div_role_login_cols(self):
+        qualtrics_users = QualtricsUser.objects.all()
+
+        i = 1
+        qu_len = len(qualtrics_users)
+        for qualtrics_user in qualtrics_users:
+            print 'Processing {} out of {}'.format(i, qu_len)
+            # Get the user from Qualtrics and update the div, role and last_login date
+            try:
+                if qualtrics_user.last_login is None:
+                    q_user = util.get_qualtrics_user(qualtrics_user.qualtrics_id).json()
+                    qualtrics_user.division = self.reverse_division_mapping[q_user['result']['divisionId']]
+                    qualtrics_user.user_type = self.reverse_user_types[q_user['result']['userType']]
+                    qualtrics_user.last_login = q_user['result']['lastLoginDate']
+                    qualtrics_user.save()
+            except Exception as e:
+                print e
+                print 'Error processing user'
+                pass
+            i += 1
+
 
     @staticmethod
     def update_stats():

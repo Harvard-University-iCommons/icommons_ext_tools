@@ -14,6 +14,8 @@ from django.conf import settings
 from icommons_common.models import Person
 from icommons_common.models import QualtricsAccessList
 from qualtrics_link.models import SchoolCodeMapping
+from datetime import date
+from django.db.models import Q
 
 logger = logging.getLogger(__name__)
 
@@ -278,6 +280,7 @@ def filter_person_list(person_list):
      - Person with prime role indicator field set to 'Y'
      - If no matches are made for the above conditions, return the first person in the given list.   
     """
+
     today = timezone.now()
     # Check if any of the Person records are an employee type and that they have a valid role end date
     employee_list = []
@@ -317,7 +320,7 @@ def get_person_list(huid):
     """
     Get the person list matching the given HUID
     """
-    person_list = Person.objects.filter(univ_id=huid)
+    person_list = Person.objects.filter(univ_id=huid).filter(Q(role_end_dt__gte=date.today()) | Q(role_end_dt__isnull=True)).exclude(role_type_cd='ALUMNI')
     return person_list
 
 
@@ -344,14 +347,12 @@ def update_qualtrics_user(user_id, division, role):
         return {'meta': {'httpStatus': '500'}}
 
 
-def get_qualtrics_user(huid):
+def get_qualtrics_user(qualtrics_id):
     """
-    This function is waiting on a Qualtrics API update to be able to get a user by their username
-    Query Qualtrics to get the user with the given HUID
+    
     """
-    enc_id = get_encrypted_huid(huid)
     token = settings.QUALTRICS_LINK.get('QUALTRICS_API_TOKEN')
-    response = requests.get(url='https://harvard.qualtrics.com/API/v3/users/{}'.format(enc_id),
+    response = requests.get(url='https://harvard.az1.qualtrics.com/API/v3/users/{}'.format(qualtrics_id),
                             headers={'X-API-TOKEN': token})
     return response
 
@@ -440,9 +441,8 @@ def get_person_details(huid, person_list=None):
         valid_school = True
         division = valid_school_code
 
-    # Department Affiliations check
-    if person.faculty_cd != '':
-        valid_dept_name = get_valid_dept(person.faculty_cd)
+    if person.role_type_cd.lower() == 'employee':
+        valid_dept_name = get_valid_dept(person.faculty_cd)  # Change this to department when looking at the OldPeople model
         if valid_dept_name is not None:
             valid_dept = True
             role = 'employee'
