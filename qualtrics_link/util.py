@@ -14,7 +14,6 @@ from django.conf import settings
 from icommons_common.models import Person
 from icommons_common.models import QualtricsAccessList
 from qualtrics_link.models import SchoolCodeMapping
-from datetime import date
 from django.db.models import Q
 
 logger = logging.getLogger(__name__)
@@ -320,7 +319,7 @@ def get_person_list(huid):
     """
     Get the person list matching the given HUID
     """
-    person_list = Person.objects.filter(univ_id=huid).filter(Q(role_end_dt__gte=date.today()) | Q(role_end_dt__isnull=True)).exclude(role_type_cd='ALUMNI')
+    person_list = Person.objects.filter(univ_id=huid).filter(Q(role_end_dt__gte=date.today()) | Q(role_end_dt__isnull=True))
     return person_list
 
 
@@ -442,7 +441,7 @@ def get_person_details(huid, person_list=None):
         division = valid_school_code
 
     if person.role_type_cd.lower() == 'employee':
-        valid_dept_name = get_valid_dept(person.faculty_cd)  # Change this to department when looking at the OldPeople model
+        valid_dept_name = get_valid_dept(person.department)  # Change this to department when looking at the OldPeople model
         if valid_dept_name is not None:
             valid_dept = True
             role = 'employee'

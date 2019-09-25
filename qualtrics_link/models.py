@@ -44,8 +44,12 @@ class QualtricsUser(models.Model):
     univ_id = models.CharField(max_length=32)
     qualtrics_id = models.CharField(max_length=32)
     manually_updated = models.BooleanField()
-    division = models.CharField(max_length=50, null=True)
-    user_type = models.CharField(max_length=50, null=True)
+    qualtrics_division = models.CharField(max_length=50, null=True)
+    qualtrics_user_type = models.CharField(max_length=50, null=True)
+    lpp_division = models.CharField(max_length=50, null=True)
+    lpp_user_type = models.CharField(max_length=50, null=True)
+    iam_division = models.CharField(max_length=50, null=True)
+    iam_user_type = models.CharField(max_length=50, null=True)
     last_login = models.DateTimeField(null=True)
 
     class Meta:
