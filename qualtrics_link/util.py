@@ -6,6 +6,8 @@ import urllib2
 from datetime import date
 from django.utils import timezone
 from unicodedata import normalize
+from django.db.models import Q
+
 
 import requests
 from Crypto.Cipher import AES
@@ -317,7 +319,8 @@ def get_person_list(huid):
     """
     Get the person list matching the given HUID
     """
-    person_list = Person.objects.filter(univ_id=huid)
+    person_list = Person.objects.filter(univ_id=huid).filter(
+        Q(role_end_dt__gte=date.today()) | Q(role_end_dt__isnull=True))
     return person_list
 
 
@@ -440,9 +443,8 @@ def get_person_details(huid, person_list=None):
         valid_school = True
         division = valid_school_code
 
-    # Department Affiliations check
-    if person.department != '':
-        valid_dept_name = get_valid_dept(person.department)
+    if person.role_type_cd.lower() == 'employee':
+        valid_dept_name = get_valid_dept(person.faculty_cd)  # Change this to department when looking at the OldPeople model
         if valid_dept_name is not None:
             valid_dept = True
             role = 'employee'
