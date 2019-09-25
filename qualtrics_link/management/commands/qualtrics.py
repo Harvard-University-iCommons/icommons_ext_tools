@@ -180,11 +180,12 @@ class Command(BaseCommand):
             print 'Processing {} out of {}'.format(i, qu_len)
             # Get the user from Qualtrics and update the div, role and last_login date
             try:
-                q_user = util.get_qualtrics_user(qualtrics_user.qualtrics_id).json()
-                qualtrics_user.qualtrics_division = self.reverse_division_mapping[q_user['result']['divisionId']]
-                qualtrics_user.qualtrics_user_type = self.reverse_user_types[q_user['result']['userType']]
-                qualtrics_user.last_login = q_user['result']['lastLoginDate']
-                qualtrics_user.save()
+                if qualtrics_user.last_login is not None:
+                    q_user = util.get_qualtrics_user(qualtrics_user.qualtrics_id).json()
+                    qualtrics_user.qualtrics_division = self.reverse_division_mapping[q_user['result']['divisionId']]
+                    qualtrics_user.qualtrics_user_type = self.reverse_user_types[q_user['result']['userType']]
+                    qualtrics_user.last_login = q_user['result']['lastLoginDate']
+                    qualtrics_user.save()
             except Exception as e:
                 print e
                 print 'Error processing user'
