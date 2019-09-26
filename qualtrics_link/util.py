@@ -444,7 +444,7 @@ def get_person_details(huid, person_list=None):
         division = valid_school_code
 
     if person.role_type_cd.lower() == 'employee':
-        valid_dept_name = get_valid_dept(person.faculty_cd)  # Change this to department when looking at the OldPeople model
+        valid_dept_name = get_valid_dept(person.faculty_cd)  
         if valid_dept_name is not None:
             valid_dept = True
             role = 'employee'
