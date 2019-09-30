@@ -16,9 +16,9 @@ class Command(BaseCommand):
     help = """
            This command works in three steps;
            1. Get all Qualtrics users; --get-users
-           2. Find those that need to be updated; --filter-users --amount {{ amount_to_filter }} 
-           3. Update the users from step 2 via the Qualtrics API; --perform-update 
-           The --stats and update-stats arguments are optional, and only provide readable information to the console 
+           2. Find those that need to be updated; --filter-users --amount {{ amount_to_filter }}
+           3. Update the users from step 2 via the Qualtrics API; --perform-update
+           The --stats and update-stats arguments are optional, and only provide readable information to the console
            of user information that will change and that has changed post-update.
            """
 
@@ -248,7 +248,7 @@ class Command(BaseCommand):
         """
         Go through all the Qualtrics users in the data file and find those who do not match our current People data.
         Create a new filtered file containing those users who will be updated in another step.
-        
+
         Qualtrics division and role ID's are obtained from the admin console of Qualtrics.
         Inspecting the hyperlink, via the browsers developer tools, for each division/role will reveal its ID.
         """
@@ -343,13 +343,17 @@ class Command(BaseCommand):
         position = 1
         for q_person in data[:slice_amount]:
             logger.info('Processing user %d out of %d' % (position, slice_amount))
-            q_id = q_person['id']
-            q_username = q_person['username']
-            q_division = q_person['divisionId']
-            q_role = q_person['userType']
-            q_email = q_person['email']
-            q_first_name = q_person['firstName']
-            q_last_name = q_person['lastName']
+            try:
+                q_id = q_person['id']
+                q_username = q_person['username']
+                q_division = q_person['divisionId']
+                q_role = q_person['userType']
+                q_email = q_person.get('email')
+                q_first_name = q_person.get('firstName')
+                q_last_name = q_person.get('lastName')
+            except KeyError:
+                logger.exception('missing user data: {}'.format(q_person))
+                continue
 
             # Attempt to see if we currently have a QualtricsUser record filtering using the Qualtrics ID
             qualtrics_user = None
