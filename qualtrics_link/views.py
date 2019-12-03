@@ -15,6 +15,7 @@ from icommons_common.monitor.views import BaseMonitorResponseView
 import qualtrics_link.util as util
 from qualtrics_link.forms import SpoofForm, QualtricsUserAdminForm
 from qualtrics_link.models import Acceptance, QualtricsUser
+import requests
 
 logger = logging.getLogger(__name__)
 
@@ -25,7 +26,7 @@ class MonitorResponseView(BaseMonitorResponseView):
 
 # BLOCK_SIZE=16
 BS = 16
-pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS) 
+pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
 unpad = lambda s: s[0:-ord(s[-1])]
 
 
@@ -200,7 +201,7 @@ def internal(request):
     # if any of the checks here pass we set user_can_access to True
     if person_details.valid_dept or person_details.valid_school or user_in_whitelist:
         user_can_access = True
-    
+
     if user_can_access:
 
         # Set the initial values of the Qualtrics Admin form
@@ -279,7 +280,7 @@ def user_accept_terms(request):
         logger.error('Exception saving acceptance for user',e)
 
     return render(request, 'qualtrics_link/error.html', {'request': request})
-    
+
 
 @login_required
 @require_http_methods(['GET'])
@@ -304,10 +305,10 @@ def get_org_info(request):
         'Version': '2.0',
     }
 
-    if 'getResponseCountsByOrganization' not in request.session:
-        params = urllib.parse.urlencode(query)
-        api_response = urllib.request.urlopen(api_url, params)
-        result = api_response.read()
+    if 'getResponseCountsByOrganizationy' not in request.session:
+        params = urllib.parse.urlencode(query).encode('utf-8')
+        api_response = requests.get(api_url, params=query)
+        result = api_response.text
         request.session['getResponseCountsByOrganization'] = result
     else:
         result = request.session.get('getResponseCountsByOrganization', '{}')
@@ -326,8 +327,8 @@ def get_org_info(request):
 
     if 'getOrgActivity' not in request.session:
         params = urllib.parse.urlencode(query2)
-        api_response = urllib.request.urlopen(api_url, params)
-        result = api_response.read()
+        api_response = requests.get(api_url, params=query2)
+        result = api_response.text
         request.session['getOrgActivity'] = result
     else:
         result = request.session.get('getOrgActivity', '{}')
@@ -336,5 +337,5 @@ def get_org_info(request):
     result = '{ "org_info" : [' + response_counts + ',' + org_activity + ' ]}'
 
     response = HttpResponse(result, content_type="application/json")
-    response["Access-Control-Allow-Origin"] = "*" 
+    response["Access-Control-Allow-Origin"] = "*"
     return response
