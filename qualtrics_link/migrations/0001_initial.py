@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import unicode_literals
+
 
 from django.db import migrations, models, transaction
 
@@ -46,7 +46,7 @@ def populate_school_codes(apps, schema_editor):
     fields = ('student_school_code', 'student_school_desc', 'employee_school_code')
 
     for code in SCHOOL_CODE_DATA:
-        SchoolCodeMapping.objects.create(**dict(zip(fields, code)))
+        SchoolCodeMapping.objects.create(**dict(list(zip(fields, code))))
 
 
 def reverse_school_load(apps, schema_editor):

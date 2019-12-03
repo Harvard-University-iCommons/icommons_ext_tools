@@ -1,7 +1,7 @@
 import datetime
 import logging
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from datetime import date
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -98,7 +98,7 @@ def launch(request):
                           {'request': request})
 
         enc_id = util.get_encrypted_huid(huid)
-        key_value_pairs = u"id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
+        key_value_pairs = "id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
         key_value_pairs = key_value_pairs.format(enc_id,
                                                  current_date,
                                                  expiration_date,
@@ -222,7 +222,7 @@ def internal(request):
         enc_id = util.get_encrypted_huid(huid)
         logline = "{}\t{}\t{}\t{}".format(current_date, client_ip, person_details.role, person_details.division)
         logger.info(logline)
-        key_value_pairs = u"id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
+        key_value_pairs = "id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
         key_value_pairs = key_value_pairs.format(enc_id,
                                                  current_date,
                                                  expiration_date,
@@ -305,8 +305,8 @@ def get_org_info(request):
     }
 
     if 'getResponseCountsByOrganization' not in request.session:
-        params = urllib.urlencode(query)
-        api_response = urllib.urlopen(api_url, params)
+        params = urllib.parse.urlencode(query)
+        api_response = urllib.request.urlopen(api_url, params)
         result = api_response.read()
         request.session['getResponseCountsByOrganization'] = result
     else:
@@ -325,8 +325,8 @@ def get_org_info(request):
     }
 
     if 'getOrgActivity' not in request.session:
-        params = urllib.urlencode(query2)
-        api_response = urllib.urlopen(api_url, params)
+        params = urllib.parse.urlencode(query2)
+        api_response = urllib.request.urlopen(api_url, params)
         result = api_response.read()
         request.session['getOrgActivity'] = result
     else:

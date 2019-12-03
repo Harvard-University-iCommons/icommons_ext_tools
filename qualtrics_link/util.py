@@ -2,7 +2,7 @@ import base64
 import hashlib
 import hmac
 import logging
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 from datetime import date
 from django.utils import timezone
 from unicodedata import normalize
@@ -173,7 +173,7 @@ def create_encoded_token(key_value_pairs):
     raw = pad(token)
     cipher = AES.new(key, AES.MODE_ECB)
     encoded_token = base64.b64encode(cipher.encrypt(raw))
-    return urllib2.quote(encoded_token.encode("utf8"), '')
+    return urllib.parse.quote(encoded_token.encode("utf8"), '')
 
 
 def get_sso_test_url(key_value_pairs):
