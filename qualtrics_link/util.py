@@ -2,7 +2,7 @@ import base64
 import hashlib
 import hmac
 import logging
-import urllib2
+import urllib.request, urllib.error, urllib.parse
 from datetime import date
 from django.utils import timezone
 from unicodedata import normalize
@@ -158,23 +158,21 @@ pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
 
 def get_encrypted_huid(huid):
     hasher = hashlib.md5()
-    hasher.update(huid)
+    hasher.update(huid.encode('utf-8'))
     encid = hasher.hexdigest()
     return encid
 
 
 def create_encoded_token(key_value_pairs):
     key = settings.QUALTRICS_LINK.get('QUALTRICS_APP_KEY')
-    secret = bytes(key)
+    secret = key.encode('utf-8')
     key_value_pairs = normalize('NFKD', key_value_pairs).encode('ascii', 'ignore')
-    data = bytes(key_value_pairs)
-    encoded = base64.b64encode(hmac.new(secret, data).digest())
-    token = key_value_pairs + '&mac=' + encoded
+    encoded = base64.b64encode(hmac.new(secret, key_value_pairs).digest()).decode('utf-8')
+    token = key_value_pairs.decode('utf-8') + '&mac=' + encoded
     raw = pad(token)
     cipher = AES.new(key, AES.MODE_ECB)
-    encoded_token = base64.b64encode(cipher.encrypt(raw))
-    return urllib2.quote(encoded_token.encode("utf8"), '')
-
+    encoded_token = base64.b64encode(cipher.encrypt(raw)).decode('utf-8')
+    return encoded_token
 
 def get_sso_test_url(key_value_pairs):
     key = settings.QUALTRICS_LINK.get('QUALTRICS_APP_KEY')
@@ -261,7 +259,7 @@ def is_user_in_whitelist(huid):
 def get_person_with_prime_indicator(person_list):
     """
     Iterate over a person list and return the first person with prime_role_indicator set to 'Y'
-    Will return None if this condition is not met 
+    Will return None if this condition is not met
     """
     for person in person_list:
         if person.prime_role_indicator == 'Y':
@@ -276,7 +274,7 @@ def filter_person_list(person_list):
     - Active Student
     - Active CLASPART
      - Person with prime role indicator field set to 'Y'
-     - If no matches are made for the above conditions, return the first person in the given list.   
+     - If no matches are made for the above conditions, return the first person in the given list.
     """
     today = timezone.now()
     # Check if any of the Person records are an employee type and that they have a valid role end date
@@ -368,7 +366,7 @@ def get_all_qualtrics_users(url='https://harvard.qualtrics.com/API/v3/users/'):
 
 def lookup_school_affiliations(school_cd):
     """
-    Maps the given school code to a school using the school_code_mapping table  
+    Maps the given school code to a school using the school_code_mapping table
     """
     try:
         return SchoolCodeMapping.objects.get(student_school_code=school_cd).employee_school_code
@@ -441,7 +439,7 @@ def get_person_details(huid, person_list=None):
         division = valid_school_code
 
     if person.role_type_cd.lower() == 'employee':
-        valid_dept_name = get_valid_dept(person.faculty_cd)  
+        valid_dept_name = get_valid_dept(person.faculty_cd)
         if valid_dept_name is not None:
             valid_dept = True
             role = 'employee'
