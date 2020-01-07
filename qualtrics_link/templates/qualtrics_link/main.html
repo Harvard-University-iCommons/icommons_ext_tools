@@ -7,19 +7,19 @@
 {{ block.super }}
 
 <style>
-	.my-new-list { 
-		display: normal; 
+	.my-new-list {
+		display: normal;
 		float: right;
 	}
-	
-	caption { 
-		margin-bottom: 10px; 
-		font-size: large; 
+
+	caption {
+		margin-bottom: 10px;
+		font-size: large;
 		font-weight: bold;
 	}
 	.caption {
-		margin-bottom: 10px; 
-		font-size: large; 
+		margin-bottom: 10px;
+		font-size: large;
 		font-weight: bold;
 	}
 	td {
@@ -79,7 +79,7 @@
 		<td valign="top">
 			 <table class="table table-striped table-hover">
 			 	<caption>Processed Data</caption>
-			   	<tr> <th>user_id</th><td>{{huid}} </td></tr> 
+			   	<tr> <th>user_id</th><td>{{huid}} </td></tr>
 			    <tr> <th>authenticated</th><td>{{request.user.is_authenticated}}</td></tr>
 				<tr> <th>First name</th><td>{{processed_data.first_name}}</td></tr>
 				<tr> <th>Last name</th><td>{{processed_data.last_name}}</td></tr>
@@ -124,38 +124,5 @@
 	</form>
 </div>
 
-
-{% endblock %}
-
-{% block javascript %}
-{{ block.super }}
-
-<script type="text/javascript">
-
-$(document).ready(function() {
-	$.getJSON( "get_org_info.json", function( data ) {
-	
-		var items = [];
-		items.push('<caption>Qualtrics API Data</caption>');
-		items.push('<tr><th colspan=2 class="alert alert-info">getResponseCountsByOrganization</th></tr>')
-		$.each( data.org_info[0].getResponseCountsByOrganization.Result, function( key, val ) {
-		    	items.push( "<tr><th>" + key + "</th><td>" + val + "</td></tr>" );
-		  	});
-
-		items.push('<tr><th colspan=2 class="alert alert-info">getOrgActivity</th></tr>')
-		$.each( data.org_info[1].getOrgActivity.Result, function( key, val ) {
-			$.each( val, function(tkey, value) {
-		    	items.push( "<tr><th>" + tkey + "</th><td>" + value + "</td></tr>" );
-		    });
-		});
-
-		$( "<table/>", {
-		"class": "table table-striped table-hover",
-		html: items.join( "" )
-		}).appendTo( "#data" );
-
-	});
-});
-</script>
 
 {% endblock %}

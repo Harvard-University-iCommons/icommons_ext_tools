@@ -1,7 +1,7 @@
 import datetime
 import logging
 import time
-import urllib
+import urllib.request, urllib.parse, urllib.error
 from datetime import date
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -25,7 +25,7 @@ class MonitorResponseView(BaseMonitorResponseView):
 
 # BLOCK_SIZE=16
 BS = 16
-pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS) 
+pad = lambda s: s + (BS - len(s) % BS) * chr(BS - len(s) % BS)
 unpad = lambda s: s[0:-ord(s[-1])]
 
 
@@ -98,7 +98,7 @@ def launch(request):
                           {'request': request})
 
         enc_id = util.get_encrypted_huid(huid)
-        key_value_pairs = u"id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
+        key_value_pairs = "id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
         key_value_pairs = key_value_pairs.format(enc_id,
                                                  current_date,
                                                  expiration_date,
@@ -200,7 +200,7 @@ def internal(request):
     # if any of the checks here pass we set user_can_access to True
     if person_details.valid_dept or person_details.valid_school or user_in_whitelist:
         user_can_access = True
-    
+
     if user_can_access:
 
         # Set the initial values of the Qualtrics Admin form
@@ -222,7 +222,7 @@ def internal(request):
         enc_id = util.get_encrypted_huid(huid)
         logline = "{}\t{}\t{}\t{}".format(current_date, client_ip, person_details.role, person_details.division)
         logger.info(logline)
-        key_value_pairs = u"id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
+        key_value_pairs = "id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}"
         key_value_pairs = key_value_pairs.format(enc_id,
                                                  current_date,
                                                  expiration_date,
@@ -279,62 +279,10 @@ def user_accept_terms(request):
         logger.error('Exception saving acceptance for user',e)
 
     return render(request, 'qualtrics_link/error.html', {'request': request})
-    
+
 
 @login_required
 @require_http_methods(['GET'])
 def user_decline_terms(request):
     logger.info("User declined terms of service")
     return redirect(settings.QUALTRICS_LINK.get('USER_DECLINED_TERMS_URL'))
-
-
-@require_http_methods(['GET'])
-def get_org_info(request):
-
-    api_url = settings.QUALTRICS_LINK.get('QUALTRICS_API_URL')
-    end_date = date.today().strftime("%Y-%m-%d")
-
-    query = {
-        'Request': 'getResponseCountsByOrganization',
-        'User': settings.QUALTRICS_LINK.get('QUALTRICS_API_USER'),
-        'Token': settings.QUALTRICS_LINK.get('QUALTRICS_API_TOKEN'),
-        'StartDate': '2010-01-01',
-        'EndDate': end_date,
-        'Format': 'JSON',
-        'Version': '2.0',
-    }
-
-    if 'getResponseCountsByOrganization' not in request.session:
-        params = urllib.urlencode(query)
-        api_response = urllib.urlopen(api_url, params)
-        result = api_response.read()
-        request.session['getResponseCountsByOrganization'] = result
-    else:
-        result = request.session.get('getResponseCountsByOrganization', '{}')
-
-    response_counts = '{ "getResponseCountsByOrganization" : ' + result + '}'
-    api_response = None
-
-    query2 = {
-        'Request': 'getOrgActivity',
-        'User': settings.QUALTRICS_LINK.get('QUALTRICS_API_USER'),
-        'Token': settings.QUALTRICS_LINK.get('QUALTRICS_API_TOKEN'),
-        'Format': 'JSON',
-        'Version': '2.0',
-        'Organization': 'harvard',
-    }
-
-    if 'getOrgActivity' not in request.session:
-        params = urllib.urlencode(query2)
-        api_response = urllib.urlopen(api_url, params)
-        result = api_response.read()
-        request.session['getOrgActivity'] = result
-    else:
-        result = request.session.get('getOrgActivity', '{}')
-
-    org_activity = '{ "getOrgActivity" : ' + result + '}'
-    result = '{ "org_info" : [' + response_counts + ',' + org_activity + ' ]}'
-
-    response = HttpResponse(result, content_type="application/json")
-    response["Access-Control-Allow-Origin"] = "*" 
-    return response

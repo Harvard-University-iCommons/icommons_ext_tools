@@ -194,11 +194,11 @@ class Command(BaseCommand):
             change_details['role'][previous_role][new_role] += 1
 
         # Log of the division and role change counts
-        for div_role, values in change_details.iteritems():
+        for div_role, values in change_details.items():
             logger.info(div_role.upper())
-            for prev_val, new_vals in values.iteritems():
+            for prev_val, new_vals in values.items():
                 logger.info('Changing from %s to:' % prev_val)
-                for new_val, count in new_vals.iteritems():
+                for new_val, count in new_vals.items():
                     logger.info('            - %s : %d' % (new_val, count))
             logger.info('\n')
 

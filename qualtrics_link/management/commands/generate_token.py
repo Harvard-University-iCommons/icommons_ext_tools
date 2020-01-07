@@ -38,11 +38,11 @@ class Command(BaseCommand):
         # Division
         div_name, div_id = random.choice(list(util.DIVISION_MAPPING.items()))
 
-        key_value_pairs = u"id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}".format(
+        key_value_pairs = "id={}&timestamp={}&expiration={}&firstname={}&lastname={}&email={}&UserType={}&Division={}".format(
             enc_id, current_date, expiration_date, first_name, last_name, email, user_type, div_id
         )
 
         login_url = util.get_qualtrics_url(key_value_pairs)
 
-        print('{}: {}\n{} {}, {}, {}, {}\n{}\n{}'.format(fake_huid, enc_id,
-            first_name, last_name, email, user_type, div_name, key_value_pairs, login_url))
+        print(('{}: {}\n{} {}, {}, {}, {}\n{}\n{}'.format(fake_huid, enc_id,
+            first_name, last_name, email, user_type, div_name, key_value_pairs, login_url)))

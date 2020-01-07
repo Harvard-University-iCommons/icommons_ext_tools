@@ -19,7 +19,7 @@ class SchoolCodeMapping(models.Model):
 
 
     class Meta:
-        db_table = u'school_code_mapping'
+        db_table = 'school_code_mapping'
 
     def __unicode__(self):
         return self.student_school_code
@@ -34,7 +34,7 @@ class Acceptance(models.Model):
     ip_address = models.CharField(max_length=100)
 
     class Meta:
-        db_table = u'acceptance'
+        db_table = 'acceptance'
 
     def __unicode__(self):
         return self.id
@@ -46,4 +46,4 @@ class QualtricsUser(models.Model):
     manually_updated = models.BooleanField()
 
     class Meta:
-        db_table = u'qualtrics_user'
+        db_table = 'qualtrics_user'

@@ -5,12 +5,12 @@ from django.shortcuts import render
 # not duplicating template code.
 
 
-def handler403(request):
+def handler403(request, exception):
     return render(request, '500.html', status=403,
                   context={'unauthorized': 'true'})
 
 
-def handler404(request):
+def handler404(request, exception):
     return render(request, '500.html', status=404)
 
 

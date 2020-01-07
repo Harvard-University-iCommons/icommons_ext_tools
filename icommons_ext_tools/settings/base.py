@@ -4,7 +4,10 @@ import os
 import logging
 import time
 
-from .secure import SECURE_SETTINGS
+from dj_secure_settings.loader import load_secure_settings
+
+
+SECURE_SETTINGS = load_secure_settings()
 
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -28,7 +31,7 @@ INSTALLED_APPS = [
 
 ]
 
-MIDDLEWARE_CLASSES = [
+MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',

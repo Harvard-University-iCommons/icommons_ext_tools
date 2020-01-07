@@ -4,8 +4,8 @@
 -r base.txt
 
 # below are requirements specific to the local environment
-django-debug-toolbar==1.9
-django-sslserver==0.19
+django-debug-toolbar==2.1
+django-sslserver==0.21
 mock==2.0.0
 
-faker==1.0.1
+faker==3.0.0
